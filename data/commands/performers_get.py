@@ -1,0 +1,104 @@
+import logging
+
+from sqlalchemy import and_, or_
+
+from data.models.orders import Orders, OrdersRating, OrdersStatus
+from data.models.performers import Performers
+from data.models.admins import PrivateChat
+
+logger = logging.getLogger("bot.data.commands.performer_get_db")
+
+"""Функции взятия информации из БД"""
+
+
+async def performer_select(user_id):
+    """Выбор Исполнителя"""
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    return performer
+
+
+async def performer_count_orders(user_id):
+    """Исполнитель смотрит статистику по заказам"""
+    orders = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    orders_in_work = await Orders.query.where(and_(Orders.in_work == user_id,
+                                                   Orders.completed == 0,
+                                                   Orders.order_cancel == None)).gino.all()
+    orders_end = await Orders.query.where(and_(Orders.in_work == user_id,
+                                               Orders.completed == 1)).gino.all()
+    orders_cancel = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    return orders.get_orders, len(orders_in_work), len(orders_end), orders_cancel.canceled_orders
+
+
+async def check_private_chat_status(user_id):
+    """Исполнитель проверяет статус приватного чата"""
+    private = await PrivateChat.query.where(PrivateChat.user_id == user_id).gino.first()
+    return private
+
+
+async def performer_checks_all_orders(user_id, performer_category):
+    """Исполнитель смотрит все заказы"""
+    orders = await Orders.query.where(and_(Orders.in_work == 0,
+                                           Orders.block == 0,
+                                           Orders.order_get == None,
+                                           Orders.order_cancel == None,
+                                           Orders.user_id != user_id,
+                                           or_(Orders.performer_category == performer_category,
+                                               Orders.performer_category == 'any'))).gino.all()
+    return orders
+
+
+async def performer_checks_all_orders_with_category(user_id, performer_category, category_delivery):
+    """Исполнитель смотрит все заказы с определенной категорией"""
+    orders = await Orders.query.where(and_(Orders.in_work == 0,
+                                           Orders.block == 0,
+                                           Orders.order_get == None,
+                                           Orders.order_cancel == None,
+                                           Orders.user_id != user_id,
+                                           or_(Orders.performer_category == performer_category,
+                                               Orders.performer_category == 'any'),
+                                           Orders.category_delivery == category_delivery)).gino.all()
+    return orders
+
+
+async def performer_check_order_rating(order_id, user_id):
+    """Исполнитель смотрит рейтинг заказа"""
+    order = await OrdersRating.query.where(and_(OrdersRating.order_id == order_id,
+                                           OrdersRating.user_id == user_id)).gino.first()
+    if order is None:
+        return None
+    else:
+        return order.order_rating
+
+
+async def performer_view_order(order_id):
+    """Исполнитель смотрит заказ по order_id"""
+    order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    return order
+
+
+async def performer_checks_customer_user_id(order_id):
+    """Исполнитель смотрит user_id Заказчика по order_id"""
+    user_id = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    return user_id.user_id
+
+
+async def performer_view_list_orders(user_id):
+    """Исполнитель просматривает взятые заказы"""
+    orders = await Orders.query.where(and_(Orders.in_work == user_id,
+                                           Orders.completed == 0,
+                                           Orders.order_cancel == None)).gino.all()
+    return orders
+
+
+async def performer_get_status_order(order_id):
+    """Исполнитель просматривает есть ли заказ в orders_status"""
+    order_status = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
+    if order_status:
+        return True
+    else:
+        return None
+
+
+
+
+
