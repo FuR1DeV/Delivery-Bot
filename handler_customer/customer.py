@@ -272,13 +272,13 @@ class CustomerMain:
                 await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "У вас еще нет завершенных заказов!")
-        # if "Помощь" in message.text:
-        #     await customer_states.CustomerHelp.help.set()
-        #     await bot.send_message(message.from_user.id,
-        #                            "Опишите вашу проблему, можете прикрепить фото или видео\n"
-        #                            "Когда закончите сможете вернуться в главное меню",
-        #                            reply_markup=markup_customer.photo_or_video_help())
-        #     CustomerHelp.register_customer_help(dp)
+        if "Помощь" in message.text:
+            await customer_states.CustomerHelp.help.set()
+            await bot.send_message(message.from_user.id,
+                                   "Опишите вашу проблему, можете прикрепить фото или видео\n"
+                                   "Когда закончите сможете вернуться в главное меню",
+                                   reply_markup=markup_customer.photo_or_video_help())
+            CustomerHelp.register_customer_help(dp)
 
 
     # @staticmethod
@@ -1832,93 +1832,94 @@ class CustomerDetailsTasksStatus:
         dp.register_message_handler(CustomerDetailsTasksStatus.review,
                                     state=customer_states.CustomerDetailsTasksStatus.review)
 
-# class CustomerHelp:
-#     logger = logging.getLogger("bot.handler_customer.customer_help")
-#
-#     @staticmethod
-#     async def customer_help(message: types.Message):
-#         CustomerHelp.logger.debug(f"Функция отправки сообщения от заказчика {message.from_user.id} в тех поддержку")
-#         if message.text == "Загрузить Фото":
-#             await bot.send_message(message.from_user.id,
-#                                    "Загрузите фото",
-#                                    reply_markup=markup_customer.cancel())
-#             await customer_states.CustomerHelp.upload_photo.set()
-#
-#         if message.text == "Загрузить Видео":
-#             await bot.send_message(message.from_user.id,
-#                                    "Загрузите видео",
-#                                    reply_markup=markup_customer.cancel())
-#             await customer_states.CustomerHelp.upload_video.set()
-#
-#         if message.text == "Завершить":
-#             await bot.send_message(message.from_user.id,
-#                                    "Все сообщения в службу поддержки отправлены!",
-#                                    reply_markup=markup_customer.main_menu())
-#             await customer_states.CustomerStart.customer_menu.set()
-#         if message.text == "Вернуться главное меню":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вошли в главное меню заказчика",
-#                                    reply_markup=markup_customer.main_menu())
-#             await customer_states.CustomerStart.customer_menu.set()
-#         if message.text != "Загрузить Фото" and message.text != "Загрузить Видео" \
-#                 and message.text != "Завершить" and message.text != "Вернуться главное меню":
-#             await bot.send_message('@delivery_kerka_dev',
-#                                    f"Имя заказчика {message.from_user.first_name}\n"
-#                                    f"ID заказчика {message.from_user.id}\n"
-#                                    f"Сообщение от заказчика - <b>{message.text}</b>\n")
-#             await bot.send_message(message.from_user.id, "Сообщение досталено в техподдержку!")
-#
-#     @staticmethod
-#     async def customer_upload_photo(message: types.Message):
-#         CustomerHelp.logger.debug(f"Функция отправки фото от заказчика {message.from_user.id} в тех поддержку")
-#         if message.content_type == "photo":
-#             await bot.send_message('@delivery_kerka_dev',
-#                                    f"Имя заказчика {message.from_user.first_name}\n"
-#                                    f"ID заказчика {message.from_user.id}\n"
-#                                    f"Фото заказчика {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
-#             await bot.send_photo('@delivery_kerka_dev',
-#                                  message.photo[2].file_id)
-#             await bot.send_message(message.from_user.id,
-#                                    'Фотография успешно отправлена в тех поддержку!',
-#                                    reply_markup=markup_customer.photo_or_video_help())
-#             await customer_states.CustomerHelp.help.set()
-#         else:
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы отменили загрузку",
-#                                    reply_markup=markup_customer.photo_or_video_help())
-#             await customer_states.CustomerHelp.help.set()
-#
-#     @staticmethod
-#     async def customer_upload_video(message: types.Message):
-#         CustomerHelp.logger.debug(f"Функция отправки видео от заказчика {message.from_user.id} в тех поддержку")
-#         if message.content_type == "video":
-#             await bot.send_message('@delivery_kerka_dev',
-#                                    f"Имя заказчика {message.from_user.first_name}\n"
-#                                    f"ID заказчика {message.from_user.id}\n"
-#                                    f"Видео заказчика {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
-#             await bot.send_video('@delivery_kerka_dev',
-#                                  message.video.file_id)
-#             await bot.send_message(message.from_user.id,
-#                                    'Видео успешно отправлена в тех поддержку!',
-#                                    reply_markup=markup_customer.photo_or_video_help())
-#             await customer_states.CustomerHelp.help.set()
-#         else:
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы отменили загрузку",
-#                                    reply_markup=markup_customer.photo_or_video_help())
-#             await customer_states.CustomerHelp.help.set()
-#
-#     @staticmethod
-#     def register_customer_help(dp: Dispatcher):
-#         dp.register_message_handler(CustomerHelp.customer_help,
-#                                     content_types=['text'],
-#                                     state=customer_states.CustomerHelp.help)
-#         dp.register_message_handler(CustomerHelp.customer_upload_photo,
-#                                     content_types=['photo', 'text'],
-#                                     state=customer_states.CustomerHelp.upload_photo)
-#         dp.register_message_handler(CustomerHelp.customer_upload_video,
-#                                     content_types=['video', 'text'],
-#                                     state=customer_states.CustomerHelp.upload_video)
+
+class CustomerHelp:
+    logger = logging.getLogger("bot.handler_customer.customer_help")
+
+    @staticmethod
+    async def customer_help(message: types.Message):
+        CustomerHelp.logger.debug(f"Функция отправки сообщения от заказчика {message.from_user.id} в тех поддержку")
+        if message.text == "Загрузить Фото":
+            await bot.send_message(message.from_user.id,
+                                   "Загрузите фото",
+                                   reply_markup=markup_customer.cancel())
+            await customer_states.CustomerHelp.upload_photo.set()
+
+        if message.text == "Загрузить Видео":
+            await bot.send_message(message.from_user.id,
+                                   "Загрузите видео",
+                                   reply_markup=markup_customer.cancel())
+            await customer_states.CustomerHelp.upload_video.set()
+
+        if message.text == "Завершить":
+            await bot.send_message(message.from_user.id,
+                                   "Все сообщения в службу поддержки отправлены!",
+                                   reply_markup=markup_customer.main_menu())
+            await customer_states.CustomerStart.customer_menu.set()
+        if message.text == "Вернуться главное меню":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вошли в главное меню заказчика",
+                                   reply_markup=markup_customer.main_menu())
+            await customer_states.CustomerStart.customer_menu.set()
+        if message.text != "Загрузить Фото" and message.text != "Загрузить Видео" \
+                and message.text != "Завершить" and message.text != "Вернуться главное меню":
+            await bot.send_message('@delivery_kerka_dev',
+                                   f"Имя заказчика {message.from_user.first_name}\n"
+                                   f"ID заказчика {message.from_user.id}\n"
+                                   f"Сообщение от заказчика - <b>{message.text}</b>\n")
+            await bot.send_message(message.from_user.id, "Сообщение досталено в техподдержку!")
+
+    @staticmethod
+    async def customer_upload_photo(message: types.Message):
+        CustomerHelp.logger.debug(f"Функция отправки фото от заказчика {message.from_user.id} в тех поддержку")
+        if message.content_type == "photo":
+            await bot.send_message('@delivery_kerka_dev',
+                                   f"Имя заказчика {message.from_user.first_name}\n"
+                                   f"ID заказчика {message.from_user.id}\n"
+                                   f"Фото заказчика {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
+            await bot.send_photo('@delivery_kerka_dev',
+                                 message.photo[2].file_id)
+            await bot.send_message(message.from_user.id,
+                                   'Фотография успешно отправлена в тех поддержку!',
+                                   reply_markup=markup_customer.photo_or_video_help())
+            await customer_states.CustomerHelp.help.set()
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили загрузку",
+                                   reply_markup=markup_customer.photo_or_video_help())
+            await customer_states.CustomerHelp.help.set()
+
+    @staticmethod
+    async def customer_upload_video(message: types.Message):
+        CustomerHelp.logger.debug(f"Функция отправки видео от заказчика {message.from_user.id} в тех поддержку")
+        if message.content_type == "video":
+            await bot.send_message('@delivery_kerka_dev',
+                                   f"Имя заказчика {message.from_user.first_name}\n"
+                                   f"ID заказчика {message.from_user.id}\n"
+                                   f"Видео заказчика {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
+            await bot.send_video('@delivery_kerka_dev',
+                                 message.video.file_id)
+            await bot.send_message(message.from_user.id,
+                                   'Видео успешно отправлена в тех поддержку!',
+                                   reply_markup=markup_customer.photo_or_video_help())
+            await customer_states.CustomerHelp.help.set()
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили загрузку",
+                                   reply_markup=markup_customer.photo_or_video_help())
+            await customer_states.CustomerHelp.help.set()
+
+    @staticmethod
+    def register_customer_help(dp: Dispatcher):
+        dp.register_message_handler(CustomerHelp.customer_help,
+                                    content_types=['text'],
+                                    state=customer_states.CustomerHelp.help)
+        dp.register_message_handler(CustomerHelp.customer_upload_photo,
+                                    content_types=['photo', 'text'],
+                                    state=customer_states.CustomerHelp.upload_photo)
+        dp.register_message_handler(CustomerHelp.customer_upload_video,
+                                    content_types=['video', 'text'],
+                                    state=customer_states.CustomerHelp.upload_video)
 
 
 class CustomerHistory:
