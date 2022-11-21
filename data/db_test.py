@@ -1,5 +1,9 @@
 import asyncio
+from datetime import datetime
 
+from sqlalchemy import and_
+
+from data.commands import customers_get
 from data.models.orders import Orders
 from settings import config
 from data.db_gino import db
@@ -8,16 +12,14 @@ from data.db_gino import db
 async def db_test():
     pass
     await db.set_bind(config.POSTGRES_URI)
-    # await db.gino.drop_all()
-    # await db.gino.create_all()
 
-    # await commands.add_customer(user_id=23423, username="vass", telephone="+7923", first_name="VAS",
-    #                             last_name="TUR", customer_money="92", customer_rating="4", ban=0, create_orders=4,
-    #                             canceled_orders=44)
+    result = await Orders.query.where(and_(Orders.user_id == 351490585,
+                                           Orders.order_end.like("%11-2022%"))).gino.all()
+    days = []
+    for i in result:
+        days.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').day)
+    print(days)
 
-    customer = await Orders.query.where(Orders.user_id == 34234).gino.all()
-    print(customer)
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(db_test())
-

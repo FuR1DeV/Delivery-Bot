@@ -247,31 +247,31 @@ class CustomerMain:
                                        "У вас нет созданных заказов",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
-        # if "Завершенные заказы" in message.text:
-        #     try:
-        #         res = customer_get_db_obj.customer_all_completed_orders(message.from_user.id)
-        #         if res:
-        #             finished_orders = InlineKeyboardMarkup()
-        #             year = []
-        #             for i in res:
-        #                 year.append(i[15].strftime('%Y'))
-        #             res_years = Counter(year)
-        #             for k, v in res_years.items():
-        #                 finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
-        #                                                             callback_data=f"year_finish_{k}"))
-        #             await bot.send_message(message.from_user.id,
-        #                                    "Выберите год\n"
-        #                                    "В скобках указано количество завершенных заказов",
-        #                                    reply_markup=finished_orders)
-        #             await customer_states.CustomerStart.customer_menu.set()
-        #         else:
-        #             await customer_states.CustomerStart.customer_menu.set()
-        #             await bot.send_message(message.from_user.id,
-        #                                    "У вас еще нет завершенных заказов!")
-        #     except:
-        #         await customer_states.CustomerStart.customer_menu.set()
-        #         await bot.send_message(message.from_user.id,
-        #                                "У вас еще нет завершенных заказов!")
+        if "Завершенные заказы" in message.text:
+            try:
+                res = await customers_get.customer_all_completed_orders(message.from_user.id)
+                if res:
+                    finished_orders = InlineKeyboardMarkup()
+                    year = []
+                    for i in res:
+                        year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
+                    res_years = Counter(year)
+                    for k, v in res_years.items():
+                        finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
+                                                                    callback_data=f"year_finish_{k}"))
+                    await bot.send_message(message.from_user.id,
+                                           "<b>Выберите год</b>\n"
+                                           "В скобках указано количество завершенных заказов",
+                                           reply_markup=finished_orders)
+                    await customer_states.CustomerStart.customer_menu.set()
+                else:
+                    await customer_states.CustomerStart.customer_menu.set()
+                    await bot.send_message(message.from_user.id,
+                                           "У вас еще нет завершенных заказов!")
+            except:
+                await customer_states.CustomerStart.customer_menu.set()
+                await bot.send_message(message.from_user.id,
+                                       "У вас еще нет завершенных заказов!")
         # if "Помощь" in message.text:
         #     await customer_states.CustomerHelp.help.set()
         #     await bot.send_message(message.from_user.id,
@@ -280,7 +280,7 @@ class CustomerMain:
         #                            reply_markup=markup_customer.photo_or_video_help())
         #     CustomerHelp.register_customer_help(dp)
 
-    #
+
     # @staticmethod
     # async def refresh(callback: types.CallbackQuery):
     #     res = customer_get_db_obj.customer_all_orders(callback.from_user.id)
@@ -431,222 +431,218 @@ class CustomerMain:
     #                                reply_markup=keyboard)
     #         await customer_states.CustomerDetailsTasks.my_tasks.set()
     #         CustomerDetailsTasks.register_customer_details_tasks(dp)
-    #
-    # @staticmethod
-    # async def choose_month(callback: types.CallbackQuery, state: FSMContext):
-    #     await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #     year = callback.data[12:]
-    #     async with state.proxy() as data:
-    #         data["year"] = year
-    #     res = customer_get_db_obj.customer_get_finished_orders_year(callback.from_user.id,
-    #                                                                 year)
-    #     finished_orders = InlineKeyboardMarkup()
-    #     months = []
-    #     for i in res:
-    #         months.append(i[15].strftime('%B'))
-    #     res_months = Counter(months)
-    #     for k, v in res_months.items():
-    #         finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
-    #                                                     callback_data=f"month_finish_{k}"))
-    #     await bot.send_message(callback.from_user.id,
-    #                            "Выберите месяц",
-    #                            reply_markup=finished_orders)
-    #
-    # @staticmethod
-    # async def choose_day(callback: types.CallbackQuery, state: FSMContext):
-    #     await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #     months_dict = {"January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
-    #                    "July": 7, "August": 8, "September": 9, "October": 10, "November": 11, "December": 12}
-    #     month = callback.data[13:]
-    #     month_number = None
-    #     for k, v in months_dict.items():
-    #         if k == month:
-    #             month_number = v
-    #     async with state.proxy() as data:
-    #         data["month"] = month_number
-    #     res = customer_get_db_obj.customer_get_finished_orders_month(callback.from_user.id,
-    #                                                                  data.get("year"),
-    #                                                                  month_number)
-    #     finished_orders = InlineKeyboardMarkup()
-    #     days = []
-    #     for i in res:
-    #         days.append(i[15].strftime('%d'))
-    #     res_days = Counter(days)
-    #     for k, v in res_days.items():
-    #         finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
-    #                                                     callback_data=f"day_finish_{k}"))
-    #     await bot.send_message(callback.from_user.id,
-    #                            "Выберите день",
-    #                            reply_markup=finished_orders)
-    #
-    # @staticmethod
-    # async def choose_job(callback: types.CallbackQuery, state: FSMContext):
-    #     await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #     day = callback.data[11:]
-    #     async with state.proxy() as data:
-    #         data["day"] = day
-    #     res = customer_get_db_obj.customer_get_finished_orders_day(callback.from_user.id,
-    #                                                                data.get("year"),
-    #                                                                data.get("month"),
-    #                                                                day)
-    #     if res:
-    #         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    #         category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
-    #                     f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
-    #                     f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
-    #                     f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
-    #                     f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
-    #                     f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
-    #         for i in res:
-    #             try:
-    #                 icon_category = None
-    #                 for k, v in category.items():
-    #                     if i[16] == k:
-    #                         icon_category = v
-    #                 if i[18] == "pedestrian":
-    #                     p_status = "Пешеход"
-    #                     icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-    #                 if i[18] == "scooter":
-    #                     p_status = "На самокате"
-    #                     icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
-    #                 if i[18] == "car":
-    #                     p_status = "На машине"
-    #                     icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-    #                 elif i[18] == "any":
-    #                     p_status = "Любой"
-    #                     icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
-    #                            f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
-    #                            f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-    #                 if i[13]:
-    #                     order_get = i[13].strftime('%d %B, %H:%M:%S')
-    #                 await bot.send_photo(callback.from_user.id, i[7])
-    #                 await bot.send_message(callback.from_user.id,
-    #                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
-    #                                        f"<b>Детали заказа</b>\n"
-    #                                        f"{icon_category} "
-    #                                        f"Категория - <b>{i[16]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('A_BUTTON')} "
-    #                                        f"Откуда - <b>{i[2]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('B_BUTTON')} "
-    #                                        f"Куда - <b>{i[3]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('INFORMATION')} "
-    #                                        f"Название - <b>{i[4]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
-    #                                        f"Описание - <b>{i[6]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('DOLLAR')} "
-    #                                        f"Цена - <b>{i[5]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('MONEY_BAG')} "
-    #                                        f"Ценность вашего товара - <b>{i[20]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
-    #                                        f"ID заказа - <b>{i[11]}</b>\n"
-    #                                        f"{icon} "
-    #                                        f"Исполнитель - <b>{p_status}</b>\n"
-    #                                        f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-    #                                        f"Заказ создан: <b>{i[12].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                        f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-    #                                        f"Заказ взят: <b>{order_get}</b>\n"
-    #                                        f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
-    #                                        f"Заказ завершен: <b>{i[15].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                        f"{config.KEYBOARD.get('RED_CIRCLE')} "
-    #                                        f"Действует до: <b>{i[19].strftime('%d %B, %H:%M:%S')}</b>\n")
-    #                 keyboard.add(f"{i[11]}")
-    #                 async with state.proxy() as data:
-    #                     data[i[11]] = {
-    #                         'Откуда': i[2],
-    #                         'Куда': i[3],
-    #                         'Название': i[4],
-    #                         'ID заказа': i[11],
-    #                         'ID исполнителя': i[9],
-    #                         'Бюджет': i[5],
-    #                     }
-    #             except:
-    #                 try:
-    #                     await bot.send_video(callback.from_user.id, i[8])
-    #                     await bot.send_message(callback.from_user.id,
-    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
-    #                                            f"<b>Детали заказа</b>\n"
-    #                                            f"{icon_category} "
-    #                                            f"Категория - <b>{i[16]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-    #                                            f"Откуда - <b>{i[2]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-    #                                            f"Куда - <b>{i[3]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('INFORMATION')} "
-    #                                            f"Название - <b>{i[4]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
-    #                                            f"Описание - <b>{i[6]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('DOLLAR')} "
-    #                                            f"Цена - <b>{i[5]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
-    #                                            f"Ценность вашего товара - <b>{i[20]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
-    #                                            f"ID заказа - <b>{i[11]}</b>\n"
-    #                                            f"{icon} "
-    #                                            f"Исполнитель - <b>{p_status}</b>\n"
-    #                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-    #                                            f"Заказ создан: <b>{i[12].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                            f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-    #                                            f"Заказ взят: <b>{order_get}</b>\n"
-    #                                            f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
-    #                                            f"Заказ завершен: <b>{i[15].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                            f"{config.KEYBOARD.get('RED_CIRCLE')} "
-    #                                            f"Действует до: <b>{i[19].strftime('%d %B, %H:%M:%S')}</b>\n")
-    #                     keyboard.add(f"{i[11]}")
-    #                     async with state.proxy() as data:
-    #                         data[i[11]] = {
-    #                             'Откуда': i[2],
-    #                             'Куда': i[3],
-    #                             'Название': i[4],
-    #                             'ID заказа': i[11],
-    #                             'ID исполнителя': i[9],
-    #                             'Бюджет': i[5],
-    #                         }
-    #                 except:
-    #                     await bot.send_message(callback.from_user.id,
-    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
-    #                                            f"<b>Детали заказа</b>\n"
-    #                                            f"{icon_category} "
-    #                                            f"Категория - <b>{i[16]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-    #                                            f"Откуда - <b>{i[2]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-    #                                            f"Куда - <b>{i[3]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('INFORMATION')} "
-    #                                            f"Название - <b>{i[4]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
-    #                                            f"Описание - <b>{i[6]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('DOLLAR')} "
-    #                                            f"Цена - <b>{i[5]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
-    #                                            f"Ценность вашего товара - <b>{i[20]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
-    #                                            f"ID заказа - <b>{i[11]}</b>\n"
-    #                                            f"{icon} "
-    #                                            f"Исполнитель - <b>{p_status}</b>\n"
-    #                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-    #                                            f"Заказ создан: <b>{i[12].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                            f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-    #                                            f"Заказ взят: <b>{order_get}</b>\n"
-    #                                            f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
-    #                                            f"Заказ завершен: <b>{i[15].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                            f"{config.KEYBOARD.get('RED_CIRCLE')} "
-    #                                            f"Действует до: <b>{i[19].strftime('%d %B, %H:%M:%S')}</b>\n")
-    #                     keyboard.add(f"{i[11]}")
-    #                     async with state.proxy() as data:
-    #                         data[i[11]] = {
-    #                             'Откуда': i[2],
-    #                             'Куда': i[3],
-    #                             'Название': i[4],
-    #                             'ID заказа': i[11],
-    #                             'ID исполнителя': i[9],
-    #                             'Бюджет': i[5],
-    #                         }
-    #         keyboard.add("Вернуться в главное меню")
-    #         await bot.send_message(callback.from_user.id,
-    #                                "Выберите ID задачи чтобы войти в детали заказа",
-    #                                reply_markup=keyboard)
-    #         await customer_states.CustomerHistory.enter_history.set()
-    #         CustomerHistory.register_customer_history(dp)
+
+    @staticmethod
+    async def choose_month(callback: types.CallbackQuery, state: FSMContext):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        year = callback.data[12:]
+        async with state.proxy() as data:
+            data["year"] = year
+        res = await customers_get.customer_get_finished_orders_year(callback.from_user.id,
+                                                                    year)
+        finished_orders = InlineKeyboardMarkup()
+        months = []
+        for i in res:
+            months.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').month)
+        res_months = Counter(months)
+        for k, v in res_months.items():
+            finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
+                                                        callback_data=f"month_finish_{k}"))
+        await bot.send_message(callback.from_user.id,
+                               "<b>Выберите месяц</b>\n"
+                               "В скобках указано кол-во завершенных заказов",
+                               reply_markup=finished_orders)
+
+    @staticmethod
+    async def choose_day(callback: types.CallbackQuery, state: FSMContext):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        month = callback.data[13:]
+        if len(month) == 1:
+            month = f"0{month}"
+        async with state.proxy() as data:
+            data["month"] = month
+        res = await customers_get.customer_get_finished_orders_month(callback.from_user.id,
+                                                                     data.get("year"),
+                                                                     month)
+        finished_orders = InlineKeyboardMarkup()
+        days = []
+        for i in res:
+            days.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').day)
+        res_days = Counter(days)
+        for k, v in res_days.items():
+            finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
+                                                        callback_data=f"day_finish_{k}"))
+        await bot.send_message(callback.from_user.id,
+                               "<b>Выберите день</b>\n"
+                               "В скобках указано кол-во завершенных заказов",
+                               reply_markup=finished_orders)
+
+    @staticmethod
+    async def choose_job(callback: types.CallbackQuery, state: FSMContext):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        day = callback.data[11:]
+        async with state.proxy() as data:
+            data["day"] = day
+        res = await customers_get.customer_get_finished_orders_day(callback.from_user.id,
+                                                                   data.get("year"),
+                                                                   data.get("month"),
+                                                                   day)
+        if res:
+            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
+                        f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
+                        f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
+                        f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
+                        f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
+                        f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
+            for i in res:
+                try:
+                    icon_category = None
+                    for k, v in category.items():
+                        if i.category_delivery == k:
+                            icon_category = v
+                    if i.performer_category == "pedestrian":
+                        p_status = "Пешеход"
+                        icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                    if i.performer_category == "scooter":
+                        p_status = "На самокате"
+                        icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+                    if i.performer_category == "car":
+                        p_status = "На машине"
+                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
+                    elif i.performer_category == "any":
+                        p_status = "Любой"
+                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
+                               f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
+                               f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                    await bot.send_photo(callback.from_user.id, i.photo)
+                    await bot.send_message(callback.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"<b>Детали заказа</b>\n"
+                                           f"{icon_category} "
+                                           f"Категория - <b>{i.category_delivery}</b>\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                           f"{config.KEYBOARD.get('B_BUTTON')} "
+                                           f"Куда - <b>{i.geo_position_to}</b>\n"
+                                           f"{config.KEYBOARD.get('INFORMATION')} "
+                                           f"Название - <b>{i.title}</b>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{i.description}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена - <b>{i.price}</b>\n"
+                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                           f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID заказа - <b>{i.order_id}</b>\n"
+                                           f"{icon} "
+                                           f"Исполнитель - <b>{p_status}</b>\n"
+                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                           f"Заказ создан: <b>{i.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                           f"Заказ взят: <b>{i.order_get}</b>\n"
+                                           f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
+                                           f"Заказ завершен: <b>{i.order_end}</b>\n"
+                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                           f"Действует до: <b>{i.order_expired}</b>\n")
+                    keyboard.add(f"{i.order_id}")
+                    async with state.proxy() as data:
+                        data[i.order_id] = {
+                            'Откуда': i.geo_position_from,
+                            'Куда': i.geo_position_to,
+                            'Название': i.title,
+                            'ID заказа': i.order_id,
+                            'ID исполнителя': i.in_work,
+                            'Бюджет': i.price,
+                        }
+                except:
+                    try:
+                        await bot.send_video(callback.from_user.id, i.video)
+                        await bot.send_message(callback.from_user.id,
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                               f"<b>Детали заказа</b>\n"
+                                               f"{icon_category} "
+                                               f"Категория - <b>{i.category_delivery}</b>\n"
+                                               f"{config.KEYBOARD.get('A_BUTTON')} "
+                                               f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                               f"{config.KEYBOARD.get('B_BUTTON')} "
+                                               f"Куда - <b>{i.geo_position_to}</b>\n"
+                                               f"{config.KEYBOARD.get('INFORMATION')} "
+                                               f"Название - <b>{i.title}</b>\n"
+                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                               f"Описание - <b>{i.description}</b>\n"
+                                               f"{config.KEYBOARD.get('DOLLAR')} "
+                                               f"Цена - <b>{i.price}</b>\n"
+                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                               f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
+                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                               f"ID заказа - <b>{i.order_id}</b>\n"
+                                               f"{icon} "
+                                               f"Исполнитель - <b>{p_status}</b>\n"
+                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                               f"Заказ создан: <b>{i.order_create}</b>\n"
+                                               f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                               f"Заказ взят: <b>{i.order_get}</b>\n"
+                                               f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
+                                               f"Заказ завершен: <b>{i.order_end}</b>\n"
+                                               f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                               f"Действует до: <b>{i.order_expired}</b>\n")
+                        keyboard.add(f"{i.order_id}")
+                        async with state.proxy() as data:
+                            data[i.order_id] = {
+                                'Откуда': i.geo_position_from,
+                                'Куда': i.geo_position_to,
+                                'Название': i.title,
+                                'ID заказа': i.order_id,
+                                'ID исполнителя': i.in_work,
+                                'Бюджет': i.price,
+                            }
+                    except:
+                        await bot.send_message(callback.from_user.id,
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                               f"<b>Детали заказа</b>\n"
+                                               f"{icon_category} "
+                                               f"Категория - <b>{i.category_delivery}</b>\n"
+                                               f"{config.KEYBOARD.get('A_BUTTON')} "
+                                               f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                               f"{config.KEYBOARD.get('B_BUTTON')} "
+                                               f"Куда - <b>{i.geo_position_to}</b>\n"
+                                               f"{config.KEYBOARD.get('INFORMATION')} "
+                                               f"Название - <b>{i.title}</b>\n"
+                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                               f"Описание - <b>{i.description}</b>\n"
+                                               f"{config.KEYBOARD.get('DOLLAR')} "
+                                               f"Цена - <b>{i.price}</b>\n"
+                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                               f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
+                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                               f"ID заказа - <b>{i.order_id}</b>\n"
+                                               f"{icon} "
+                                               f"Исполнитель - <b>{p_status}</b>\n"
+                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                               f"Заказ создан: <b>{i.order_create}</b>\n"
+                                               f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                               f"Заказ взят: <b>{i.order_get}</b>\n"
+                                               f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
+                                               f"Заказ завершен: <b>{i.order_end}</b>\n"
+                                               f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                               f"Действует до: <b>{i.order_expired}</b>\n")
+                        keyboard.add(f"{i.order_id}")
+                        async with state.proxy() as data:
+                            data[i.order_id] = {
+                                'Откуда': i.geo_position_from,
+                                'Куда': i.geo_position_to,
+                                'Название': i.title,
+                                'ID заказа': i.order_id,
+                                'ID исполнителя': i.in_work,
+                                'Бюджет': i.price,
+                            }
+            keyboard.add("Вернуться в главное меню")
+            await bot.send_message(callback.from_user.id,
+                                   "Выберите ID задачи чтобы войти в детали заказа",
+                                   reply_markup=keyboard)
+            await customer_states.CustomerHistory.enter_history.set()
+            CustomerHistory.register_customer_history(dp)
 
     @staticmethod
     async def customer_approve(callback: types.CallbackQuery):
@@ -708,15 +704,15 @@ class CustomerMain:
         dp.register_callback_query_handler(CustomerMain.customer_decline, state=["*"], text='customer_no')
         dp.register_callback_query_handler(CustomerMain.proposal_from_performer_yes, state=["*"], text='proposal_yes')
         # dp.register_callback_query_handler(CustomerMain.proposal_from_performer_no, state=["*"], text='proposal_no')
-        # dp.register_callback_query_handler(CustomerMain.choose_month,
-        #                                    state=customer_states.CustomerStart.customer_menu,
-        #                                    text_contains='year_finish_')
-        # dp.register_callback_query_handler(CustomerMain.choose_day,
-        #                                    state=customer_states.CustomerStart.customer_menu,
-        #                                    text_contains='month_finish_')
-        # dp.register_callback_query_handler(CustomerMain.choose_job,
-        #                                    state=customer_states.CustomerStart.customer_menu,
-        #                                    text_contains='day_finish_')
+        dp.register_callback_query_handler(CustomerMain.choose_month,
+                                           state=customer_states.CustomerStart.customer_menu,
+                                           text_contains='year_finish_')
+        dp.register_callback_query_handler(CustomerMain.choose_day,
+                                           state=customer_states.CustomerStart.customer_menu,
+                                           text_contains='month_finish_')
+        dp.register_callback_query_handler(CustomerMain.choose_job,
+                                           state=customer_states.CustomerStart.customer_menu,
+                                           text_contains='day_finish_')
         # dp.register_callback_query_handler(CustomerMain.refresh,
         #                                    state=["*"], text='refresh')
 
@@ -1923,127 +1919,144 @@ class CustomerDetailsTasksStatus:
 #         dp.register_message_handler(CustomerHelp.customer_upload_video,
 #                                     content_types=['video', 'text'],
 #                                     state=customer_states.CustomerHelp.upload_video)
-#
-#
-# class CustomerHistory:
-#     @staticmethod
-#     async def history(message: types.Message, state: FSMContext):
-#         if "Вернуться в главное меню" in message.text:
-#             await customer_states.CustomerStart.customer_menu.set()
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в главное меню",
-#                                    reply_markup=markup_customer.main_menu())
-#         else:
-#             completed = customer_get_db_obj.customer_get_complete_order(message.text)
-#             async with state.proxy() as data:
-#                 data["order_id"] = completed[11]
-#                 data[completed[11]] = completed
-#             await customer_states.CustomerHistory.order_history.set()
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вошли в исторю заказа",
-#                                    reply_markup=markup_customer.details_task_history())
-#
-#     @staticmethod
-#     async def order_history(message: types.Message, state: FSMContext):
-#         async with state.proxy() as data:
-#             order = data.get(data.get("order_id"))
-#         performer_res = performer_get_db_obj.performer_exists(order[9])
-#         if "Позвонить исполнителю" in message.text:
-#             await bot.send_message(message.from_user.id,
-#                                    f"Позвоните исполнителю {performer_res[3]}")
-#         if "Написать исполнителю" in message.text:
-#             await bot.send_message(message.from_user.id,
-#                                    f"Напишите через телеграмм вот его никнейм @{performer_res[2]}")
-#         if "Посмотреть детали заказа" in message.text:
-#             category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
-#                         f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
-#                         f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
-#                         f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
-#                         f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
-#                         f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
-#             icon_category = None
-#             for k, v in category.items():
-#                 if order[16] == k:
-#                     icon_category = v
-#             await customer_states.CustomerHistory.order_history_details.set()
-#             await bot.send_message(message.from_user.id,
-#                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
-#                                    f"<b>Детали заказа</b>\n"
-#                                    f"{icon_category} "
-#                                    f"Категория - <b>{order[16]}</b>\n"
-#                                    f"{config.KEYBOARD.get('ID_BUTTON')} "
-#                                    f"ID заказа <b>{order[11]}</b>\n"
-#                                    f"{config.KEYBOARD.get('A_BUTTON')} "
-#                                    f"Откуда <b>{order[2]}</b>\n"
-#                                    f"{config.KEYBOARD.get('B_BUTTON')} "
-#                                    f"Куда <b>{order[3]}</b>\n"
-#                                    f"{config.KEYBOARD.get('INFORMATION')} "
-#                                    f"Название <b>{order[4]}</b>\n"
-#                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
-#                                    f"Описание <b>{order[6]}</b>\n"
-#                                    f"{config.KEYBOARD.get('DOLLAR')} "
-#                                    f"Цена <b>{order[5]}</b>\n"
-#                                    f"{config.KEYBOARD.get('MONEY_BAG')} "
-#                                    f"Ценность вашего товара - <b>{order[20]}</b>\n"
-#                                    f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-#                                    f"Создан <b>{order[12]}</b>\n"
-#                                    f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-#                                    f"Взят <b>{order[13]}</b>\n"
-#                                    f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
-#                                    f"Завершен <b>{order[15]}</b>\n"
-#                                    f"{config.KEYBOARD.get('DASH') * 14}\n",
-#                                    reply_markup=markup_customer.details_task_history_details_order())
-#         if "Профиль исполнителя" in message.text:
-#             await bot.send_message(message.from_user.id,
-#                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
-#                                    f"Профиль <b>Исполнителя</b>:\n"
-#                                    f"{config.KEYBOARD.get('ID_BUTTON')} "
-#                                    f"ID: <b>{performer_res[1]}</b>\n"
-#                                    f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-#                                    f"Никнейм <b>@{performer_res[2]}</b>\n"
-#                                    f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                    f"Номер <b>{performer_res[3]}</b>\n"
-#                                    f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                    f"Имя <b>{performer_res[4]}</b>\n"
-#                                    f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                    f"Фамилия <b>{performer_res[5]}</b>\n"
-#                                    f"{config.KEYBOARD.get('BAR_CHART')} "
-#                                    f"Рейтинг <b>"
-#                                    f"{str(performer_res[7])[0:5]}</b>\n"
-#                                    f"{config.KEYBOARD.get('DASH') * 14}",
-#                                    )
-#         if "Вернуться в главное меню" in message.text:
-#             await customer_states.CustomerStart.customer_menu.set()
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в главное меню",
-#                                    reply_markup=markup_customer.main_menu())
-#
-#     @staticmethod
-#     async def order_details(message: types.Message, state: FSMContext):
-#         async with state.proxy() as data:
-#             order = data.get(data.get("order_id"))
-#         if message.text == "Посмотреть фото":
-#             try:
-#                 await bot.send_photo(message.from_user.id, order[7])
-#             except:
-#                 await bot.send_message(message.from_user.id, "В вашем заказе нет фото")
-#         if message.text == "Посмотреть видео":
-#             try:
-#                 await bot.send_video(message.from_user.id, order[8])
-#             except:
-#                 await bot.send_message(message.from_user.id, "В вашем заказе нет видео")
-#         if "Назад в детали заказа" in message.text:
-#             await customer_states.CustomerHistory.order_history.set()
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в детали заказа",
-#                                    reply_markup=markup_customer.details_task_history())
-#
-#     @staticmethod
-#     def register_customer_history(dp):
-#         dp.register_message_handler(CustomerHistory.history, state=customer_states.CustomerHistory.enter_history)
-#         dp.register_message_handler(CustomerHistory.order_history, state=customer_states.CustomerHistory.order_history)
-#         dp.register_message_handler(CustomerHistory.order_details,
-#                                     state=customer_states.CustomerHistory.order_history_details)
-#
-#
-# customer = CustomerMain
+
+
+class CustomerHistory:
+    @staticmethod
+    async def history(message: types.Message, state: FSMContext):
+        if "Вернуться в главное меню" in message.text:
+            await customer_states.CustomerStart.customer_menu.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_customer.main_menu())
+        else:
+            completed = await customers_get.customer_get_complete_order(message.text)
+            async with state.proxy() as data:
+                data["order_id"] = completed.order_id
+                data[completed.order_id] = completed
+            await customer_states.CustomerHistory.order_history.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вошли в историю заказа",
+                                   reply_markup=markup_customer.details_task_history())
+
+    @staticmethod
+    async def order_history(message: types.Message, state: FSMContext):
+        async with state.proxy() as data:
+            order = data.get(data.get("order_id"))
+        performer_res = await performers_get.performer_select(order.in_work)
+        if "Позвонить исполнителю" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   f"Позвоните исполнителю {performer_res.telephone}")
+        if "Написать исполнителю" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   f"Напишите через телеграмм вот его никнейм @{performer_res.username}")
+        if "Посмотреть детали заказа" in message.text:
+            category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
+                        f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
+                        f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
+                        f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
+                        f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
+                        f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
+            icon_category = None
+            for k, v in category.items():
+                if order.category_delivery == k:
+                    icon_category = v
+            if order.performer_category == "pedestrian":
+                p_status = "Пешеход"
+                icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+            if order.performer_category == "scooter":
+                p_status = "На самокате"
+                icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+            if order.performer_category == "car":
+                p_status = "На машине"
+                icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
+            elif order.performer_category == "any":
+                p_status = "Любой"
+                icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
+                       f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
+                       f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+            await customer_states.CustomerHistory.order_history_details.set()
+            await bot.send_message(message.from_user.id,
+                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                   f"<b>Детали заказа</b>\n"
+                                   f"{icon_category} "
+                                   f"Категория - <b>{order.category_delivery}</b>\n"
+                                   f"{config.KEYBOARD.get('A_BUTTON')} "
+                                   f"Откуда - <b>{order.geo_position_from}</b>\n"
+                                   f"{config.KEYBOARD.get('B_BUTTON')} "
+                                   f"Куда - <b>{order.geo_position_to}</b>\n"
+                                   f"{config.KEYBOARD.get('INFORMATION')} "
+                                   f"Название - <b>{order.title}</b>\n"
+                                   f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                   f"Описание - <b>{order.description}</b>\n"
+                                   f"{config.KEYBOARD.get('DOLLAR')} "
+                                   f"Цена - <b>{order.price}</b>\n"
+                                   f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                   f"Ценность вашего товара - <b>{order.order_worth}</b>\n"
+                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                   f"ID заказа - <b>{order.order_id}</b>\n"
+                                   f"{icon} "
+                                   f"Исполнитель - <b>{p_status}</b>\n"
+                                   f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                   f"Заказ создан: <b>{order.order_create}</b>\n"
+                                   f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                   f"Заказ взят: <b>{order.order_get}</b>\n"
+                                   f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
+                                   f"Заказ завершен: <b>{order.order_end}</b>\n"
+                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                   f"Действует до: <b>{order.order_expired}</b>\n",
+                                   reply_markup=markup_customer.details_task_history_details_order())
+        if "Профиль исполнителя" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                   f"Профиль <b>Исполнителя</b>:\n"
+                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                   f"ID: <b>{performer_res.user_id}</b>\n"
+                                   f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+                                   f"Никнейм <b>@{performer_res.username}</b>\n"
+                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                   f"Номер <b>{performer_res.telephone}</b>\n"
+                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                   f"Имя <b>{performer_res.first_name}</b>\n"
+                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                   f"Фамилия <b>{performer_res.last_name}</b>\n"
+                                   f"{config.KEYBOARD.get('BAR_CHART')} "
+                                   f"Рейтинг <b>"
+                                   f"{performer_res.performer_rating}</b>\n"
+                                   f"{config.KEYBOARD.get('DASH') * 14}",
+                                   )
+        if "Вернуться в главное меню" in message.text:
+            await customer_states.CustomerStart.customer_menu.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_customer.main_menu())
+
+    @staticmethod
+    async def order_details(message: types.Message, state: FSMContext):
+        async with state.proxy() as data:
+            order = data.get(data.get("order_id"))
+        if message.text == "Посмотреть фото":
+            try:
+                await bot.send_photo(message.from_user.id, order.photo)
+            except:
+                await bot.send_message(message.from_user.id, "В вашем заказе нет фото")
+        if message.text == "Посмотреть видео":
+            try:
+                await bot.send_video(message.from_user.id, order.video)
+            except:
+                await bot.send_message(message.from_user.id, "В вашем заказе нет видео")
+        if "Назад в детали заказа" in message.text:
+            await customer_states.CustomerHistory.order_history.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в детали заказа",
+                                   reply_markup=markup_customer.details_task_history())
+
+    @staticmethod
+    def register_customer_history(dp):
+        dp.register_message_handler(CustomerHistory.history,
+                                    state=customer_states.CustomerHistory.enter_history)
+        dp.register_message_handler(CustomerHistory.order_history,
+                                    state=customer_states.CustomerHistory.order_history)
+        dp.register_message_handler(CustomerHistory.order_details,
+                                    state=customer_states.CustomerHistory.order_history_details)
+

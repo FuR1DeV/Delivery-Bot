@@ -52,6 +52,41 @@ async def customer_get_status_order(order_id):
         return None
 
 
+async def customer_all_completed_orders(user_id):
+    """Заказчик выгружает список всех своих завершенных заказов"""
+    orders = await Orders.query.where(and_(Orders.user_id == user_id,
+                                           Orders.completed == 1)).gino.all()
+    return orders
 
+
+async def customer_get_finished_orders_year(user_id, year):
+    """Заказчик выгружает список всех своих завершенных заказов"""
+    """Выбирает год"""
+    result = await Orders.query.where(and_(Orders.user_id == user_id,
+                                      Orders.order_end.like(f"%{year}%"))).gino.all()
+    return result
+
+
+async def customer_get_finished_orders_month(user_id, year, month):
+    """Заказчик выгружает список всех своих завершенных заказов"""
+    """Выбирает месяц"""
+    result = await Orders.query.where(and_(Orders.user_id == user_id,
+                                           Orders.order_end.like(f"%{month}-{year}%"))).gino.all()
+    return result
+
+
+async def customer_get_finished_orders_day(user_id, year, month, day):
+    """Заказчик выгружает список всех своих завершенных заказов"""
+    """Выбирает день"""
+    result = await Orders.query.where(and_(Orders.user_id == user_id,
+                                           Orders.order_end.like(f"%{day}-{month}-{year}%"))).gino.all()
+    return result
+
+
+async def customer_get_complete_order(order_id):
+    """Заказчик выгружает конкретный завершенный заказ"""
+    order = await Orders.query.where(and_(Orders.order_id == order_id,
+                                          Orders.completed == 1)).gino.first()
+    return order
 
 
