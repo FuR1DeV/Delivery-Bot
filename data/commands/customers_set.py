@@ -34,7 +34,7 @@ async def customer_add_order(user_id, geo_position_from, geo_position_to, title,
 
 
 async def update_customer_money(user_id, money):
-    """Функция выгрузки всех Заказчиков"""
+    """Функция обновления баланса"""
     customer = await customers_get.customer_select(user_id)
     await customer.update(customer_money=money).apply()
 
@@ -70,12 +70,27 @@ async def customer_set_review_to_performer_in_review_db(order_id, customer_revie
     await review.update(review_from_customer=customer_review).apply()
 
 
+async def customer_set_block_order(order_id, block: int):
+    order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    await order.update(block=block).apply()
 
 
-
-
-
-
-
+async def customer_change_order(order_id, change, result):
+    logger.info(f'Заказчик редактирует {change}, заказ - {order_id}')
+    if change == "title":
+        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+        await order.update(title=result).apply()
+    if change == "description":
+        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+        await order.update(description=result).apply()
+    if change == "price":
+        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+        await order.update(price=result).apply()
+    if change == "geo_position_from":
+        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+        await order.update(geo_position_from=result).apply()
+    if change == "geo_position_to":
+        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+        await order.update(geo_position_to=result).apply()
 
 

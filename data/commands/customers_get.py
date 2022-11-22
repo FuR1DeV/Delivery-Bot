@@ -15,6 +15,11 @@ async def customer_select(user_id):
     return customer
 
 
+async def customer_view_order(order_id):
+    order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    return order
+
+
 async def customer_all_orders(user_id):
     """Заказчик выгружает список всех своих заказов"""
     orders = await Orders.query.where(and_(Orders.user_id == user_id,
