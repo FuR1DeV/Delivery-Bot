@@ -673,17 +673,17 @@ class CustomerMain:
                                f"Вы отправили согласия о новой цене <b>{res[4]}</b>, "
                                f"для Исполнителя <b>{res[7]}</b> на ваш заказ <b>{res[11]}</b>")
 
-    # @staticmethod
-    # async def proposal_from_performer_no(callback: types.CallbackQuery):
-    #     res = callback.message.text.split()
-    #     await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #     await bot.send_message(res[7],
-    #                            f"{config.KEYBOARD.get('CROSS_MARK')} "
-    #                            f"Заказчик <b>{callback.from_user.id}</b> отказался от вашего предложения "
-    #                            f"{config.KEYBOARD.get('CROSS_MARK')}")
-    #     await bot.send_message(callback.from_user.id,
-    #                            f"Вы отказались от предложения новой цены <b>{res[4]}</b>, "
-    #                            f"от Исполнителя <b>{res[7]}</b> на ваш заказ <b>{res[11]}</b>")
+    @staticmethod
+    async def proposal_from_performer_no(callback: types.CallbackQuery):
+        res = callback.message.text.split()
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(res[7],
+                               f"{config.KEYBOARD.get('CROSS_MARK')} "
+                               f"Заказчик <b>{callback.from_user.id}</b> отказался от вашего предложения "
+                               f"{config.KEYBOARD.get('CROSS_MARK')}")
+        await bot.send_message(callback.from_user.id,
+                               f"Вы отказались от предложения новой цены <b>{res[4]}</b>, "
+                               f"от Исполнителя <b>{res[7]}</b> на ваш заказ <b>{res[11]}</b>")
 
     @staticmethod
     def register_customer_handler(dp: Dispatcher):
@@ -695,7 +695,7 @@ class CustomerMain:
         dp.register_callback_query_handler(CustomerMain.customer_approve, state=["*"], text='customer_yes')
         dp.register_callback_query_handler(CustomerMain.customer_decline, state=["*"], text='customer_no')
         dp.register_callback_query_handler(CustomerMain.proposal_from_performer_yes, state=["*"], text='proposal_yes')
-        # dp.register_callback_query_handler(CustomerMain.proposal_from_performer_no, state=["*"], text='proposal_no')
+        dp.register_callback_query_handler(CustomerMain.proposal_from_performer_no, state=["*"], text='proposal_no')
         dp.register_callback_query_handler(CustomerMain.choose_month,
                                            state=customer_states.CustomerStart.customer_menu,
                                            text_contains='year_finish_')
