@@ -280,157 +280,149 @@ class CustomerMain:
                                    reply_markup=markup_customer.photo_or_video_help())
             CustomerHelp.register_customer_help(dp)
 
-
-    # @staticmethod
-    # async def refresh(callback: types.CallbackQuery):
-    #     res = customer_get_db_obj.customer_all_orders(callback.from_user.id)
-    #     category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
-    #                 f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
-    #                 f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
-    #                 f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
-    #                 f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
-    #                 f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
-    #     if res:
-    #         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    #         for i in res:
-    #             order_get = "Пока не взят"
-    #             icon_category = None
-    #             for k, v in category.items():
-    #                 if i[16] == k:
-    #                     icon_category = v
-    #             try:
-    #                 if i[18] == "pedestrian":
-    #                     p_status = "Пешеход"
-    #                     icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-    #                 if i[18] == "scooter":
-    #                     p_status = "На самокате"
-    #                     icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
-    #                 if i[18] == "car":
-    #                     p_status = "На машине"
-    #                     icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-    #                 elif i[18] == "any":
-    #                     p_status = "Любой"
-    #                     icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
-    #                            f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
-    #                            f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-    #                 if i[13]:
-    #                     order_get = i[13].strftime('%d %B, %H:%M:%S')
-    #                 await bot.send_photo(callback.from_user.id, i[7])
-    #                 await bot.send_message(callback.from_user.id,
-    #                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
-    #                                        f"<b>Детали заказа</b>\n"
-    #                                        f"{icon_category} "
-    #                                        f"Категория - <b>{i[16]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('A_BUTTON')} "
-    #                                        f"Откуда - <b>{i[2]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('B_BUTTON')} "
-    #                                        f"Куда - <b>{i[3]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('INFORMATION')} "
-    #                                        f"Название - <b>{i[4]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
-    #                                        f"Описание - <b>{i[6]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('DOLLAR')} "
-    #                                        f"Цена - <b>{i[5]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('MONEY_BAG')} "
-    #                                        f"Ценность вашего товара - <b>{i[20]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('WRENCH')} "
-    #                                        f"В работе - <b>{bool(i[9])}</b>\n"
-    #                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
-    #                                        f"ID заказа - <b>{i[11]}</b>\n"
-    #                                        f"{icon} "
-    #                                        f"Исполнитель - <b>{p_status}</b>\n"
-    #                                        f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-    #                                        f"Заказ создан: <b>{i[12].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                        f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-    #                                        f"Заказ взят: <b>{order_get}</b>\n"
-    #                                        f"{config.KEYBOARD.get('RED_CIRCLE')} "
-    #                                        f"Действует до: <b>{i[19].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                        f"{config.KEYBOARD.get('BAR_CHART')} "
-    #                                        f"Рейтинг заказа | <b>{i[21]}</b>\n"
-    #                                        f"{config.KEYBOARD.get('DASH') * 14}\n")
-    #                 keyboard.add(f"{icon} {i[11]} {icon_category}")
-    #             except:
-    #                 try:
-    #                     await bot.send_video(callback.from_user.id, i[8])
-    #                     await bot.send_message(callback.from_user.id,
-    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
-    #                                            f"<b>Детали заказа</b>\n"
-    #                                            f"{icon_category} "
-    #                                            f"Категория - <b>{i[16]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-    #                                            f"Откуда - <b>{i[2]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-    #                                            f"Куда - <b>{i[3]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('INFORMATION')} "
-    #                                            f"Название - <b>{i[4]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
-    #                                            f"Описание - <b>{i[6]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('DOLLAR')} "
-    #                                            f"Цена - <b>{i[5]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
-    #                                            f"Ценность вашего товара - <b>{i[20]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('WRENCH')} "
-    #                                            f"В работе - <b>{bool(i[9])}</b>\n"
-    #                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
-    #                                            f"ID заказа - <b>{i[11]}</b>\n"
-    #                                            f"{icon} "
-    #                                            f"Исполнитель - <b>{p_status}</b>\n"
-    #                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-    #                                            f"Заказ создан: <b>{i[12].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                            f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-    #                                            f"Заказ взят: <b>{order_get}</b>\n"
-    #                                            f"{config.KEYBOARD.get('RED_CIRCLE')} "
-    #                                            f"Действует до: <b>{i[19].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                            f"{config.KEYBOARD.get('BAR_CHART')} "
-    #                                            f"Рейтинг заказа | <b>{i[21]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n")
-    #                     keyboard.add(f"{icon} {i[11]} {icon_category}")
-    #                 except:
-    #                     await bot.send_message(callback.from_user.id,
-    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
-    #                                            f"<b>Детали заказа</b>\n"
-    #                                            f"{icon_category} "
-    #                                            f"Категория - <b>{i[16]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-    #                                            f"Откуда - <b>{i[2]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-    #                                            f"Куда - <b>{i[3]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('INFORMATION')} "
-    #                                            f"Название - <b>{i[4]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
-    #                                            f"Описание - <b>{i[6]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('DOLLAR')} "
-    #                                            f"Цена - <b>{i[5]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
-    #                                            f"Ценность вашего товара - <b>{i[20]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('WRENCH')} "
-    #                                            f"В работе - <b>{bool(i[9])}</b>\n"
-    #                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
-    #                                            f"ID заказа - <b>{i[11]}</b>\n"
-    #                                            f"{icon} "
-    #                                            f"Исполнитель - <b>{p_status}</b>\n"
-    #                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-    #                                            f"Заказ создан: <b>{i[12].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                            f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-    #                                            f"Заказ взят: <b>{order_get}</b>\n"
-    #                                            f"{config.KEYBOARD.get('RED_CIRCLE')} "
-    #                                            f"Действует до: <b>{i[19].strftime('%d %B, %H:%M:%S')}</b>\n"
-    #                                            f"{config.KEYBOARD.get('BAR_CHART')} "
-    #                                            f"Рейтинг заказа | <b>{i[21]}</b>\n"
-    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n")
-    #                     keyboard.add(f"{icon} {i[11]} {icon_category}")
-    #         keyboard.add("Вернуться в главное меню")
-    #         refresh = InlineKeyboardMarkup()
-    #         r = InlineKeyboardButton(text="Обновить", callback_data="refresh")
-    #         refresh.insert(r)
-    #         await bot.send_message(callback.from_user.id,
-    #                                "Нажмите обновить для обновление рейтинга",
-    #                                reply_markup=refresh)
-    #         await bot.send_message(callback.from_user.id,
-    #                                "Выберите ID задачи чтобы войти в детали заказа",
-    #                                reply_markup=keyboard)
-    #         await customer_states.CustomerDetailsTasks.my_tasks.set()
-    #         CustomerDetailsTasks.register_customer_details_tasks(dp)
+    @staticmethod
+    async def refresh(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        res = await customers_get.customer_all_orders(callback.from_user.id)
+        category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
+                    f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
+                    f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
+                    f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
+                    f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
+                    f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
+        if res:
+            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            for i in res:
+                order_get = "Пока не взят"
+                icon_category = None
+                for k, v in category.items():
+                    if i.category_delivery == k:
+                        icon_category = v
+                try:
+                    if i.performer_category == "pedestrian":
+                        p_status = "Пешеход"
+                        icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                    if i.performer_category == "scooter":
+                        p_status = "На самокате"
+                        icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+                    if i.performer_category == "car":
+                        p_status = "На машине"
+                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
+                    elif i.performer_category == "any":
+                        p_status = "Любой"
+                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
+                               f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
+                               f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                    await bot.send_photo(callback.from_user.id, i[7])
+                    await bot.send_message(callback.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"<b>Детали заказа</b>\n"
+                                           f"{icon_category} "
+                                           f"Категория - <b>{i.category_delivery}</b>\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                           f"{config.KEYBOARD.get('B_BUTTON')} "
+                                           f"Куда - <b>{i.geo_position_to}</b>\n"
+                                           f"{config.KEYBOARD.get('INFORMATION')} "
+                                           f"Название - <b>{i.title}</b>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{i.description}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена - <b>{i.price}</b>\n"
+                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                           f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
+                                           f"{config.KEYBOARD.get('WRENCH')} "
+                                           f"В работе - <b>{bool(i.in_work)}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID заказа - <b>{i.order_id}</b>\n"
+                                           f"{icon} "
+                                           f"Исполнитель - <b>{p_status}</b>\n"
+                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                           f"Заказ создан: <b>{i.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                           f"Действует до: <b>{i.order_expired}</b>\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} "
+                                           f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n")
+                    keyboard.add(f"{icon} {i.order_id} {icon_category}")
+                except:
+                    try:
+                        await bot.send_video(callback.from_user.id, i.video)
+                        await bot.send_message(callback.from_user.id,
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                               f"<b>Детали заказа</b>\n"
+                                               f"{icon_category} "
+                                               f"Категория - <b>{i.category_delivery}</b>\n"
+                                               f"{config.KEYBOARD.get('A_BUTTON')} "
+                                               f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                               f"{config.KEYBOARD.get('B_BUTTON')} "
+                                               f"Куда - <b>{i.geo_position_to}</b>\n"
+                                               f"{config.KEYBOARD.get('INFORMATION')} "
+                                               f"Название - <b>{i.title}</b>\n"
+                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                               f"Описание - <b>{i.description}</b>\n"
+                                               f"{config.KEYBOARD.get('DOLLAR')} "
+                                               f"Цена - <b>{i.price}</b>\n"
+                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                               f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
+                                               f"{config.KEYBOARD.get('WRENCH')} "
+                                               f"В работе - <b>{bool(i.in_work)}</b>\n"
+                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                               f"ID заказа - <b>{i.order_id}</b>\n"
+                                               f"{icon} "
+                                               f"Исполнитель - <b>{p_status}</b>\n"
+                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                               f"Заказ создан: <b>{i.order_create}</b>\n"
+                                               f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                               f"Действует до: <b>{i.order_expired}</b>\n"
+                                               f"{config.KEYBOARD.get('BAR_CHART')} "
+                                               f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n")
+                        keyboard.add(f"{icon} {i.order_id} {icon_category}")
+                    except:
+                        await bot.send_message(callback.from_user.id,
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                               f"<b>Детали заказа</b>\n"
+                                               f"{icon_category} "
+                                               f"Категория - <b>{i.category_delivery}</b>\n"
+                                               f"{config.KEYBOARD.get('A_BUTTON')} "
+                                               f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                               f"{config.KEYBOARD.get('B_BUTTON')} "
+                                               f"Куда - <b>{i.geo_position_to}</b>\n"
+                                               f"{config.KEYBOARD.get('INFORMATION')} "
+                                               f"Название - <b>{i.title}</b>\n"
+                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                               f"Описание - <b>{i.description}</b>\n"
+                                               f"{config.KEYBOARD.get('DOLLAR')} "
+                                               f"Цена - <b>{i.price}</b>\n"
+                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                               f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
+                                               f"{config.KEYBOARD.get('WRENCH')} "
+                                               f"В работе - <b>{bool(i.in_work)}</b>\n"
+                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                               f"ID заказа - <b>{i.order_id}</b>\n"
+                                               f"{icon} "
+                                               f"Исполнитель - <b>{p_status}</b>\n"
+                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                               f"Заказ создан: <b>{i.order_create}</b>\n"
+                                               f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                               f"Действует до: <b>{i.order_expired}</b>\n"
+                                               f"{config.KEYBOARD.get('BAR_CHART')} "
+                                               f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n")
+                        keyboard.add(f"{icon} {i.order_id} {icon_category}")
+            keyboard.add("Вернуться в главное меню")
+            refresh = InlineKeyboardMarkup()
+            r = InlineKeyboardButton(text="Обновить", callback_data="refresh")
+            refresh.insert(r)
+            await bot.send_message(callback.from_user.id,
+                                   "Нажмите обновить для обновление рейтинга",
+                                   reply_markup=refresh)
+            await bot.send_message(callback.from_user.id,
+                                   "Выберите ID задачи чтобы войти в детали заказа",
+                                   reply_markup=keyboard)
+            await customer_states.CustomerDetailsTasks.my_tasks.set()
+            CustomerDetailsTasks.register_customer_details_tasks(dp)
 
     @staticmethod
     async def choose_month(callback: types.CallbackQuery, state: FSMContext):
@@ -713,8 +705,8 @@ class CustomerMain:
         dp.register_callback_query_handler(CustomerMain.choose_job,
                                            state=customer_states.CustomerStart.customer_menu,
                                            text_contains='day_finish_')
-        # dp.register_callback_query_handler(CustomerMain.refresh,
-        #                                    state=["*"], text='refresh')
+        dp.register_callback_query_handler(CustomerMain.refresh,
+                                           state=["*"], text='refresh')
 
 
 class CustomerProfile:
