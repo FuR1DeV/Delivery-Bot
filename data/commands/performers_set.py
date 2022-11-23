@@ -103,6 +103,17 @@ async def performer_set_order_rating(order_id, rating, user_id):
     await order.create()
 
 
+async def private_chat_money(user_id):
+    logger.info(f'Взимается плата 300 рублей за приватный чат с {user_id}')
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    res_money = performer.performer_money - 300
+    await performer.update(performer_money=res_money).apply()
+
+
+async def private_chat_add(user_id, count_word, enter_date):
+    performer = Performers(user_id=user_id, count_word=count_word, enter_date=enter_date)
+    await performer.create()
+
 
 
 

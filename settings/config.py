@@ -23,6 +23,8 @@ P2P = QiwiP2P(auth_key=os.getenv('QIWI_PRIVATE_KEY'))
 
 COUNT = 0
 
+PRIVATE_CHAT_LINK = 'https://t.me/+6kAH_HKuTEpkNDdi'
+
 KEYBOARD = {
     'DASH': emojize(':minus:'),
     'PLUS': emojize(':plus:'),

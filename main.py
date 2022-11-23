@@ -8,7 +8,7 @@ import asyncio
 
 from bot import dp, bot
 from data import models
-from data.commands import general_get, general_set
+from data.commands import general_get, general_set, performers_set
 # from handler_admin.admin import AdminMain
 from handler_customer.customer import CustomerMain
 from handler_performer.performer import PerformerMain
@@ -110,14 +110,14 @@ async def user_left(message: types.Message):
 #                 await message.answer(f"<b>У вас осталось {count - words} слова</b>\n"
 #                                      f"<b>Не материтесь {message.from_user.first_name} "
 #                                      f"иначе вы будете заблокированы!</b>")
-#
-#
-# @dp.chat_join_request_handler(state="*")
-# async def join_request(message: types.ChatJoinRequest):
-#     global_set_db_obj.private_chat_add(message.from_user.id, 0, str(datetime.now())[:19])
-#     await bot.send_message(message.from_user.id,
-#                            '<b>Поздравляю вы были добавлены приватную группу доставщиков!</b>')
-#     await message.approve()
+
+
+@dp.chat_join_request_handler(state="*")
+async def join_request(message: types.ChatJoinRequest):
+    await performers_set.private_chat_add(message.from_user.id, 0, datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+    await bot.send_message(message.from_user.id,
+                           '<b>Поздравляю вы были добавлены приватную группу доставщиков!</b>')
+    await message.approve()
 
 
 # async def db_checker_orders_expired():

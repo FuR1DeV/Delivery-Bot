@@ -10,8 +10,6 @@ from aiogram.types import ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
 
 from bot import dp, bot
 from data.commands import performers_get, performers_set, customers_get, general_get, general_set
-# from data.get_set_db import customer_get_db_obj, performer_get_db_obj, performer_set_db_obj, \
-#     global_db_obj, global_set_db_obj
 from markups import markup_performer
 from settings import config
 from states import performer_states
@@ -1674,24 +1672,24 @@ class PerformerHelp:
                                    reply_markup=markup_performer.photo_or_video_help(user_status_chat))
             await performer_states.PerformerHelp.help.set()
 
-    # @staticmethod
-    # async def performer_private_chat(callback: types.CallbackQuery):
-    #     await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #     global_set_db_obj.private_chat_money(callback.from_user.id)
-    #     res = performer_get_db_obj.performer_exists(callback.from_user.id)
-    #     await bot.send_message(callback.from_user.id,
-    #                            "<b>С вас списалось 300 рублей!</b>")
-    #     # await bot.send_message('@delivery_kerka_dev',
-    #     #                        f"{config.KEYBOARD.get('DOLLAR') * 10}\n"
-    #     #                        f"<b>Вступил в закрытый чат:</b>\n"
-    #     #                        f"Имя исполнителя {callback.from_user.first_name}\n"
-    #     #                        f"ID исполнителя {callback.from_user.id}\n"
-    #     #                        f"Username @{res[2]}\n"
-    #     #                        f"Телефон {res[3]}\n"
-    #     #                        f"{config.KEYBOARD.get('DOLLAR') * 10}")
-    #     await bot.send_message(callback.from_user.id,
-    #                            "<b>Перейдите по ссылке ниже</b>\n"
-    #                            "https://t.me/+XjgtXkbTgKA4YzZi")
+    @staticmethod
+    async def performer_private_chat(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await performers_set.private_chat_money(callback.from_user.id)
+        res = await performers_get.performer_select(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               "<b>С вас списалось 300 рублей!</b>")
+        await bot.send_message('@delivery_kerka_dev',
+                               f"{config.KEYBOARD.get('DOLLAR') * 10}\n"
+                               f"<b>Вступил в закрытый чат:</b>\n"
+                               f"Имя исполнителя {callback.from_user.first_name}\n"
+                               f"ID исполнителя {callback.from_user.id}\n"
+                               f"Username @{res.username}\n"
+                               f"Телефон {res.telephone}\n"
+                               f"{config.KEYBOARD.get('DOLLAR') * 10}")
+        await bot.send_message(callback.from_user.id,
+                               "<b>Перейдите по ссылке ниже</b>\n"
+                               f"{config.PRIVATE_CHAT_LINK}")
 
     @staticmethod
     def register_performer_help(dp: Dispatcher):
@@ -1704,9 +1702,9 @@ class PerformerHelp:
         dp.register_message_handler(PerformerHelp.performer_upload_video,
                                     content_types=['video', 'text'],
                                     state=performer_states.PerformerHelp.upload_video)
-        # dp.register_callback_query_handler(PerformerHelp.performer_private_chat,
-        #                                    text='private_chat',
-        #                                    state=performer_states.PerformerHelp.help)
+        dp.register_callback_query_handler(PerformerHelp.performer_private_chat,
+                                           text='private_chat',
+                                           state=performer_states.PerformerHelp.help)
 
 
 class PerformerHistory:

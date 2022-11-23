@@ -42,7 +42,9 @@ async def update_customer_money(user_id, money):
 async def customer_cancel_order(order_id, order_cancel):
     """Заказчик отменяет заказ"""
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    order_status = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
     await order.update(order_cancel=order_cancel, completed=None).apply()
+    await order_status.delete()
 
 
 async def customer_set_order_status(order_id):
