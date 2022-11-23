@@ -67,7 +67,7 @@ async def performer_check_order_rating(order_id, user_id):
     if order is None:
         return None
     else:
-        return order.order_rating
+        return order.rating
 
 
 async def performer_view_order(order_id):
@@ -137,6 +137,8 @@ async def performer_get_complete_order(order_id):
     return order
 
 
-
+async def performer_trying_change_self_category(user_id):
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    return performer.performer_category_limit
 
 

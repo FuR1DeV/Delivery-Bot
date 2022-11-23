@@ -18,6 +18,6 @@ class Performers(BaseModel):
     get_orders = Column(Integer, nullable=False, server_default="0")
     canceled_orders = Column(Integer, nullable=False, server_default="0")
     performer_category = Column(String, nullable=False, server_default="pedestrian")
-    performer_category_limit = Column(TIMESTAMP(timezone=False))
+    performer_category_limit = Column(String)
 
     query: sql.select

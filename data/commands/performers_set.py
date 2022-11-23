@@ -1,6 +1,6 @@
 import logging
 from data.models.performers import Performers
-from data.models.orders import Orders, OrdersStatus, Reviews
+from data.models.orders import Orders, OrdersStatus, OrdersRating, Reviews
 from data.commands import performers_get, customers_get, general_get
 
 logger = logging.getLogger("bot.data.commands.performer_set_db")
@@ -82,6 +82,26 @@ async def performer_set_review_to_customer_in_review_db(order_id, performer_revi
     """Исполнитель оставляет отзыв Заказчику в таблицу Отзывы"""
     review = await Reviews.query.where(Reviews.order_id == order_id).gino.first()
     await review.update(review_from_performer=performer_review).apply()
+
+
+async def performer_set_self_status(user_id, performer_category, perf_cat_limit):
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    await performer.update(performer_category=performer_category,
+                           performer_category_limit=perf_cat_limit).apply()
+
+
+async def set_money(user_id, money):
+    logger.info(f'Обновляется баланс пользователя - {user_id}')
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    result = performer.performer_money + money
+    await performer.update(money=result).apply()
+
+
+async def performer_set_order_rating(order_id, rating, user_id):
+    logger.info(f'Исполнитель {user_id} ставит {rating} заказу {order_id}')
+    order = OrdersRating(order_id=order_id, rating=rating, user_id=user_id)
+    await order.create()
+
 
 
 

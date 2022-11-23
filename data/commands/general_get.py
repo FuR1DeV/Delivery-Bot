@@ -1,5 +1,6 @@
 import logging
 from data.models.customers import Customers
+from data.models.admins import Payment
 from data.models.orders import Orders, OrdersStatus, Commission
 from data.commands import customers_get
 
@@ -31,6 +32,17 @@ async def check_commission_category(category):
     """Проверяется комиссия заказа определенной категории"""
     commission = await Commission.query.where(Commission.category == category).gino.first()
     return commission.commission
+
+
+async def get_payment(bill_id):
+    logger.info('Функция проверки платежа в БД')
+    payment = Payment.query.where(Payment.bill_id == bill_id).gino.first()
+    return payment
+
+
+
+
+
 
 
 

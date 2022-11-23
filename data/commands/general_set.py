@@ -3,6 +3,7 @@ from datetime import datetime
 
 from data.models.customers import Customers
 from data.models.performers import Performers
+from data.models.admins import Payment
 from data.models.orders import Orders, Reviews, OrdersStatus, Commission
 from data.commands import customers_get, performers_get, general_get
 
@@ -63,6 +64,39 @@ async def check_orders_status():
             """Ставится пометка 1 в completed и datetime.now() завершения заказа в таблицу orders"""
             await close_order_completed(i.order_id, datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
     return orders_status
+
+
+async def get_payment_exists_and_delete(user_id):
+    """Функция проверки возможных остатков в БД"""
+    payment = await Payment.query.where(Payment.user_id == user_id).gino.first()
+    """А затем удаление из БД"""
+    if payment:
+        await payment.delete()
+
+
+async def add_payment(user_id, money, bill_id):
+    logger.info(f'{user_id} Добавляет платеж {money} в БД, bill_id - {bill_id}')
+    payment = Payment(user_id=user_id, money=money, bill_id=bill_id)
+    await payment.create()
+
+
+async def delete_payment(user_id):
+    """Функция удаления платежа из БД"""
+    logger.info(f'Пользователь {user_id} отменяет пополнение баланса')
+    payment = await Payment.query.where(Payment.user_id == user_id).gino.first()
+    await payment.delete()
+
+
+async def order_rating_change_plus(order_id):
+    order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    order_rate = order.order_rating + 1
+    await order.update(order_rating=order_rate).apply()
+
+
+async def order_rating_change_minus(order_id):
+    order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    order_rate = order.order_rating - 1
+    await order.update(order_rating=order_rate).apply()
 
 
 async def create_commission():
