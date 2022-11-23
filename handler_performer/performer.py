@@ -1386,55 +1386,12 @@ class PerformerDetailsTasks:
                                    "Вы вернулись в главное меню",
                                    reply_markup=markup_performer.main_menu())
 
-    #     @staticmethod
-    #     async def cancel_order(callback: types.CallbackQuery, state: FSMContext):
-    #         async with state.proxy() as data:
-    #             performer_set_db_obj.performer_cancel_order(data.get('order_id'))
-    #         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #         await performer_states.PerformerStart.performer_menu.set()
-    #         await bot.send_message(callback.from_user.id,
-    #                                "Вы отменили заказ!",
-    #                                reply_markup=markup_performer.main_menu())
-    #
-    #     @staticmethod
-    #     async def no_cancel(callback: types.CallbackQuery):
-    #         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #         await bot.send_message(callback.from_user.id,
-    #                                "Отлично надеюсь вы сделаете свою работу",
-    #                                reply_markup=markup_performer.details_task())
-    #
-    #     @staticmethod
-    #     async def close_order(callback: types.CallbackQuery, state: FSMContext):
-    #         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #         async with state.proxy() as data:
-    #             performer_set_db_obj.performer_set_order_status(data.get('order_id'))
-    #         await bot.send_message(callback.from_user.id,
-    #                                "Отлично! Вы установили статус заказа завершенным")
-    #         await bot.send_message(callback.from_user.id,
-    #                                "Оцените заказчика",
-    #                                reply_markup=markup_performer.rating())
-    #
-    #     @staticmethod
-    #     async def no_close(callback: types.CallbackQuery):
-    #         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #         await bot.send_message(callback.from_user.id,
-    #                                "Сделайте до конца, а потом завершайте",
-    #                                reply_markup=markup_performer.details_task())
-
     @staticmethod
     def register_performer_details_tasks(dp):
         dp.register_message_handler(PerformerDetailsTasks.performer_details,
                                     state=performer_states.PerformerDetailsTasks.details_tasks)
         dp.register_message_handler(PerformerDetailsTasks.detail_task,
                                     state=performer_states.PerformerDetailsTasks.enter_task)
-        # dp.register_callback_query_handler(PerformerDetailsTasks.cancel_order, text="cancel_order",
-        #                                    state=performer_states.PerformerDetailsTasks.enter_task)
-        # dp.register_callback_query_handler(PerformerDetailsTasks.no_cancel, text="no_cancel",
-        #                                    state=performer_states.PerformerDetailsTasks.enter_task)
-        # dp.register_callback_query_handler(PerformerDetailsTasks.close_order, text="close_order",
-        #                                    state=performer_states.PerformerDetailsTasks.enter_task)
-        # dp.register_callback_query_handler(PerformerDetailsTasks.no_close, text="no_close",
-        #                                    state=performer_states.PerformerDetailsTasks.enter_task)
 
 
 class PerformerDetailsTasksStatus:

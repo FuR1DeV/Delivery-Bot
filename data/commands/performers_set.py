@@ -107,6 +107,3 @@ async def performer_set_order_rating(order_id, rating, user_id):
 
 
 
-
-
-
