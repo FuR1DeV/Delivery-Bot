@@ -87,7 +87,7 @@ class AdminMain:
     async def loading_db(message: types.Message):
         if message.text == "Загрузить БД Заказчиков":
             all_customers = await general_get.all_customers()
-            with open("logs/table_customers.csv", "w", newline='', encoding="windows-1251") as file:
+            with open("logs/table_customers.csv", "w", newline='', encoding="utf-8") as file:
                 writer = csv.writer(file)
                 writer.writerow(["id", "user_id", "username", "telephone", "firstname",
                                  "lastname", "rating", "ban"])
@@ -98,7 +98,7 @@ class AdminMain:
             await bot.send_document(chat_id=message.from_user.id, document=table_customers)
         if message.text == "Загрузить БД Исполнителей":
             all_performers = await general_get.all_performers()
-            with open("logs/table_performers.csv", "w", newline='', encoding="windows-1251") as file:
+            with open("logs/table_performers.csv", "w", newline='', encoding="utf-8") as file:
                 writer = csv.writer(file)
                 writer.writerow(["id", "user_id", "username", "telephone", "firstname",
                                  "lastname", "rating", "ban"])
@@ -130,21 +130,28 @@ class AdminOrders:
                                    reply_markup=markup_admin.markup_clean)
         if message.text == "Выгрузить БД заказов":
             res = await general_get.all_orders()
-            with open("logs/table_orders.csv", "w", newline='', encoding="windows-1251") as file:
+            with open("logs/table_orders.csv", "w", newline='', encoding="utf-8") as file:
                 writer = csv.writer(file)
-                res.insert(0, ("id", "user_id", "geo_position_from", "geo_position_to", "title", "price", "description",
-                               "image", "video", "performer_id", "completed", "order_id", "order_create", "order_get",
-                               "order_cancel", "order_end", "category_delivery", "block"))
-                writer.writerows(res)
+                writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price", "description",
+                                 "image", "video", "performer_id", "completed", "order_id", "order_create", "order_get",
+                                 "order_cancel", "order_end", "category_delivery", "block", "performer_category",
+                                 "order_expired", "order_worth", "order_rating"])
+                for i in res:
+                    writer.writerow([i.id, i.user_id, i.geo_position_from, i.geo_position_to, i.title, i.price,
+                                     i.description, i.image, i.video, i.in_work, i.completed, i.order_id,
+                                     i.order_create, i.order_get, i.order_cancel, i.order_end, i.category_delivery,
+                                     i.block, i.performer_category, i.order_expired, i.order_worth, i.order_rating])
             table_orders = InputFile("logs/table_orders.csv")
             await bot.send_document(chat_id=message.from_user.id, document=table_orders)
         if message.text == "Выгрузить БД отзывов":
             res = await general_get.all_orders_reviews()
-            with open("logs/table_reviews.csv", "w", newline='', encoding="windows-1251") as file:
+            with open("logs/table_reviews.csv", "w", newline='', encoding="utf-8") as file:
                 writer = csv.writer(file)
-                res.insert(0, ("id", "review_from_customer", "review_from_performer",
-                               "rating_from_customer", "rating_from_performer", "order_id"))
-                writer.writerows(res)
+                writer.writerow(["id", "review_from_customer", "review_from_performer",
+                                 "rating_from_customer", "rating_from_performer", "order_id"])
+                for i in res:
+                    writer.writerow([i.id, i.review_from_customer, i.review_from_performer, i.rating_from_customer,
+                                     i.rating_from_performer, i.order_id])
             table_reviews = InputFile("logs/table_reviews.csv")
             await bot.send_document(chat_id=message.from_user.id, document=table_reviews)
         if message.text == "Назад":
@@ -196,11 +203,11 @@ class AdminOrders:
         async with state.proxy() as data:
             order = await admins_get.admin_check_order(data.get("order_id"))
             customer_res = await admins_get.admin_check_users('customers', order.user_id)
-            data["customer"] = customer_res
+            # data["customer"] = customer_res
             performer_res = await admins_get.admin_check_users('performers', order.in_work)
-            data["performer"] = performer_res
+            # data["performer"] = performer_res
             review_res = await admins_get.admin_check_review(order.order_id)
-            data["reviews"] = review_res
+            # data["reviews"] = review_res
         if message.text == "Просмотр Заказчика":
             await bot.send_message(message.from_user.id,
                                    f"Просматриваем Заказчика")
@@ -271,7 +278,7 @@ class AdminOrders:
                     customer.append(data.get("customer"))
                     performer.append(data.get("performer"))
                     reviews.append(data.get("reviews"))
-                with open(f"logs/table_order_{order[0][11]}.csv", "w", newline='', encoding="windows-1251") as file:
+                with open(f"logs/table_order_{order[0][11]}.csv", "w", newline='', encoding="utf-8") as file:
                     writer = csv.writer(file)
                     order.insert(0, (
                         "id", "user_id", "geo_position_from", "geo_position_to", "title", "price", "description",

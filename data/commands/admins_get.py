@@ -37,5 +37,5 @@ async def admin_check_users(type_user, user_id):
 
 async def admin_check_review(order_id):
     """Админ выбирает отзывы по заказу по order_id"""
-    review = Reviews.query.where(Reviews.order_id == order_id).gino.all()
+    review = await Reviews.query.where(Reviews.order_id == order_id).gino.first()
     return review
