@@ -8,8 +8,8 @@ import asyncio
 
 from bot import dp, bot
 from data import models
-from data.commands import general_get, general_set, performers_set
-# from handler_admin.admin import AdminMain
+from data.commands import general_get, general_set, performers_set, admins_set, admins_get
+from handler_admin.admin import AdminMain
 from handler_customer.customer import CustomerMain
 from handler_performer.performer import PerformerMain
 # from data.get_set_db import admin_get_db_obj, admin_set_db_obj, global_set_db_obj, global_db_obj, performer_get_db_obj
@@ -57,19 +57,20 @@ async def start(message: types.Message, state: FSMContext):
 @dp.message_handler(commands='admin', state='*')
 async def admin(message: types.Message, state: FSMContext):
     await state.finish()
-    # if str(message.from_user.id) in config.ADMIN_ID:
-    #     if not admin_get_db_obj.admin_exists(message.from_user.id):
-    #         admin_set_db_obj.admin_add(message.from_user.id,
-    #                                    message.from_user.username,
-    #                                    message.from_user.first_name,
-    #                                    message.from_user.last_name)
-    #     AdminMain.register_admin_handler(dp)
-    #     await bot.send_message(message.from_user.id,
-    #                            f'Добро пожаловать в панель администратора',
-    #                            reply_markup=markup_admin.admin_main())
-    #     await states.AdminStates.enter.set()
-    # else:
-    #     await bot.send_message(message.from_user.id, "У вас нет прав доступа!")
+    if str(message.from_user.id) in config.ADMIN_ID:
+        admin_ = await admins_get.admin_select(message.from_user.id)
+        if not admin_:
+            await admins_set.admin_add(message.from_user.id,
+                                       message.from_user.username,
+                                       message.from_user.first_name,
+                                       message.from_user.last_name)
+        await AdminMain.register_admin_handler(dp)
+        await bot.send_message(message.from_user.id,
+                               f'Добро пожаловать в панель администратора',
+                               reply_markup=markup_admin.admin_main())
+        await states.AdminStates.enter.set()
+    else:
+        await bot.send_message(message.from_user.id, "У вас нет прав доступа!")
 
 
 @dp.message_handler(content_types=["new_chat_members"])

@@ -1,7 +1,8 @@
 import logging
 from data.models.customers import Customers
+from data.models.performers import Performers
 from data.models.admins import Payment
-from data.models.orders import Orders, OrdersStatus, Commission
+from data.models.orders import Orders, OrdersStatus, Commission, Reviews
 from data.commands import customers_get
 
 
@@ -11,9 +12,27 @@ logger = logging.getLogger("bot.data.commands.general_set_db")
 
 
 async def all_customers():
-    logger.info(f'Функция выгрузки всех заказчиков')
+    logger.info(f'Функция выгрузки всех Заказчиков')
     customers = await Customers.query.gino.all()
     return customers
+
+
+async def all_performers():
+    logger.info(f'Функция выгрузки всех Исполнителей')
+    performers = await Performers.query.gino.all()
+    return performers
+
+
+async def all_orders():
+    logger.info(f'Функция выгрузки всех Заказов')
+    orders = await Orders.query.gino.all()
+    return orders
+
+
+async def all_orders_reviews():
+    logger.info(f'Функция просмотра всех отзывов')
+    reviews = await Reviews.query.gino.all()
+    return reviews
 
 
 async def order_select(order_id):
