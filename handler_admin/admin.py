@@ -86,24 +86,25 @@ class AdminMain:
     @staticmethod
     async def loading_db(message: types.Message):
         if message.text == "Загрузить БД Заказчиков":
-            res = await general_get.all_customers()
+            all_customers = await general_get.all_customers()
             with open("logs/table_customers.csv", "w", newline='', encoding="windows-1251") as file:
                 writer = csv.writer(file)
-                res.insert("id", "user_id", "username", "telephone", "firstname",
-                           "lastname", "rating", "ban")
-                for i in res:
-                    writer.writerows(i.id, i.user_id, i.username, i.telephone, i.first_name, i.last_name,
-                                     i.customer_rating, i.ban)
+                writer.writerow(["id", "user_id", "username", "telephone", "firstname",
+                                 "lastname", "rating", "ban"])
+                for i in all_customers:
+                    writer.writerow([i.id, i.user_id, i.username, i.telephone, i.first_name, i.last_name,
+                                     i.customer_rating, i.ban])
             table_customers = InputFile("logs/table_customers.csv")
             await bot.send_document(chat_id=message.from_user.id, document=table_customers)
         if message.text == "Загрузить БД Исполнителей":
-            res = await general_get.all_performers()
+            all_performers = await general_get.all_performers()
             with open("logs/table_performers.csv", "w", newline='', encoding="windows-1251") as file:
                 writer = csv.writer(file)
-                res.insert(0, ("id", "user_id", "username", "telephone", "firstname", "lastname",
-                               "money", "rating", "ban", "get_orders", "canceled_orders"))
-                for i in res:
-                    writer.writerows(i)
+                writer.writerow(["id", "user_id", "username", "telephone", "firstname",
+                                 "lastname", "rating", "ban"])
+                for i in all_performers:
+                    writer.writerow([i.id, i.user_id, i.username, i.telephone, i.first_name, i.last_name,
+                                     i.performer_rating, i.ban])
             table_performers = InputFile("logs/table_performers.csv")
             await bot.send_document(chat_id=message.from_user.id, document=table_performers)
         if message.text == "Назад":

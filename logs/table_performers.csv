@@ -1,2 +1,3 @@
-id,user_id,username,telephone,firstname,lastname,money,rating,ban,get_orders,canceled_orders
-1,351490585,FuRIDeV,+79235929997,Vasiliy,Turtugeshev,-138.564,2.8750000000000000,0,5,0
+id,user_id,username,telephone,firstname,lastname,rating,ban
+1,5761065854,KZ_Vasilii,+77056261655,Vasilii KZ,,5.00,0
+2,1056312850,kartochka88,+79773789118,Макс,,5.00,0
