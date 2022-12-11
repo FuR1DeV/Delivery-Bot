@@ -203,11 +203,8 @@ class AdminOrders:
         async with state.proxy() as data:
             order = await admins_get.admin_check_order(data.get("order_id"))
             customer_res = await admins_get.admin_check_users('customers', order.user_id)
-            # data["customer"] = customer_res
             performer_res = await admins_get.admin_check_users('performers', order.in_work)
-            # data["performer"] = performer_res
             review_res = await admins_get.admin_check_review(order.order_id)
-            # data["reviews"] = review_res
         if message.text == "Просмотр Заказчика":
             await bot.send_message(message.from_user.id,
                                    f"Просматриваем Заказчика")
@@ -271,38 +268,38 @@ class AdminOrders:
         if message.text == "Выгрузить БД этого заказа":
             await bot.send_message(message.from_user.id,
                                    f"Подготавливаем документ")
-            try:
-                async with state.proxy() as data:
-                    order, customer, performer, reviews = [], [], [], []
-                    order.append(data.get("order"))
-                    customer.append(data.get("customer"))
-                    performer.append(data.get("performer"))
-                    reviews.append(data.get("reviews"))
-                with open(f"logs/table_order_{order[0][11]}.csv", "w", newline='', encoding="utf-8") as file:
-                    writer = csv.writer(file)
-                    order.insert(0, (
-                        "id", "user_id", "geo_position_from", "geo_position_to", "title", "price", "description",
-                        "image", "video", "performer_id", "completed", "order_id", "order_create", "order_get",
-                        "order_cancel", "order_end", "category_delivery", "block"))
-                    reviews.insert(0, ("id", "review_from_customer", "review_from_performer",
-                                       "rating_from_customer", "rating_from_performer", "order_id"))
-                    customer.insert(0, ("id", "user_id", "username", "telephone", "first_name", "last_name",
-                                        "customer_money", "customer_rating", "ban"))
-                    performer.insert(0, ("id", "user_id", "username", "telephone", "first_name", "last_name",
-                                         "performer_money", "performer_rating", "ban", "get_orders", "canceled_orders"))
-
-                    writer.writerow(['Table order'])
-                    writer.writerows(order)
-                    writer.writerow(['Table review'])
-                    writer.writerows(reviews)
-                    writer.writerow(['Table customer'])
-                    writer.writerows(customer)
-                    writer.writerow(['Table performer'])
-                    writer.writerows(performer)
-                table_reviews = InputFile(f"logs/table_order_{order[1][11]}.csv")
-                await bot.send_document(chat_id=message.from_user.id, document=table_reviews)
-            except:
-                await bot.send_message(message.from_user.id, "Этот заказ еще не завершен или не взят!")
+            with open(f"logs/table_order_{order.order_id}.csv", "w", newline='', encoding="utf-8") as file:
+                writer = csv.writer(file)
+                writer.writerow(['Table order'])
+                writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price",
+                                 "description", "image", "video", "performer_id", "completed", "order_id",
+                                 "order_create", "order_get", "order_cancel", "order_end", "category_delivery",
+                                 "performer_category", "order_expired", "order_worth", "order_rating"])
+                writer.writerow([order.id, order.user_id, order.geo_position_from, order.geo_position_to,
+                                 order.title, order.price, order.description, order.image, order.video,
+                                 order.in_work, order.completed, order.order_id, order.order_create,
+                                 order.order_get, order.order_cancel, order.order_end, order.category_delivery,
+                                 order.performer_category, order.order_expired, order.order_worth,
+                                 order.order_rating])
+                writer.writerow(['Table review'])
+                writer.writerow(["id", "review_from_customer", "review_from_performer",
+                                 "rating_from_customer", "rating_from_performer"])
+                writer.writerow([review_res.id, review_res.review_from_customer, review_res.review_from_performer,
+                                 review_res.rating_from_customer, review_res.rating_from_performer])
+                writer.writerow(['Table customer'])
+                writer.writerow(["id", "user_id", "username", "telephone", "first_name", "last_name",
+                                 "customer_rating", "ban", "create_orders", "canceled_orders"])
+                writer.writerow([customer_res.id, customer_res.username, customer_res.telephone,
+                                 customer_res.first_name, customer_res.last_name, customer_res.customer_rating,
+                                 customer_res.create_orders, customer_res.canceled_orders])
+                writer.writerow(['Table performer'])
+                writer.writerow(["id", "user_id", "username", "telephone", "first_name", "last_name",
+                                 "performer_rating", "get_orders", "canceled_orders"])
+                writer.writerow([performer_res.id, performer_res.user_id, performer_res.username,
+                                 performer_res.first_name, performer_res.last_name, performer_res.performer_rating,
+                                 performer_res.get_orders, performer_res.canceled_orders])
+            table_reviews = InputFile(f"logs/table_order_{order.order_id}.csv")
+            await bot.send_document(chat_id=message.from_user.id, document=table_reviews)
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете просмотреть все заказы, статистику, и отзывы",
