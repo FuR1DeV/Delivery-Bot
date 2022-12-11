@@ -8,7 +8,7 @@ from aiogram.types import InputFile, ParseMode
 
 from bot import bot, dp
 # from data.get_set_db import global_db_obj, global_set_db_obj, admin_get_db_obj, admin_set_db_obj
-from data.commands import general_get, general_set, admins_get
+from data.commands import general_get, general_get, admins_get
 from handler_customer.customer import CustomerMain
 from handler_performer.performer import PerformerMain
 from markups import markup_start, markup_admin
@@ -76,7 +76,7 @@ class AdminMain:
                                    "Здесь вы можете просмотреть статистику",
                                    reply_markup=markup_admin.statistics())
             await states.Statistics.enter.set()
-            # AdminStats.register_orders_handler(dp)
+            AdminStats.register_orders_handler(dp)
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню Администратора",
@@ -312,43 +312,44 @@ class AdminOrders:
         dp.register_message_handler(AdminOrders.order, state=states.Orders.order)
         dp.register_message_handler(AdminOrders.order_details, state=states.Orders.detail_order)
 
-# class AdminStats:
-#     @staticmethod
-#     async def stat_main(message: types.Message):
-#         res_orders = admin_get_db_obj.admin_check_all_orders()
-#         if message.text == "По заказчикам":
-#             await bot.send_message(message.from_user.id, "Выгружаем статистику по Заказчикам")
-#             res_customers = admin_get_db_obj.admin_check_all_customers()
-#             await bot.send_message(message.from_user.id,
-#                                    f"Всего Заказчиков: {len(res_customers)}\n"
-#                                    f"Всего заказов было создано {len(res_orders)}")
-#         if message.text == "По исполнителям":
-#             await bot.send_message(message.from_user.id, "Выгружаем статистику по Исполнителям")
-#             res_performers = admin_get_db_obj.admin_check_all_customers()
-#             res_completed = admin_get_db_obj.admin_check_all_completed_orders()
-#             await bot.send_message(message.from_user.id,
-#                                    f"Всего Исполнителей: {len(res_performers)}\n"
-#                                    f"Всего заказов выполнено: {len(res_completed)}")
-#         if message.text == "По категориям":
-#             await bot.send_message(message.from_user.id, "Выгружаем статистику по категориям")
-#             res_orders_category = Counter(
-#                 admin_get_db_obj.admin_check_all_orders_categories()).most_common()
-#             await bot.send_message(message.from_user.id,
-#                                    f"Созданные заказы по категориям:")
-#             for i in res_orders_category:
-#                 await bot.send_message(message.from_user.id,
-#                                        f"{i[0][0]} - {i[1]}")
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
-#                                    reply_markup=markup_admin.orders_stat())
-#             await states.AdminStates.orders.set()
-#
-#     @staticmethod
-#     def register_orders_handler(dp: Dispatcher):
-#         dp.register_message_handler(AdminStats.stat_main, state=states.Statistics.enter)
-#
-#
+
+class AdminStats:
+    @staticmethod
+    async def stat_main(message: types.Message):
+        res_orders = await general_get.all_orders()
+        if message.text == "По заказчикам":
+            await bot.send_message(message.from_user.id, "Выгружаем статистику по Заказчикам")
+            res_customers = await general_get.all_customers()
+            await bot.send_message(message.from_user.id,
+                                   f"Всего Заказчиков: {len(res_customers)}\n"
+                                   f"Всего заказов было создано {len(res_orders)}")
+        if message.text == "По исполнителям":
+            await bot.send_message(message.from_user.id, "Выгружаем статистику по Исполнителям")
+            res_performers = await general_get.all_performers()
+            res_completed = await general_get.all_completed_orders()
+            await bot.send_message(message.from_user.id,
+                                   f"Всего Исполнителей: {len(res_performers)}\n"
+                                   f"Всего заказов выполнено: {len(res_completed)}")
+        if message.text == "По категориям":
+            await bot.send_message(message.from_user.id, "Выгружаем статистику по категориям")
+
+            res_orders_category = Counter([i.category_delivery for i in res_orders]).most_common()
+            await bot.send_message(message.from_user.id,
+                                   f"Созданные заказы по категориям:")
+            for i in res_orders_category:
+                await bot.send_message(message.from_user.id,
+                                       f"{i[0]} - {i[1]}")
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
+                                   reply_markup=markup_admin.orders_stat())
+            await states.AdminStates.orders.set()
+
+    @staticmethod
+    def register_orders_handler(dp: Dispatcher):
+        dp.register_message_handler(AdminStats.stat_main, state=states.Statistics.enter)
+
+
 # class AdminCommission:
 #     CATEGORY_DICT = {"Цветы": "flowers", "Подарки": "gifts", "Кондитерка": "confection",
 #                      "Документы": "documents", "Погрузка/Разгрузка": "loading", "Другое": "other"}
@@ -662,8 +663,8 @@ class AdminOrders:
 #         dp.register_callback_query_handler(AdminCommission.commission_promo_set_time,
 #                                            state=states.Commission.commission_promo_set_discount,
 #                                            text_contains='time_')
-#
-#
+
+
 # class AdminControlChange:
 #     @staticmethod
 #     async def change_main(message: types.Message):

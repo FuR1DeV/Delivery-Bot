@@ -5,7 +5,7 @@ from sqlalchemy import and_
 from data.models.admins import Admins
 from data.models.customers import Customers
 from data.models.performers import Performers
-from data.models.orders import Orders, OrdersStatus, Reviews
+from data.models.orders import Orders, Reviews
 from data.commands import customers_get, performers_get
 
 

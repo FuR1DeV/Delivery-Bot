@@ -29,6 +29,11 @@ async def all_orders():
     return orders
 
 
+async def all_completed_orders():
+    orders = await Orders.query.where(Orders.completed == 1).gino.all()
+    return orders
+
+
 async def all_orders_reviews():
     logger.info(f'Функция просмотра всех отзывов')
     reviews = await Reviews.query.gino.all()
