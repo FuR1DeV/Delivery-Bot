@@ -147,10 +147,15 @@ def about_performers():
     return keyboard
 
 
-def find_user():
+def find_user(money_add):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row("Заблокировать", "Начислить сумму")
-    keyboard.row("Вернуться в главное меню")
+    if money_add:
+        keyboard.row("Заблокировать", "Разблокировать")
+        keyboard.row("Начислить сумму")
+        keyboard.row("Вернуться в главное меню")
+    else:
+        keyboard.row("Заблокировать", "Разблокировать")
+        keyboard.row("Вернуться в главное меню")
     return keyboard
 
 

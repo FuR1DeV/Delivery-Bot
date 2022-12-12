@@ -37,7 +37,6 @@ class AboutUsers(StatesGroup):
 
 class ChangeUsers(StatesGroup):
     enter: State = State()
-    block: State = State()
     add_money: State = State()
     change_first_name: State = State()
     change_last_name: State = State()

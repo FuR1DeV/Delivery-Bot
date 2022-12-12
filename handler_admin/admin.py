@@ -8,7 +8,7 @@ from aiogram.types import InputFile, ParseMode
 
 from bot import bot, dp
 # from data.get_set_db import global_db_obj, global_set_db_obj, admin_get_db_obj, admin_set_db_obj
-from data.commands import general_get, general_get, admins_get
+from data.commands import general_get, general_get, admins_get, admins_set
 from handler_customer.customer import CustomerMain
 from handler_performer.performer import PerformerMain
 from markups import markup_start, markup_admin
@@ -43,7 +43,7 @@ class AdminMain:
             await states.AboutUsers.enter.set()
             async with state.proxy() as data:
                 data["type_user"] = "customers"
-            # AdminControl.register_control_handler(dp)
+            AdminControl.register_control_handler(dp)
         if message.text == "Управление Исполнителями":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете посмотреть информацию о Исполнителе",
@@ -51,7 +51,7 @@ class AdminMain:
             await states.AboutUsers.enter.set()
             async with state.proxy() as data:
                 data["type_user"] = "performers"
-            # AdminControl.register_control_handler(dp)
+            AdminControl.register_control_handler(dp)
         if message.text == "Выход":
             await bot.send_message(message.from_user.id,
                                    f'Добро пожаловать в Telegram Bot который поможет найти исполнителя '
@@ -665,334 +665,329 @@ class AdminStats:
 #                                            text_contains='time_')
 
 
-# class AdminControlChange:
-#     @staticmethod
-#     async def change_main(message: types.Message):
-#         if message.text == "Заблокировать":
-#             await bot.send_message(message.from_user.id,
-#                                    "Выберите Заблокировать или Разблокировать",
-#                                    reply_markup=markup_admin.block())
-#             await states.ChangeUsers.block.set()
-#         if message.text == "Начислить сумму":
-#             await bot.send_message(message.from_user.id,
-#                                    "Введите сумму для начисления",
-#                                    reply_markup=markup_admin.markup_clean)
-#             await states.ChangeUsers.add_money.set()
-#         if message.text == "Вернуться в главное меню":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в главное меню",
-#                                    reply_markup=markup_admin.admin_main())
-#             await states.AdminStates.enter.set()
-#
-#     @staticmethod
-#     async def change_block(message: types.Message, state: FSMContext):
-#         if message.text == "Заблокировать":
-#             async with state.proxy() as data:
-#                 global_set_db_obj.block_user(1, data.get("type_user"), data.get("user_id"))
-#             await bot.send_message(message.from_user.id, "Вы заблокировали этого пользователя!")
-#         if message.text == "Разблокировать":
-#             async with state.proxy() as data:
-#                 global_set_db_obj.block_user(0, data.get("type_user"), data.get("user_id"))
-#             await bot.send_message(message.from_user.id, "Вы разблокировали этого пользователя!!")
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в меню Управления",
-#                                    reply_markup=markup_admin.find_user())
-#             await states.ChangeUsers.enter.set()
-#
-#     @staticmethod
-#     async def add_money(message: types.Message, state: FSMContext):
-#         if message.text.isdigit():
-#             async with state.proxy() as data:
-#                 type_user = data.get("type_user")
-#                 user_id = data.get("user_id")
-#                 money = int(message.text)
-#                 admin_set_db_obj.admin_set_money(type_user, user_id, money)
-#             await bot.send_message(message.from_user.id,
-#                                    f"Успешно начислили {money} рублей для пользователя {user_id}",
-#                                    reply_markup=markup_admin.admin_main())
-#             await states.AdminStates.enter.set()
-#         else:
-#             await bot.send_message(message.from_user.id, "Нужно ввести целое число")
-#
-#     @staticmethod
-#     def register_control_change_handler(dp: Dispatcher):
-#         dp.register_message_handler(AdminControlChange.change_main, state=states.ChangeUsers.enter)
-#         dp.register_message_handler(AdminControlChange.change_block, state=states.ChangeUsers.block)
-#         dp.register_message_handler(AdminControlChange.add_money, state=states.ChangeUsers.add_money)
-#
-#
-# class AdminControl:
-#     @staticmethod
-#     async def control(message: types.Message):
-#         if message.text == "Просмотреть всех Заказчиков":
-#             res = global_db_obj.all_customers()
-#             await bot.send_message(message.from_user.id,
-#                                    f"Вот полный список Заказчиков", reply_markup=markup_admin.about_customers())
-#             for i in res:
-#                 id_ = i[1]
-#                 username = i[2]
-#                 firstname = i[4]
-#                 await bot.send_message(message.from_user.id,
-#                                        f"ID: {id_} | Username: {username} | Firstname: {firstname}")
-#         if message.text == "Просмотреть всех Исполнителей":
-#             res = global_db_obj.all_performers()
-#             await bot.send_message(message.from_user.id,
-#                                    f"Вот полный список Исполнителей", reply_markup=markup_admin.about_performers())
-#             for i in res:
-#                 id_ = i[1]
-#                 username = i[2]
-#                 firstname = i[4]
-#                 await bot.send_message(message.from_user.id,
-#                                        f"ID: {id_} | Username: {username} | Firstname: {firstname}")
-#         if message.text == "По ID":
-#             await bot.send_message(message.from_user.id,
-#                                    "Введите ID пользователя",
-#                                    reply_markup=markup_admin.back())
-#             await states.AboutUsers.find_id.set()
-#         if message.text == "По имени":
-#             await bot.send_message(message.from_user.id, "Поиск по имени")
-#             await bot.send_message(message.from_user.id,
-#                                    "Введите first name пользователя",
-#                                    reply_markup=markup_admin.back())
-#             await states.AboutUsers.find_first_name.set()
-#         if message.text == "По username":
-#             await bot.send_message(message.from_user.id, "Поиск никнейму")
-#             await bot.send_message(message.from_user.id,
-#                                    "Введите username пользователя",
-#                                    reply_markup=markup_admin.back())
-#             await states.AboutUsers.find_username.set()
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в главное меню Администратора",
-#                                    reply_markup=markup_admin.admin_main())
-#             await states.AdminStates.enter.set()
-#
-#     @staticmethod
-#     async def find_id(message: types.Message, state: FSMContext):
-#         if message.text.isdigit():
-#             async with state.proxy() as data:
-#                 type_user = data.get("type_user")
-#                 res = admin_get_db_obj.admin_check_users(type_user, message.text)
-#                 data["user_id"] = res[1]
-#             if type_user == "performers":
-#                 type_user = "Исполнителя"
-#             else:
-#                 type_user = "Заказчика"
-#             if not bool(res[8]):
-#                 await bot.send_message(message.from_user.id, "Пользователь найден!")
-#                 await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-#                                                              f"Пользователь НЕ заблокирован! "
-#                                                              f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}")
-#                 await bot.send_message(message.from_user.id,
-#                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
-#                                        f"Профиль <b>{type_user}</b>\n"
-#                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
-#                                        f"ID - <b>{res[1]}</b>\n"
-#                                        f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-#                                        f"Никнейм - <b>@{res[2]}</b>\n"
-#                                        f"{config.KEYBOARD.get('TELEPHONE')} "
-#                                        f"Номер - <b>{res[3]}</b>\n"
-#                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                        f"Имя - <b>{res[4]}</b>\n"
-#                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                        f"Фамилия - <b>{res[5]}</b>\n"
-#                                        f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{str(res[7])[0:5]}</b>\n"
-#                                        f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{res[6]}</b>\n"
-#                                        f"{config.KEYBOARD.get('DASH') * 14}",
-#                                        reply_markup=markup_admin.find_user())
-#                 await states.ChangeUsers.enter.set()
-#                 AdminControlChange.register_control_change_handler(dp)
-#             else:
-#                 await bot.send_message(message.from_user.id, "Пользователь найден!")
-#                 await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CROSS_MARK')} "
-#                                                              f"Пользователь ЗАБЛОКИРОВАН! "
-#                                                              f"{config.KEYBOARD.get('CROSS_MARK')}")
-#                 await bot.send_message(message.from_user.id,
-#                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
-#                                        f"Профиль <b>{type_user}</b>\n"
-#                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
-#                                        f"ID - <b>{res[1]}</b>\n"
-#                                        f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-#                                        f"Никнейм - <b>@{res[2]}</b>\n"
-#                                        f"{config.KEYBOARD.get('TELEPHONE')} "
-#                                        f"Номер - <b>{res[3]}</b>\n"
-#                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                        f"Имя - <b>{res[4]}</b>\n"
-#                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                        f"Фамилия - <b>{res[5]}</b>\n"
-#                                        f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{res[7]}</b>\n"
-#                                        f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{res[6]}</b>\n"
-#                                        f"{config.KEYBOARD.get('DASH') * 14}",
-#                                        reply_markup=markup_admin.find_user())
-#                 await states.ChangeUsers.enter.set()
-#                 AdminControlChange.register_control_change_handler(dp)
-#         if not message.text.isdigit() and message.text != "Назад":
-#             await bot.send_message(message.from_user.id, "Надо ввести цифры")
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в главное меню",
-#                                    reply_markup=markup_admin.admin_main())
-#             await states.AdminStates.enter.set()
-#
-#     @staticmethod
-#     async def find_first_name(message: types.Message, state: FSMContext):
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в главное меню",
-#                                    reply_markup=markup_admin.admin_main())
-#             await states.AdminStates.enter.set()
-#         if message.text != "Назад":
-#             async with state.proxy() as data:
-#                 type_user = data.get("type_user")
-#                 res = admin_get_db_obj.admin_check_users_first_name(type_user, message.text)
-#             if not res:
-#                 await bot.send_message(message.from_user.id,
-#                                        "Ничего не найдено!",
-#                                        reply_markup=markup_admin.admin_main())
-#                 await states.AdminStates.enter.set()
-#             else:
-#                 if type_user == "performers":
-#                     type_user = "Исполнителя"
-#                 else:
-#                     type_user = "Заказчика"
-#                 for i in res:
-#                     if not bool(i[8]):
-#                         await bot.send_message(message.from_user.id, "Пользователь найден!")
-#                         await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-#                                                                      f"Пользователь НЕ заблокирован! "
-#                                                                      f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}")
-#                         await bot.send_message(message.from_user.id,
-#                                                f"{config.KEYBOARD.get('DASH') * 14}\n"
-#                                                f"Профиль <b>{type_user}</b>\n"
-#                                                f"{config.KEYBOARD.get('ID_BUTTON')} "
-#                                                f"ID - <b>{i[1]}</b>\n"
-#                                                f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-#                                                f"Никнейм - <b>@{i[2]}</b>\n"
-#                                                f"{config.KEYBOARD.get('TELEPHONE')} "
-#                                                f"Номер - <b>{i[3]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                                f"Имя - <b>{i[4]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                                f"Фамилия - <b>{i[5]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{str(i[7])[0:5]}</b>\n"
-#                                                f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{i[6]}</b>\n"
-#                                                f"{config.KEYBOARD.get('DASH') * 14}",
-#                                                reply_markup=markup_admin.back())
-#                         await bot.send_message(message.from_user.id,
-#                                                f"Нажмите сюда `{i[1]}` чтобы копировать ID",
-#                                                parse_mode=ParseMode.MARKDOWN)
-#                     else:
-#                         await bot.send_message(message.from_user.id, "Пользователь найден!")
-#                         await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CROSS_MARK')} "
-#                                                                      f"Пользователь ЗАБЛОКИРОВАН! "
-#                                                                      f"{config.KEYBOARD.get('CROSS_MARK')}")
-#                         await bot.send_message(message.from_user.id,
-#                                                f"{config.KEYBOARD.get('DASH') * 14}\n"
-#                                                f"Профиль <b>{type_user}</b>\n"
-#                                                f"{config.KEYBOARD.get('ID_BUTTON')} "
-#                                                f"ID - <b>{i[1]}</b>\n"
-#                                                f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-#                                                f"Никнейм - <b>@{i[2]}</b>\n"
-#                                                f"{config.KEYBOARD.get('TELEPHONE')} "
-#                                                f"Номер - <b>{i[3]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                                f"Имя - <b>{i[4]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                                f"Фамилия - <b>{i[5]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{i[7]}</b>\n"
-#                                                f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{i[6]}</b>\n"
-#                                                f"{config.KEYBOARD.get('DASH') * 14}",
-#                                                reply_markup=markup_admin.back())
-#                         await bot.send_message(message.from_user.id,
-#                                                f"Нажмите сюда `{i[1]}` чтобы копировать ID",
-#                                                parse_mode=ParseMode.MARKDOWN)
-#                 await bot.send_message(message.from_user.id,
-#                                        "Если хотите заблокировать пользователя или начислить сумму, "
-#                                        "то вам нужно воспользоваться поиском по ID (Скопируйте нужный вам ID)")
-#
-#     @staticmethod
-#     async def find_username(message: types.Message, state: FSMContext):
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в главное меню",
-#                                    reply_markup=markup_admin.admin_main())
-#             await states.AdminStates.enter.set()
-#         if message.text != "Назад":
-#             async with state.proxy() as data:
-#                 type_user = data.get("type_user")
-#                 res = admin_get_db_obj.admin_check_users_username(type_user, message.text)
-#             if not res:
-#                 await bot.send_message(message.from_user.id,
-#                                        "Ничего не найдено!",
-#                                        reply_markup=markup_admin.admin_main())
-#                 await states.AdminStates.enter.set()
-#             else:
-#                 if type_user == "performers":
-#                     type_user = "Исполнителя"
-#                 else:
-#                     type_user = "Заказчика"
-#                 for i in res:
-#                     if not bool(i[8]):
-#                         await bot.send_message(message.from_user.id, "Пользователь найден!")
-#                         await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-#                                                                      f"Пользователь НЕ заблокирован! "
-#                                                                      f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}")
-#                         await bot.send_message(message.from_user.id,
-#                                                f"{config.KEYBOARD.get('DASH') * 14}\n"
-#                                                f"Профиль <b>{type_user}</b>\n"
-#                                                f"{config.KEYBOARD.get('ID_BUTTON')} "
-#                                                f"ID - <b>{i[1]}</b>\n"
-#                                                f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-#                                                f"Никнейм - <b>@{i[2]}</b>\n"
-#                                                f"{config.KEYBOARD.get('TELEPHONE')} "
-#                                                f"Номер - <b>{i[3]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                                f"Имя - <b>{i[4]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                                f"Фамилия - <b>{i[5]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{str(i[7])[0:5]}</b>\n"
-#                                                f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{i[6]}</b>\n"
-#                                                f"{config.KEYBOARD.get('DASH') * 14}",
-#                                                reply_markup=markup_admin.back())
-#                         await bot.send_message(message.from_user.id,
-#                                                f"Нажмите сюда `{i[1]}` чтобы копировать ID",
-#                                                parse_mode=ParseMode.MARKDOWN)
-#                     else:
-#                         await bot.send_message(message.from_user.id, "Пользователь найден!")
-#                         await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CROSS_MARK')} "
-#                                                                      f"Пользователь ЗАБЛОКИРОВАН! "
-#                                                                      f"{config.KEYBOARD.get('CROSS_MARK')}")
-#                         await bot.send_message(message.from_user.id,
-#                                                f"{config.KEYBOARD.get('DASH') * 14}\n"
-#                                                f"Профиль <b>{type_user}</b>\n"
-#                                                f"{config.KEYBOARD.get('ID_BUTTON')} "
-#                                                f"ID - <b>{i[1]}</b>\n"
-#                                                f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-#                                                f"Никнейм - <b>@{i[2]}</b>\n"
-#                                                f"{config.KEYBOARD.get('TELEPHONE')} "
-#                                                f"Номер - <b>{i[3]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                                f"Имя - <b>{i[4]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-#                                                f"Фамилия - <b>{i[5]}</b>\n"
-#                                                f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{i[7]}</b>\n"
-#                                                f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{i[6]}</b>\n"
-#                                                f"{config.KEYBOARD.get('DASH') * 14}",
-#                                                reply_markup=markup_admin.back())
-#                         await bot.send_message(message.from_user.id,
-#                                                f"Нажмите сюда `{i[1]}` чтобы копировать ID",
-#                                                parse_mode=ParseMode.MARKDOWN)
-#                 await bot.send_message(message.from_user.id,
-#                                        "Если хотите заблокировать пользователя или начислить сумму, "
-#                                        "то вам нужно воспользоваться поиском по ID (Скопируйте нужный вам ID)")
-#
-#     @staticmethod
-#     def register_control_handler(dp: Dispatcher):
-#         dp.register_message_handler(AdminControl.control, state=states.AboutUsers.enter)
-#         dp.register_message_handler(AdminControl.find_id, state=states.AboutUsers.find_id)
-#         dp.register_message_handler(AdminControl.find_first_name, state=states.AboutUsers.find_first_name)
-#         dp.register_message_handler(AdminControl.find_username, state=states.AboutUsers.find_username)
-#
-#
-# admin = AdminMain
+class AdminControlChange:
+    @staticmethod
+    async def change_main(message: types.Message, state: FSMContext):
+        if message.text == "Заблокировать":
+            async with state.proxy() as data:
+                await admins_set.block_user(1, data.get("type_user"), data.get("user_id"))
+            await bot.send_message(message.from_user.id, "Вы заблокировали этого пользователя!")
+        if message.text == "Разблокировать":
+            async with state.proxy() as data:
+                await admins_set.block_user(0, data.get("type_user"), data.get("user_id"))
+            await bot.send_message(message.from_user.id, "Вы разблокировали этого пользователя!!")
+        if message.text == "Начислить сумму":
+            await bot.send_message(message.from_user.id,
+                                   "Введите сумму для начисления",
+                                   reply_markup=markup_admin.markup_clean)
+            await states.ChangeUsers.add_money.set()
+        if message.text == "Вернуться в главное меню":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_admin.admin_main())
+            await states.AdminStates.enter.set()
+
+    @staticmethod
+    async def add_money(message: types.Message, state: FSMContext):
+        if message.text.isdigit():
+            async with state.proxy() as data:
+                user_id = data.get("user_id")
+                money = int(message.text)
+                await admins_set.admin_set_money(user_id, money)
+            await bot.send_message(message.from_user.id,
+                                   f"Успешно начислили {money} рублей для пользователя {user_id}",
+                                   reply_markup=markup_admin.admin_main())
+            await states.AdminStates.enter.set()
+        else:
+            await bot.send_message(message.from_user.id, "Нужно ввести целое число")
+
+    @staticmethod
+    def register_control_change_handler(dp: Dispatcher):
+        dp.register_message_handler(AdminControlChange.change_main, state=states.ChangeUsers.enter)
+        dp.register_message_handler(AdminControlChange.add_money, state=states.ChangeUsers.add_money)
+
+
+class AdminControl:
+    @staticmethod
+    async def control(message: types.Message):
+        if message.text == "Просмотреть всех Заказчиков":
+            res = await general_get.all_customers()
+            await bot.send_message(message.from_user.id,
+                                   f"Вот полный список Заказчиков", reply_markup=markup_admin.about_customers())
+            for i in res:
+                await bot.send_message(message.from_user.id,
+                                       f"ID: {i.user_id} | Username: {i.username} | Firstname: {i.first_name}")
+        if message.text == "Просмотреть всех Исполнителей":
+            res = await general_get.all_performers()
+            await bot.send_message(message.from_user.id,
+                                   f"Вот полный список Исполнителей", reply_markup=markup_admin.about_performers())
+            for i in res:
+                await bot.send_message(message.from_user.id,
+                                       f"ID: {i.user_id} | Username: {i.username} | Firstname: {i.first_name}")
+        if message.text == "По ID":
+            await bot.send_message(message.from_user.id,
+                                   "Введите ID пользователя",
+                                   reply_markup=markup_admin.back())
+            await states.AboutUsers.find_id.set()
+        if message.text == "По имени":
+            await bot.send_message(message.from_user.id, "Поиск по имени")
+            await bot.send_message(message.from_user.id,
+                                   "Введите first name пользователя",
+                                   reply_markup=markup_admin.back())
+            await states.AboutUsers.find_first_name.set()
+        if message.text == "По username":
+            await bot.send_message(message.from_user.id, "Поиск никнейму")
+            await bot.send_message(message.from_user.id,
+                                   "Введите username пользователя",
+                                   reply_markup=markup_admin.back())
+            await states.AboutUsers.find_username.set()
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню Администратора",
+                                   reply_markup=markup_admin.admin_main())
+            await states.AdminStates.enter.set()
+
+    @staticmethod
+    async def find_id(message: types.Message, state: FSMContext):
+        if message.text.isdigit():
+            async with state.proxy() as data:
+                type_user = data.get("type_user")
+            res = await admins_get.admin_check_users(type_user, int(message.text))
+            if res:
+                async with state.proxy() as data:
+                    data["user_id"] = res.user_id
+                if type_user == "performers":
+                    type_user = "Исполнителя"
+                    rating = res.performer_rating
+                    money = res.performer_money
+                    money_add = True
+                else:
+                    type_user = "Заказчика"
+                    rating = res.customer_rating
+                    money = res.customer_money
+                    money_add = False
+                if not bool(res.ban):
+                    await bot.send_message(message.from_user.id, "Пользователь найден!")
+                    await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                                                 f"Пользователь НЕ заблокирован! "
+                                                                 f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}")
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"Профиль <b>{type_user}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID - <b>{res.user_id}</b>\n"
+                                           f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+                                           f"Никнейм - <b>@{res.username}</b>\n"
+                                           f"{config.KEYBOARD.get('TELEPHONE')} "
+                                           f"Номер - <b>{res.telephone}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Имя - <b>{res.first_name}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Фамилия - <b>{res.last_name}</b>\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{rating}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{money}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}",
+                                           reply_markup=markup_admin.find_user(money_add))
+                    await states.ChangeUsers.enter.set()
+                    AdminControlChange.register_control_change_handler(dp)
+                else:
+                    await bot.send_message(message.from_user.id, "Пользователь найден!")
+                    await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CROSS_MARK')} "
+                                                                 f"Пользователь ЗАБЛОКИРОВАН! "
+                                                                 f"{config.KEYBOARD.get('CROSS_MARK')}")
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"Профиль <b>{type_user}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID - <b>{res.user_id}</b>\n"
+                                           f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+                                           f"Никнейм - <b>@{res.username}</b>\n"
+                                           f"{config.KEYBOARD.get('TELEPHONE')} "
+                                           f"Номер - <b>{res.telephone}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Имя - <b>{res.first_name}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Фамилия - <b>{res.last_name}</b>\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{rating}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{money}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}",
+                                           reply_markup=markup_admin.find_user(money_add))
+                    await states.ChangeUsers.enter.set()
+                    AdminControlChange.register_control_change_handler(dp)
+            else:
+                if type_user == "performers":
+                    await bot.send_message(message.from_user.id,
+                                           "Исполнитель не найден!",
+                                           reply_markup=markup_admin.about_performers())
+                    await states.AboutUsers.enter.set()
+                else:
+                    await bot.send_message(message.from_user.id,
+                                           "Заказчик не найден!",
+                                           reply_markup=markup_admin.about_customers())
+                    await states.AboutUsers.enter.set()
+        if not message.text.isdigit() and message.text != "Назад":
+            await bot.send_message(message.from_user.id, "Надо ввести цифры")
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_admin.admin_main())
+            await states.AdminStates.enter.set()
+
+    # @staticmethod
+    # async def find_first_name(message: types.Message, state: FSMContext):
+    #     if message.text == "Назад":
+    #         await bot.send_message(message.from_user.id,
+    #                                "Вы вернулись в главное меню",
+    #                                reply_markup=markup_admin.admin_main())
+    #         await states.AdminStates.enter.set()
+    #     if message.text != "Назад":
+    #         async with state.proxy() as data:
+    #             type_user = data.get("type_user")
+    #             res = admin_get_db_obj.admin_check_users_first_name(type_user, message.text)
+    #         if not res:
+    #             await bot.send_message(message.from_user.id,
+    #                                    "Ничего не найдено!",
+    #                                    reply_markup=markup_admin.admin_main())
+    #             await states.AdminStates.enter.set()
+    #         else:
+    #             if type_user == "performers":
+    #                 type_user = "Исполнителя"
+    #             else:
+    #                 type_user = "Заказчика"
+    #             for i in res:
+    #                 if not bool(i[8]):
+    #                     await bot.send_message(message.from_user.id, "Пользователь найден!")
+    #                     await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+    #                                                                  f"Пользователь НЕ заблокирован! "
+    #                                                                  f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}")
+    #                     await bot.send_message(message.from_user.id,
+    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
+    #                                            f"Профиль <b>{type_user}</b>\n"
+    #                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
+    #                                            f"ID - <b>{i[1]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+    #                                            f"Никнейм - <b>@{i[2]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('TELEPHONE')} "
+    #                                            f"Номер - <b>{i[3]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+    #                                            f"Имя - <b>{i[4]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+    #                                            f"Фамилия - <b>{i[5]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{str(i[7])[0:5]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{i[6]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('DASH') * 14}",
+    #                                            reply_markup=markup_admin.back())
+    #                     await bot.send_message(message.from_user.id,
+    #                                            f"Нажмите сюда `{i[1]}` чтобы копировать ID",
+    #                                            parse_mode=ParseMode.MARKDOWN)
+    #                 else:
+    #                     await bot.send_message(message.from_user.id, "Пользователь найден!")
+    #                     await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CROSS_MARK')} "
+    #                                                                  f"Пользователь ЗАБЛОКИРОВАН! "
+    #                                                                  f"{config.KEYBOARD.get('CROSS_MARK')}")
+    #                     await bot.send_message(message.from_user.id,
+    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
+    #                                            f"Профиль <b>{type_user}</b>\n"
+    #                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
+    #                                            f"ID - <b>{i[1]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+    #                                            f"Никнейм - <b>@{i[2]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('TELEPHONE')} "
+    #                                            f"Номер - <b>{i[3]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+    #                                            f"Имя - <b>{i[4]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+    #                                            f"Фамилия - <b>{i[5]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{i[7]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{i[6]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('DASH') * 14}",
+    #                                            reply_markup=markup_admin.back())
+    #                     await bot.send_message(message.from_user.id,
+    #                                            f"Нажмите сюда `{i[1]}` чтобы копировать ID",
+    #                                            parse_mode=ParseMode.MARKDOWN)
+    #             await bot.send_message(message.from_user.id,
+    #                                    "Если хотите заблокировать пользователя или начислить сумму, "
+    #                                    "то вам нужно воспользоваться поиском по ID (Скопируйте нужный вам ID)")
+    #
+    # @staticmethod
+    # async def find_username(message: types.Message, state: FSMContext):
+    #     if message.text == "Назад":
+    #         await bot.send_message(message.from_user.id,
+    #                                "Вы вернулись в главное меню",
+    #                                reply_markup=markup_admin.admin_main())
+    #         await states.AdminStates.enter.set()
+    #     if message.text != "Назад":
+    #         async with state.proxy() as data:
+    #             type_user = data.get("type_user")
+    #             res = admin_get_db_obj.admin_check_users_username(type_user, message.text)
+    #         if not res:
+    #             await bot.send_message(message.from_user.id,
+    #                                    "Ничего не найдено!",
+    #                                    reply_markup=markup_admin.admin_main())
+    #             await states.AdminStates.enter.set()
+    #         else:
+    #             if type_user == "performers":
+    #                 type_user = "Исполнителя"
+    #             else:
+    #                 type_user = "Заказчика"
+    #             for i in res:
+    #                 if not bool(i[8]):
+    #                     await bot.send_message(message.from_user.id, "Пользователь найден!")
+    #                     await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+    #                                                                  f"Пользователь НЕ заблокирован! "
+    #                                                                  f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}")
+    #                     await bot.send_message(message.from_user.id,
+    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
+    #                                            f"Профиль <b>{type_user}</b>\n"
+    #                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
+    #                                            f"ID - <b>{i[1]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+    #                                            f"Никнейм - <b>@{i[2]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('TELEPHONE')} "
+    #                                            f"Номер - <b>{i[3]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+    #                                            f"Имя - <b>{i[4]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+    #                                            f"Фамилия - <b>{i[5]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{str(i[7])[0:5]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{i[6]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('DASH') * 14}",
+    #                                            reply_markup=markup_admin.back())
+    #                     await bot.send_message(message.from_user.id,
+    #                                            f"Нажмите сюда `{i[1]}` чтобы копировать ID",
+    #                                            parse_mode=ParseMode.MARKDOWN)
+    #                 else:
+    #                     await bot.send_message(message.from_user.id, "Пользователь найден!")
+    #                     await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CROSS_MARK')} "
+    #                                                                  f"Пользователь ЗАБЛОКИРОВАН! "
+    #                                                                  f"{config.KEYBOARD.get('CROSS_MARK')}")
+    #                     await bot.send_message(message.from_user.id,
+    #                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
+    #                                            f"Профиль <b>{type_user}</b>\n"
+    #                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
+    #                                            f"ID - <b>{i[1]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+    #                                            f"Никнейм - <b>@{i[2]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('TELEPHONE')} "
+    #                                            f"Номер - <b>{i[3]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+    #                                            f"Имя - <b>{i[4]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+    #                                            f"Фамилия - <b>{i[5]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('BAR_CHART')} Рейтинг - <b>{i[7]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('DOLLAR')} Баланс - <b>{i[6]}</b>\n"
+    #                                            f"{config.KEYBOARD.get('DASH') * 14}",
+    #                                            reply_markup=markup_admin.back())
+    #                     await bot.send_message(message.from_user.id,
+    #                                            f"Нажмите сюда `{i[1]}` чтобы копировать ID",
+    #                                            parse_mode=ParseMode.MARKDOWN)
+    #             await bot.send_message(message.from_user.id,
+    #                                    "Если хотите заблокировать пользователя или начислить сумму, "
+    #                                    "то вам нужно воспользоваться поиском по ID (Скопируйте нужный вам ID)")
+
+    @staticmethod
+    def register_control_handler(dp: Dispatcher):
+        dp.register_message_handler(AdminControl.control, state=states.AboutUsers.enter)
+        dp.register_message_handler(AdminControl.find_id, state=states.AboutUsers.find_id)
+        # dp.register_message_handler(AdminControl.find_first_name, state=states.AboutUsers.find_first_name)
+        # dp.register_message_handler(AdminControl.find_username, state=states.AboutUsers.find_username)
