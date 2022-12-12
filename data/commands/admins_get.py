@@ -39,3 +39,23 @@ async def admin_check_review(order_id):
     """Админ выбирает отзывы по заказу по order_id"""
     review = await Reviews.query.where(Reviews.order_id == order_id).gino.first()
     return review
+
+
+async def admin_check_users_first_name(type_user: str, first_name):
+    logger.info('Админ ищет пользователя в БД по first_name')
+    if type_user == "customers":
+        customer = await Customers.query.where(Customers.first_name.like(f"%{first_name}%")).gino.all()
+        return customer
+    else:
+        performer = await Performers.query.where(Performers.first_name.like(f"%{first_name}%")).gino.all()
+        return performer
+
+
+async def admin_check_users_username(type_user: str, username):
+    logger.info('Админ ищет пользователя в БД по username')
+    if type_user == "customers":
+        customer = await Customers.query.where(Customers.username.like(f"%{username}%")).gino.all()
+        return customer
+    else:
+        performer = await Performers.query.where(Performers.username.like(f"%{username}%")).gino.all()
+        return performer
