@@ -43,7 +43,7 @@ class Commission(BaseModel):
     __tablename__ = "commission"
     id = Column(Integer, primary_key=True, nullable=False)
     category = Column(String)
-    commission = Column(Numeric)
+    commission = Column(DECIMAL(precision=8, asdecimal=True, scale=2))
     query: sql.select
 
 
@@ -62,7 +62,7 @@ class CommissionPromo(BaseModel):
     __tablename__ = "commission_promo"
     id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(BigInteger, nullable=False)
-    percent = Column(DECIMAL, server_default="0.0")
+    percent = Column(DECIMAL(precision=8, asdecimal=True, scale=2), server_default="0.0")
     promo_time = Column(String, nullable=False)
     query: sql.select
 

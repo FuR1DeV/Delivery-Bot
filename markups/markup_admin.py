@@ -25,9 +25,8 @@ def commission():
 
 def commission_set():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row("Для Заказчика", "Для Исполнителя")
-    keyboard.row("Для категорий доставок")
-    keyboard.row("Промо")
+    keyboard.row("Для Исполнителя")
+    keyboard.row("Для категорий доставок", "Промо")
     keyboard.row("Назад")
     return keyboard
 

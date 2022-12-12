@@ -5,7 +5,7 @@ from sqlalchemy import and_
 from data.models.admins import Admins
 from data.models.customers import Customers
 from data.models.performers import Performers
-from data.models.orders import Orders, Reviews
+from data.models.orders import Orders, Reviews, Commission, CommissionPromo
 from data.commands import customers_get, performers_get
 
 
@@ -59,3 +59,9 @@ async def admin_check_users_username(type_user: str, username):
     else:
         performer = await Performers.query.where(Performers.username.like(f"%{username}%")).gino.all()
         return performer
+
+
+async def admin_check_commission():
+    logger.info(f'Админ проверяет комиссию')
+    commission = await Commission.query.gino.all()
+    return commission

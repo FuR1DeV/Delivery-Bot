@@ -5,7 +5,7 @@ from sqlalchemy import and_
 from data.models.customers import Customers
 from data.models.performers import Performers
 from data.models.admins import Admins
-from data.models.orders import Orders, OrdersStatus, Reviews
+from data.models.orders import Orders, OrdersStatus, Reviews, Commission
 from data.commands import customers_get, performers_get
 
 
@@ -43,5 +43,34 @@ async def admin_set_money(user_id, money):
     logger.info(f'Админ добавляет деньги {money} для {user_id}')
     performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
     await performer.update(performer_money=performer.performer_money + money).apply()
+
+
+async def admin_set_commission_for_performer(res):
+    logger.info('Админ устанавливает комиссию для Исполнителя')
+    commission = await Commission.query.where(Commission.category == "performers").gino.first()
+    await commission.update(commission=res).apply()
+
+
+async def admin_set_commission_for_categories(category, res):
+    logger.info(f'Админ устанавливает комиссию для {category} в размере {res}')
+    if category == "Цветы":
+        commission = await Commission.query.where(Commission.category == "Цветы").gino.first()
+        await commission.update(commission=res).apply()
+    if category == "Подарки":
+        commission = await Commission.query.where(Commission.category == "Подарки").gino.first()
+        await commission.update(commission=res).apply()
+    if category == "Кондитерка":
+        commission = await Commission.query.where(Commission.category == "Кондитерка").gino.first()
+        await commission.update(commission=res).apply()
+    if category == "Документы":
+        commission = await Commission.query.where(Commission.category == "Документы").gino.first()
+        await commission.update(commission=res).apply()
+    if category == "Погрузка/Разгрузка":
+        commission = await Commission.query.where(Commission.category == "Погрузка/Разгрузка").gino.first()
+        await commission.update(commission=res).apply()
+    if category == "Другое":
+        commission = await Commission.query.where(Commission.category == "Другое").gino.first()
+        await commission.update(commission=res).apply()
+
 
 

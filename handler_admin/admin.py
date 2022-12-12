@@ -25,7 +25,7 @@ class AdminMain:
                                    "а так же для разных видов деятельности",
                                    reply_markup=markup_admin.commission())
             await states.Commission.commission.set()
-            # AdminCommission.register_commission_handler(dp)
+            AdminCommission.register_commission_handler(dp)
         if message.text == "Просмотр Заказов":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете просмотреть все заказы, статистику, и отзывы",
@@ -350,319 +350,287 @@ class AdminStats:
         dp.register_message_handler(AdminStats.stat_main, state=states.Statistics.enter)
 
 
-# class AdminCommission:
-#     CATEGORY_DICT = {"Цветы": "flowers", "Подарки": "gifts", "Кондитерка": "confection",
-#                      "Документы": "documents", "Погрузка/Разгрузка": "loading", "Другое": "other"}
-#
-#     @staticmethod
-#     async def commission(message: types.Message):
-#         if message.text == "Просмотр комиссии":
-#             res = admin_get_db_obj.admin_check_commission()
-#             await bot.send_message(message.from_user.id,
-#                                    "Выводим информацию о комиссии")
-#             await bot.send_message(message.from_user.id,
-#                                    f"Для Заказчика - {res[1]}\n"
-#                                    f"Для Исполнителя - {res[2]}\n"
-#                                    f"Цветы - {res[3]} | Подарки - {res[4]} | Кондитерка - {res[5]} | "
-#                                    f"Документы - {res[6]} | Загрузка\Погрузка - {res[7]} | Другое - {res[8]}")
-#         if message.text == "Установить комиссию":
-#             await bot.send_message(message.from_user.id,
-#                                    "Здесь вы сможете изменить комиссию для Заказчиков и для Исполнителей "
-#                                    "а так же для разных видов деятельности",
-#                                    reply_markup=markup_admin.commission_set())
-#             await states.Commission.commission_set.set()
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в главное меню Администратора",
-#                                    reply_markup=markup_admin.admin_main())
-#             await states.AdminStates.enter.set()
-#
-#     @staticmethod
-#     async def commission_set(message: types.Message):
-#         if message.text == "Для Заказчика":
-#             await bot.send_message(message.from_user.id,
-#                                    "Установите комиссию для заказчика",
-#                                    reply_markup=markup_admin.back()
-#                                    )
-#             await states.Commission.commission_for_customer.set()
-#         if message.text == "Для Исполнителя":
-#             await bot.send_message(message.from_user.id,
-#                                    "Установите комиссию для исполнителя",
-#                                    reply_markup=markup_admin.back()
-#                                    )
-#             await states.Commission.commission_for_performer.set()
-#         if message.text == "Для категорий доставок":
-#             await bot.send_message(message.from_user.id,
-#                                    "Установите комиссию для категорий доставок",
-#                                    reply_markup=markup_admin.commission_for_categories()
-#                                    )
-#             await states.CommissionForCategories.commission_for_categories.set()
-#         if message.text == "Промо":
-#             await bot.send_message(message.from_user.id,
-#                                    "Временное отсутствие комиссии",
-#                                    reply_markup=markup_admin.commission_promo())
-#             await states.Commission.commission_promo.set()
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в раздел комиссий",
-#                                    reply_markup=markup_admin.commission())
-#             await states.Commission.commission.set()
-#
-#     @staticmethod
-#     async def commission_for_performer(message: types.Message):
-#         try:
-#             res = float(message.text)
-#         except ValueError:
-#             res = message.text
-#         if isinstance(res, float) and 0 <= res <= 20:
-#             admin_set_db_obj.admin_set_commission_for_performer(message.text)
-#             await bot.send_message(message.from_user.id,
-#                                    f"Отлично! Вы установили комиссию для Исполнителя в размере {res}",
-#                                    reply_markup=markup_admin.commission())
-#             await states.Commission.commission.set()
-#         if isinstance(res, float) and res > 20:
-#             await bot.send_message(message.from_user.id, "Комиссия не может составлять больше 20%")
-#         if isinstance(res, float) and res < 0:
-#             await bot.send_message(message.from_user.id, "Комиссия не может составлять меньше 0%")
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись на шаг назад",
-#                                    reply_markup=markup_admin.commission_set())
-#             await states.Commission.commission_set.set()
-#         if not isinstance(res, float) and message.text != "Назад":
-#             await bot.send_message(message.from_user.id, "Надо ввести целое число")
-#
-#     @staticmethod
-#     async def commission_for_customer(message: types.Message):
-#         try:
-#             res = float(message.text)
-#         except ValueError:
-#             res = message.text
-#         if isinstance(res, float) and 0 <= res <= 20:
-#             admin_set_db_obj.admin_set_commission_for_customer(message.text)
-#             await bot.send_message(message.from_user.id,
-#                                    f"Отлично! Вы установили комиссию для Заказчика в размере {res}",
-#                                    reply_markup=markup_admin.commission())
-#             await states.Commission.commission.set()
-#         if isinstance(res, float) and res > 20:
-#             await bot.send_message(message.from_user.id, "Комиссия не может составлять больше 20%")
-#         if isinstance(res, float) and res < 0:
-#             await bot.send_message(message.from_user.id, "Комиссия не может составлять меньше 0%")
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись на шаг назад",
-#                                    reply_markup=markup_admin.commission_set())
-#             await states.Commission.commission_set.set()
-#         if not isinstance(res, float) and message.text != "Назад":
-#             await bot.send_message(message.from_user.id, "Надо ввести целое число")
-#
-#     @staticmethod
-#     async def commission_for_categories(message: types.Message, state: FSMContext):
-#         if message.text == "Цветы":
-#             async with state.proxy() as data:
-#                 data["category"] = message.text
-#             await bot.send_message(message.from_user.id,
-#                                    "Установите комиссию для Цветов",
-#                                    reply_markup=markup_admin.back()
-#                                    )
-#             await states.CommissionForCategories.commission_for_category.set()
-#         if message.text == "Подарки":
-#             async with state.proxy() as data:
-#                 data["category"] = message.text
-#             await bot.send_message(message.from_user.id,
-#                                    "Установите комиссию для Подарков",
-#                                    reply_markup=markup_admin.back()
-#                                    )
-#             await states.CommissionForCategories.commission_for_category.set()
-#         if message.text == "Кондитерка":
-#             async with state.proxy() as data:
-#                 data["category"] = message.text
-#             await bot.send_message(message.from_user.id,
-#                                    "Установите комиссию для Кондитерки",
-#                                    reply_markup=markup_admin.back()
-#                                    )
-#             await states.CommissionForCategories.commission_for_category.set()
-#         if message.text == "Документы":
-#             async with state.proxy() as data:
-#                 data["category"] = message.text
-#             await bot.send_message(message.from_user.id,
-#                                    "Установите комиссию для Документов",
-#                                    reply_markup=markup_admin.back()
-#                                    )
-#             await states.CommissionForCategories.commission_for_category.set()
-#         if message.text == "Погрузка/Разгрузка":
-#             async with state.proxy() as data:
-#                 data["category"] = message.text
-#             await bot.send_message(message.from_user.id,
-#                                    "Установите комиссию для Позгрузки/Разгрузки",
-#                                    reply_markup=markup_admin.back()
-#                                    )
-#             await states.CommissionForCategories.commission_for_category.set()
-#         if message.text == "Другое":
-#             async with state.proxy() as data:
-#                 data["category"] = message.text
-#             await bot.send_message(message.from_user.id,
-#                                    "Установите комиссию для Других видов деятельности",
-#                                    reply_markup=markup_admin.back()
-#                                    )
-#             await states.CommissionForCategories.commission_for_category.set()
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись на шаг назад",
-#                                    reply_markup=markup_admin.commission_set())
-#             await states.Commission.commission_set.set()
-#
-#     @staticmethod
-#     async def commission_for(message: types.Message, state: FSMContext):
-#         category_dict = AdminCommission.CATEGORY_DICT
-#         async with state.proxy() as data:
-#             for k, v in category_dict.items():
-#                 if k == data.get("category"):
-#                     category_res = v
-#         try:
-#             res_text = float(message.text)
-#         except ValueError:
-#             res_text = message.text
-#         if isinstance(res_text, float) and 0 <= res_text <= 10:
-#             admin_set_db_obj.admin_set_commission_for_categories(category_res, res_text)
-#             await bot.send_message(message.from_user.id,
-#                                    f"Отлично! Вы установили комиссию для Категории {category_res} в размере {res_text}",
-#                                    reply_markup=markup_admin.commission())
-#             await states.Commission.commission.set()
-#         if isinstance(res_text, float) and res_text > 10:
-#             await bot.send_message(message.from_user.id, "Комиссия не может составлять больше 10%")
-#         if isinstance(res_text, float) and res_text < 0:
-#             await bot.send_message(message.from_user.id, "Комиссия не может составлять меньше 0%")
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись на шаг назад",
-#                                    reply_markup=markup_admin.commission_for_categories())
-#             await states.CommissionForCategories.commission_for_categories.set()
-#         if not isinstance(res_text, float) and message.text != "Назад":
-#             await bot.send_message(message.from_user.id, "Надо ввести целое число")
-#
-#     @staticmethod
-#     async def commission_promo(message: types.Message):
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в раздел Установки комиссий",
-#                                    reply_markup=markup_admin.commission_set())
-#             await states.Commission.commission_set.set()
-#         if message.text == "Введите ID Исполнителя":
-#             await bot.send_message(message.from_user.id,
-#                                    "Введите ID Исполнителя чтобы найти его",
-#                                    reply_markup=markup_admin.back())
-#             await states.Commission.commission_promo_find_id.set()
-#
-#     @staticmethod
-#     async def commission_promo_find_id(message: types.Message, state: FSMContext):
-#         if message.text.isdigit():
-#             res = admin_get_db_obj.admin_check_users("performers", message.text)
-#             try:
-#                 if not bool(res[8]):
-#                     await bot.send_message(message.from_user.id, "Пользователь найден!")
-#                     await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-#                                                                  f"Пользователь НЕ заблокирован! "
-#                                                                  f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}",
-#                                            reply_markup=markup_admin.commission_promo_discount())
-#                     async with state.proxy() as data:
-#                         data["user"] = res
-#                     await states.Commission.commission_promo_set_discount.set()
-#             except TypeError:
-#                 await bot.send_message(message.from_user.id, "Пользователь не найден!")
-#         if not message.text.isdigit() and message.text != "Назад":
-#             await bot.send_message(message.from_user.id, "Надо ввести целое число!")
-#         if message.text == "Назад":
-#             await bot.send_message(message.from_user.id,
-#                                    "Вы вернулись в раздел поиска ID",
-#                                    reply_markup=markup_admin.commission_promo())
-#             await states.Commission.commission_promo.set()
-#
-#     @staticmethod
-#     async def commission_promo_set_discount(callback: types.CallbackQuery, state: FSMContext):
-#         if callback.data == "commission_back":
-#             await bot.delete_message(callback.from_user.id, callback.message.message_id)
-#             await bot.send_message(callback.from_user.id,
-#                                    f"Вы вернулись в раздел Установки комиссий",
-#                                    reply_markup=markup_admin.commission_set())
-#             await states.Commission.commission_set.set()
-#         else:
-#             res = callback.data[11:]
-#             async with state.proxy() as data:
-#                 data["commission"] = res
-#             await bot.delete_message(callback.from_user.id, callback.message.message_id)
-#             await bot.send_message(callback.from_user.id,
-#                                    "Отлично! Теперь настройте время",
-#                                    reply_markup=markup_admin.commission_promo_set_time())
-#
-#     @staticmethod
-#     async def commission_promo_set_time(callback: types.CallbackQuery, state: FSMContext):
-#         if callback.data == "time_back":
-#             await bot.send_message(callback.from_user.id, "Пользователь найден!")
-#             await bot.send_message(callback.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-#                                                          f"Пользователь НЕ заблокирован! "
-#                                                          f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}",
-#                                    reply_markup=markup_admin.commission_promo_discount())
-#             await states.Commission.commission_promo_set_discount.set()
-#         else:
-#             res = callback.data[5:]
-#             async with state.proxy() as data:
-#                 data["time"] = res
-#             await bot.delete_message(callback.from_user.id, callback.message.message_id)
-#             comm = data.get('commission')
-#             if comm == "free":
-#                 comm = "0.0"
-#             date = datetime.now() + timedelta(hours=int(data.get('time')))
-#             exists = global_db_obj.check_commission_promo(data.get('user')[1])
-#             if exists:
-#                 date_promo, percent_promo = str(exists[1]), exists[0]
-#                 limitation = str(datetime.now() - datetime.strptime(date_promo, '%Y-%m-%d %H:%M:%S'))[:1]
-#                 if limitation == "-":
-#                     await bot.send_message(callback.from_user.id,
-#                                            f"Вы уже установили промо!\n"
-#                                            f"Сейчас действует <b>{exists[0]}</b> "
-#                                            f"до <b>{exists[1]}</b>",
-#                                            reply_markup=markup_admin.commission_set())
-#                     await states.Commission.commission_set.set()
-#                 if limitation != "-":
-#                     await bot.send_message(callback.from_user.id,
-#                                            f"Отлично! Теперь у пользователя <b>{data.get('user')[1]}</b> "
-#                                            f"Комиссия <b>{comm}</b> "
-#                                            f"на время <b>{data.get('time')}</b> часа",
-#                                            reply_markup=markup_admin.commission_set())
-#                     global_set_db_obj.set_commission_for_promo(data.get('user')[1], comm, str(date)[:19])
-#                     await states.Commission.commission_set.set()
-#             if exists is None:
-#                 await bot.send_message(callback.from_user.id,
-#                                        f"Отлично! Теперь у пользователя <b>{data.get('user')[1]}</b> "
-#                                        f"Комиссия <b>{comm}</b> "
-#                                        f"на время <b>{data.get('time')}</b> часа",
-#                                        reply_markup=markup_admin.commission_set())
-#                 global_set_db_obj.set_commission_for_promo(data.get('user')[1], comm, str(date)[:19])
-#                 await states.Commission.commission_set.set()
-#
-#     @staticmethod
-#     def register_commission_handler(dp: Dispatcher):
-#         dp.register_message_handler(AdminCommission.commission, state=states.Commission.commission)
-#         dp.register_message_handler(AdminCommission.commission_set, state=states.Commission.commission_set)
-#         dp.register_message_handler(AdminCommission.commission_for_performer,
-#                                     state=states.Commission.commission_for_performer)
-#         dp.register_message_handler(AdminCommission.commission_for_customer,
-#                                     state=states.Commission.commission_for_customer)
-#         dp.register_message_handler(AdminCommission.commission_for_categories,
-#                                     state=states.CommissionForCategories.commission_for_categories)
-#         dp.register_message_handler(AdminCommission.commission_for,
-#                                     state=states.CommissionForCategories.commission_for_category)
-#         dp.register_message_handler(AdminCommission.commission_promo,
-#                                     state=states.Commission.commission_promo)
-#         dp.register_message_handler(AdminCommission.commission_promo_find_id,
-#                                     state=states.Commission.commission_promo_find_id)
-#         dp.register_callback_query_handler(AdminCommission.commission_promo_set_discount,
-#                                            state=states.Commission.commission_promo_set_discount,
-#                                            text_contains='commission_')
-#         dp.register_callback_query_handler(AdminCommission.commission_promo_set_time,
-#                                            state=states.Commission.commission_promo_set_discount,
-#                                            text_contains='time_')
+class AdminCommission:
+    CATEGORY_DICT = {"Цветы": "flowers", "Подарки": "gifts", "Кондитерка": "confection",
+                     "Документы": "documents", "Погрузка/Разгрузка": "loading", "Другое": "other"}
+
+    @staticmethod
+    async def commission(message: types.Message):
+        if message.text == "Просмотр комиссии":
+            res = await admins_get.admin_check_commission()
+            await bot.send_message(message.from_user.id,
+                                   "Выводим информацию о комиссии")
+            await bot.send_message(message.from_user.id,
+                                   f"Для Заказчика - {res[0].commission}\n"
+                                   f"Цветы - {res[1].commission}\n"
+                                   f"Подарки - {res[2].commission}\n"
+                                   f"Кондитерка - {res[3].commission}\n"
+                                   f"Документы - {res[4].commission}\n"
+                                   f"Погрузка/Загрузка - {res[5].commission}\n"
+                                   f"Другое - {res[6].commission}")
+        if message.text == "Установить комиссию":
+            await bot.send_message(message.from_user.id,
+                                   "Здесь вы сможете изменить комиссию для Исполнителей "
+                                   "а так же для разных видов деятельности",
+                                   reply_markup=markup_admin.commission_set())
+            await states.Commission.commission_set.set()
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню Администратора",
+                                   reply_markup=markup_admin.admin_main())
+            await states.AdminStates.enter.set()
+
+    @staticmethod
+    async def commission_set(message: types.Message):
+        if message.text == "Для Исполнителя":
+            await bot.send_message(message.from_user.id,
+                                   "Установите комиссию для исполнителя",
+                                   reply_markup=markup_admin.back()
+                                   )
+            await states.Commission.commission_for_performer.set()
+        if message.text == "Для категорий доставок":
+            await bot.send_message(message.from_user.id,
+                                   "Установите комиссию для категорий доставок",
+                                   reply_markup=markup_admin.commission_for_categories()
+                                   )
+            await states.CommissionForCategories.commission_for_categories.set()
+        if message.text == "Промо":
+            await bot.send_message(message.from_user.id,
+                                   "Временное отсутствие комиссии",
+                                   reply_markup=markup_admin.commission_promo())
+            await states.Commission.commission_promo.set()
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в раздел комиссий",
+                                   reply_markup=markup_admin.commission())
+            await states.Commission.commission.set()
+
+    @staticmethod
+    async def commission_for_performer(message: types.Message):
+        try:
+            res = float(message.text)
+        except ValueError:
+            res = message.text
+        if isinstance(res, float) and 0 <= res <= 20:
+            await admins_set.admin_set_commission_for_performer(message.text)
+            await bot.send_message(message.from_user.id,
+                                   f"Отлично! Вы установили комиссию для Исполнителя в размере {res}",
+                                   reply_markup=markup_admin.commission())
+            await states.Commission.commission.set()
+        if isinstance(res, float) and res > 20:
+            await bot.send_message(message.from_user.id, "Комиссия не может составлять больше 20%")
+        if isinstance(res, float) and res < 0:
+            await bot.send_message(message.from_user.id, "Комиссия не может составлять меньше 0%")
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад",
+                                   reply_markup=markup_admin.commission_set())
+            await states.Commission.commission_set.set()
+        if not isinstance(res, float) and message.text != "Назад":
+            await bot.send_message(message.from_user.id, "Надо ввести целое число")
+
+    @staticmethod
+    async def commission_for_categories(message: types.Message, state: FSMContext):
+        if message.text == "Цветы":
+            async with state.proxy() as data:
+                data["category"] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "Установите комиссию для Цветов",
+                                   reply_markup=markup_admin.back()
+                                   )
+            await states.CommissionForCategories.commission_for_category.set()
+        if message.text == "Подарки":
+            async with state.proxy() as data:
+                data["category"] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "Установите комиссию для Подарков",
+                                   reply_markup=markup_admin.back()
+                                   )
+            await states.CommissionForCategories.commission_for_category.set()
+        if message.text == "Кондитерка":
+            async with state.proxy() as data:
+                data["category"] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "Установите комиссию для Кондитерки",
+                                   reply_markup=markup_admin.back()
+                                   )
+            await states.CommissionForCategories.commission_for_category.set()
+        if message.text == "Документы":
+            async with state.proxy() as data:
+                data["category"] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "Установите комиссию для Документов",
+                                   reply_markup=markup_admin.back()
+                                   )
+            await states.CommissionForCategories.commission_for_category.set()
+        if message.text == "Погрузка/Разгрузка":
+            async with state.proxy() as data:
+                data["category"] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "Установите комиссию для Позгрузки/Разгрузки",
+                                   reply_markup=markup_admin.back()
+                                   )
+            await states.CommissionForCategories.commission_for_category.set()
+        if message.text == "Другое":
+            async with state.proxy() as data:
+                data["category"] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "Установите комиссию для Других видов деятельности",
+                                   reply_markup=markup_admin.back()
+                                   )
+            await states.CommissionForCategories.commission_for_category.set()
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад",
+                                   reply_markup=markup_admin.commission_set())
+            await states.Commission.commission_set.set()
+
+    @staticmethod
+    async def commission_for(message: types.Message, state: FSMContext):
+        async with state.proxy() as data:
+            category = data.get("category")
+        try:
+            res_text = float(message.text)
+        except ValueError:
+            res_text = message.text
+        if isinstance(res_text, float) and 0 <= res_text <= 10:
+            await admins_set.admin_set_commission_for_categories(category, res_text)
+            await bot.send_message(message.from_user.id,
+                                   f"Отлично! Вы установили комиссию для Категории {category} в размере {res_text}",
+                                   reply_markup=markup_admin.commission())
+            await states.Commission.commission.set()
+        if isinstance(res_text, float) and res_text > 10:
+            await bot.send_message(message.from_user.id, "Комиссия не может составлять больше 10%")
+        if isinstance(res_text, float) and res_text < 0:
+            await bot.send_message(message.from_user.id, "Комиссия не может составлять меньше 0%")
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад",
+                                   reply_markup=markup_admin.commission_for_categories())
+            await states.CommissionForCategories.commission_for_categories.set()
+        if not isinstance(res_text, float) and message.text != "Назад":
+            await bot.send_message(message.from_user.id, "Надо ввести целое число")
+
+    # @staticmethod
+    # async def commission_promo(message: types.Message):
+    #     if message.text == "Назад":
+    #         await bot.send_message(message.from_user.id,
+    #                                "Вы вернулись в раздел Установки комиссий",
+    #                                reply_markup=markup_admin.commission_set())
+    #         await states.Commission.commission_set.set()
+    #     if message.text == "Введите ID Исполнителя":
+    #         await bot.send_message(message.from_user.id,
+    #                                "Введите ID Исполнителя чтобы найти его",
+    #                                reply_markup=markup_admin.back())
+    #         await states.Commission.commission_promo_find_id.set()
+    #
+    # @staticmethod
+    # async def commission_promo_find_id(message: types.Message, state: FSMContext):
+    #     if message.text.isdigit():
+    #         res = admin_get_db_obj.admin_check_users("performers", message.text)
+    #         try:
+    #             if not bool(res[8]):
+    #                 await bot.send_message(message.from_user.id, "Пользователь найден!")
+    #                 await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+    #                                                              f"Пользователь НЕ заблокирован! "
+    #                                                              f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}",
+    #                                        reply_markup=markup_admin.commission_promo_discount())
+    #                 async with state.proxy() as data:
+    #                     data["user"] = res
+    #                 await states.Commission.commission_promo_set_discount.set()
+    #         except TypeError:
+    #             await bot.send_message(message.from_user.id, "Пользователь не найден!")
+    #     if not message.text.isdigit() and message.text != "Назад":
+    #         await bot.send_message(message.from_user.id, "Надо ввести целое число!")
+    #     if message.text == "Назад":
+    #         await bot.send_message(message.from_user.id,
+    #                                "Вы вернулись в раздел поиска ID",
+    #                                reply_markup=markup_admin.commission_promo())
+    #         await states.Commission.commission_promo.set()
+    #
+    # @staticmethod
+    # async def commission_promo_set_discount(callback: types.CallbackQuery, state: FSMContext):
+    #     if callback.data == "commission_back":
+    #         await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    #         await bot.send_message(callback.from_user.id,
+    #                                f"Вы вернулись в раздел Установки комиссий",
+    #                                reply_markup=markup_admin.commission_set())
+    #         await states.Commission.commission_set.set()
+    #     else:
+    #         res = callback.data[11:]
+    #         async with state.proxy() as data:
+    #             data["commission"] = res
+    #         await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    #         await bot.send_message(callback.from_user.id,
+    #                                "Отлично! Теперь настройте время",
+    #                                reply_markup=markup_admin.commission_promo_set_time())
+    #
+    # @staticmethod
+    # async def commission_promo_set_time(callback: types.CallbackQuery, state: FSMContext):
+    #     if callback.data == "time_back":
+    #         await bot.send_message(callback.from_user.id, "Пользователь найден!")
+    #         await bot.send_message(callback.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+    #                                                      f"Пользователь НЕ заблокирован! "
+    #                                                      f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}",
+    #                                reply_markup=markup_admin.commission_promo_discount())
+    #         await states.Commission.commission_promo_set_discount.set()
+    #     else:
+    #         res = callback.data[5:]
+    #         async with state.proxy() as data:
+    #             data["time"] = res
+    #         await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    #         comm = data.get('commission')
+    #         if comm == "free":
+    #             comm = "0.0"
+    #         date = datetime.now() + timedelta(hours=int(data.get('time')))
+    #         exists = global_db_obj.check_commission_promo(data.get('user')[1])
+    #         if exists:
+    #             date_promo, percent_promo = str(exists[1]), exists[0]
+    #             limitation = str(datetime.now() - datetime.strptime(date_promo, '%Y-%m-%d %H:%M:%S'))[:1]
+    #             if limitation == "-":
+    #                 await bot.send_message(callback.from_user.id,
+    #                                        f"Вы уже установили промо!\n"
+    #                                        f"Сейчас действует <b>{exists[0]}</b> "
+    #                                        f"до <b>{exists[1]}</b>",
+    #                                        reply_markup=markup_admin.commission_set())
+    #                 await states.Commission.commission_set.set()
+    #             if limitation != "-":
+    #                 await bot.send_message(callback.from_user.id,
+    #                                        f"Отлично! Теперь у пользователя <b>{data.get('user')[1]}</b> "
+    #                                        f"Комиссия <b>{comm}</b> "
+    #                                        f"на время <b>{data.get('time')}</b> часа",
+    #                                        reply_markup=markup_admin.commission_set())
+    #                 global_set_db_obj.set_commission_for_promo(data.get('user')[1], comm, str(date)[:19])
+    #                 await states.Commission.commission_set.set()
+    #         if exists is None:
+    #             await bot.send_message(callback.from_user.id,
+    #                                    f"Отлично! Теперь у пользователя <b>{data.get('user')[1]}</b> "
+    #                                    f"Комиссия <b>{comm}</b> "
+    #                                    f"на время <b>{data.get('time')}</b> часа",
+    #                                    reply_markup=markup_admin.commission_set())
+    #             global_set_db_obj.set_commission_for_promo(data.get('user')[1], comm, str(date)[:19])
+    #             await states.Commission.commission_set.set()
+
+    @staticmethod
+    def register_commission_handler(dp: Dispatcher):
+        dp.register_message_handler(AdminCommission.commission, state=states.Commission.commission)
+        dp.register_message_handler(AdminCommission.commission_set, state=states.Commission.commission_set)
+        dp.register_message_handler(AdminCommission.commission_for_performer,
+                                    state=states.Commission.commission_for_performer)
+        dp.register_message_handler(AdminCommission.commission_for_categories,
+                                    state=states.CommissionForCategories.commission_for_categories)
+        dp.register_message_handler(AdminCommission.commission_for,
+                                    state=states.CommissionForCategories.commission_for_category)
+        # dp.register_message_handler(AdminCommission.commission_promo,
+        #                             state=states.Commission.commission_promo)
+        # dp.register_message_handler(AdminCommission.commission_promo_find_id,
+        #                             state=states.Commission.commission_promo_find_id)
+        # dp.register_callback_query_handler(AdminCommission.commission_promo_set_discount,
+        #                                    state=states.Commission.commission_promo_set_discount,
+        #                                    text_contains='commission_')
+        # dp.register_callback_query_handler(AdminCommission.commission_promo_set_time,
+        #                                    state=states.Commission.commission_promo_set_discount,
+        #                                    text_contains='time_')
 
 
 class AdminControlChange:
