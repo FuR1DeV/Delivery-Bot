@@ -58,6 +58,8 @@ KEYBOARD = {
     'CROSS_MARK': emojize(':cross_mark:'),
     'CHECK_MARK_BUTTON': emojize(':check_mark_button:'),
     'TELEPHONE': emojize(':telephone_receiver:'),
+    'COMP': emojize(':desktop_computer:'),
+    'PHONE': emojize(':mobile_phone:'),
     'GREEN_CIRCLE': emojize(':green_circle:'),
     'RED_CIRCLE': emojize(':red_circle:'),
     'BLUE_CIRCLE': emojize(':blue_circle:'),

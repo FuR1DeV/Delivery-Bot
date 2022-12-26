@@ -48,7 +48,7 @@ def cancel():
 
 def approve():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Подтверждаю")
+    keyboard.add(f"{KEYBOARD.get('COMP')} С компьютера", f"{KEYBOARD.get('PHONE')} С телефона")
     keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
     return keyboard
 

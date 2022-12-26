@@ -87,6 +87,7 @@ class CustomerMain:
                                    reply_markup=markup_customer.customer_profile())
         if "Создать заказ" in message.text:
             CustomerCreateTask.register_customer_create_task(dp)
+            CustomerCreateTaskComp.register_customer_create_task_comp(dp)
             await customer_states.CustomerCreateTask.create.set()
             await bot.send_message(message.from_user.id,
                                    "Хотите создать новый заказ ?",
@@ -737,11 +738,16 @@ class CustomerProfile:
 class CustomerCreateTask:
     @staticmethod
     async def create_task(message: types.Message):
-        if "Подтверждаю" in message.text:
+        if "С телефона" in message.text:
             await bot.send_message(message.from_user.id,
                                    "Выберите категорию доставки",
                                    reply_markup=markup_customer.category_delivery())
             await customer_states.CustomerCreateTask.next()
+        if "С компьютера" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   "Выберите категорию доставки",
+                                   reply_markup=markup_customer.category_delivery())
+            await customer_states.CustomerCreateTaskComp.category_delivery.set()
         if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
             await customer_states.CustomerStart.start.set()
             await bot.send_message(message.from_user.id,
@@ -1135,6 +1141,41 @@ class CustomerCreateTask:
                                     state=customer_states.CustomerCreateTask.expired_data)
         dp.register_message_handler(CustomerCreateTask.order_worth,
                                     state=customer_states.CustomerCreateTask.worth)
+
+
+class CustomerCreateTaskComp:
+
+    @staticmethod
+    async def category_delivery(message: types.Message, state: FSMContext):
+        category = [f"{KEYBOARD.get('BOUQUET')} Цветы",
+                    f"{KEYBOARD.get('WRAPPED_GIFT')} Подарки",
+                    f"{KEYBOARD.get('SHORTCAKE')} Кондитерка",
+                    f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')} Документы",
+                    f"{KEYBOARD.get('ARROWS_BUTTON')} Погрузка/Разгрузка",
+                    f"{KEYBOARD.get('INPUT_LATIN_LETTERS')} Другое"]
+        if message.text in category:
+            await bot.send_message(message.from_user.id,
+                                   f"Отлично! Вы выбрали категорию {message.text}")
+            async with state.proxy() as data:
+                data["category_delivery"] = message.text.split()[1]
+            await bot.send_message(message.from_user.id,
+                                   "Откуда забрать посылку ?\n"
+                                   "Вы можете отправить своё местоположение\n"
+                                   "Или отправить любое другое местоположение отправив геопозицию\n"
+                                   "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
+                                   "На карте вы можете отправить точку откуда забрать посылку",
+                                   reply_markup=markup_customer.send_my_geo())
+            await customer_states.CustomerCreateTaskComp.next()
+        if message.text in f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+
+    @staticmethod
+    def register_customer_create_task_comp(dp: Dispatcher):
+        dp.register_message_handler(CustomerCreateTaskComp.category_delivery,
+                                    state=customer_states.CustomerCreateTaskComp.category_delivery)
 
 
 class CustomerDetailsTasks:

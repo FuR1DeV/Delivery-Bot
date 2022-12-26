@@ -27,6 +27,22 @@ class CustomerCreateTask(StatesGroup):
     video: State = State()
 
 
+class CustomerCreateTaskComp(StatesGroup):
+    create: State = State()
+    category_delivery: State = State()
+    geo_position_from: State = State()
+    geo_position_to: State = State()
+    title: State = State()
+    description: State = State()
+    price: State = State()
+    performer_category: State = State()
+    expired_data: State = State()
+    worth: State = State()
+    photo_or_video: State = State()
+    photo: State = State()
+    video: State = State()
+
+
 class CustomerProfile(StatesGroup):
     my_profile: State = State()
     balance: State = State()
