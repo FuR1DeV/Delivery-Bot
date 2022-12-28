@@ -4,7 +4,7 @@ from random import randint
 from datetime import datetime, timedelta
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, MenuButtonWebApp, WebAppInfo
 from geopy.geocoders import Nominatim
 
 from bot import bot, dp
@@ -1146,7 +1146,7 @@ class CustomerCreateTask:
 class CustomerCreateTaskComp:
 
     @staticmethod
-    async def category_delivery(message: types.Message, state: FSMContext):
+    async def category_delivery_comp(message: types.Message, state: FSMContext):
         category = [f"{KEYBOARD.get('BOUQUET')} Цветы",
                     f"{KEYBOARD.get('WRAPPED_GIFT')} Подарки",
                     f"{KEYBOARD.get('SHORTCAKE')} Кондитерка",
@@ -1159,12 +1159,8 @@ class CustomerCreateTaskComp:
             async with state.proxy() as data:
                 data["category_delivery"] = message.text.split()[1]
             await bot.send_message(message.from_user.id,
-                                   "Откуда забрать посылку ?\n"
-                                   "Вы можете отправить своё местоположение\n"
-                                   "Или отправить любое другое местоположение отправив геопозицию\n"
-                                   "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
-                                   "На карте вы можете отправить точку откуда забрать посылку",
-                                   reply_markup=markup_customer.send_my_geo())
+                                   "Выберите",
+                                   reply_markup=markup_customer.open_site())
             await customer_states.CustomerCreateTaskComp.next()
         if message.text in f"{KEYBOARD.get('CROSS_MARK')} Отмена":
             await customer_states.CustomerStart.start.set()
@@ -1173,9 +1169,86 @@ class CustomerCreateTaskComp:
                                    reply_markup=markup_customer.back_main_menu())
 
     @staticmethod
+    async def geo_position_from_comp(message: types.Message, state: FSMContext):
+        if message.text != f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            try:
+                n = Nominatim(user_agent='User')
+                loc = f"{message.text}"
+                address = n.reverse(loc)
+                city = address.raw.get("address").get("city")
+                if city is None:
+                    city = address.raw.get("address").get("town")
+                await bot.send_message(message.from_user.id,
+                                       f'Город подачи: {city}\n'
+                                       f'Адрес подачи: {address.raw.get("address").get("road")}, '
+                                       f'{address.raw.get("address").get("house_number")}\n')
+                await bot.send_message(message.from_user.id,
+                                       "Проверьте пожалуйста координаты, если вы ошиблись "
+                                       "вы можете еще раз отправить геопозицию. "
+                                       "Если же все в порядке нажмите Все верно",
+                                       reply_markup=markup_customer.inline_approve_geo_from_comp())
+                async with state.proxy() as data:
+                    data["geo_data_from_comp"] = f'{city}, ' \
+                                                 f'{address.raw.get("address").get("road")}, ' \
+                                                 f'{address.raw.get("address").get("house_number")}'
+            except AttributeError:
+                pass
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+
+    @staticmethod
+    async def approve_geo_from_comp(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.from_user.id,
+                               "Теперь надо указать конечную точку доставки",
+                               reply_markup=markup_customer.send_my_geo())
+        await customer_states.CustomerCreateTaskComp.geo_position_to.set()
+
+    @staticmethod
+    async def geo_position_to_comp(message: types.Message, state: FSMContext):
+        if message.text != f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            try:
+                n = Nominatim(user_agent='User')
+                loc = f"{message.text}"
+                address = n.reverse(loc)
+                city = address.raw.get("address").get("city")
+                if city is None:
+                    city = address.raw.get("address").get("town")
+                await bot.send_message(message.from_user.id,
+                                       f'Город доставки: {city}\n'
+                                       f'Адрес доставки: {address.raw.get("address").get("road")}, '
+                                       f'{address.raw.get("address").get("house_number")}\n')
+                await bot.send_message(message.from_user.id,
+                                       "Проверьте пожалуйста координаты, если вы ошиблись "
+                                       "вы можете еще раз отправить геопозицию. "
+                                       "Если же все в порядке нажмите Все верно",
+                                       reply_markup=markup_customer.inline_approve_geo_to())
+                async with state.proxy() as data:
+                    data["geo_data_to"] = f'{city}, ' \
+                                          f'{address.raw.get("address").get("road")}, ' \
+                                          f'{address.raw.get("address").get("house_number")}'
+            except AttributeError:
+                pass
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+
+    @staticmethod
     def register_customer_create_task_comp(dp: Dispatcher):
-        dp.register_message_handler(CustomerCreateTaskComp.category_delivery,
+        dp.register_message_handler(CustomerCreateTaskComp.category_delivery_comp,
                                     state=customer_states.CustomerCreateTaskComp.category_delivery)
+        dp.register_message_handler(CustomerCreateTaskComp.geo_position_from_comp,
+                                    state=customer_states.CustomerCreateTaskComp.geo_position_from)
+        dp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_from_comp,
+                                           text="approve_geo_from_comp",
+                                           state=customer_states.CustomerCreateTaskComp.geo_position_from)
+        dp.register_message_handler(CustomerCreateTaskComp.geo_position_to_comp,
+                                    state=customer_states.CustomerCreateTaskComp.geo_position_to)
 
 
 class CustomerDetailsTasks:

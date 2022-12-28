@@ -7,12 +7,10 @@ from aiogram.dispatcher import FSMContext
 import asyncio
 
 from bot import dp, bot
-from data import models
-from data.commands import general_get, general_set, performers_set, admins_set, admins_get
+from data.commands import general_set, performers_set, admins_set, admins_get
 from handler_admin.admin import AdminMain
 from handler_customer.customer import CustomerMain
 from handler_performer.performer import PerformerMain
-# from data.get_set_db import admin_get_db_obj, admin_set_db_obj, global_set_db_obj, global_db_obj, performer_get_db_obj
 from markups import markup_start, markup_admin
 from settings import config
 from states import states

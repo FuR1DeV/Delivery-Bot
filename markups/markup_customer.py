@@ -1,5 +1,5 @@
 from aiogram import types
-from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 from settings.config import KEYBOARD
 
@@ -138,6 +138,14 @@ def details_task_history_details_order():
     return keyboard
 
 
+def open_site():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button = types.KeyboardButton(text='Открыть карту', web_app=WebAppInfo(url="https://www.google.com/maps"))
+    keyboard.add(button)
+    keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+    return keyboard
+
+
 def send_my_geo():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     button = types.KeyboardButton(text='Отправить моё местоположение', request_location=True)
@@ -163,6 +171,13 @@ def details_task_status_review():
 def inline_approve_geo_from():
     approve_geo = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from")
+    approve_geo.insert(yes)
+    return approve_geo
+
+
+def inline_approve_geo_from_comp():
+    approve_geo = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from_comp")
     approve_geo.insert(yes)
     return approve_geo
 
