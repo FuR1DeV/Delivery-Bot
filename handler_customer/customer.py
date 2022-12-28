@@ -1159,7 +1159,7 @@ class CustomerCreateTaskComp:
             async with state.proxy() as data:
                 data["category_delivery"] = message.text.split()[1]
             await bot.send_message(message.from_user.id,
-                                   "Выберите",
+                                   "Введите координаты откуда забрать",
                                    reply_markup=markup_customer.open_site())
             await customer_states.CustomerCreateTaskComp.next()
         if message.text in f"{KEYBOARD.get('CROSS_MARK')} Отмена":
@@ -1203,8 +1203,8 @@ class CustomerCreateTaskComp:
     async def approve_geo_from_comp(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
-                               "Теперь надо указать конечную точку доставки",
-                               reply_markup=markup_customer.send_my_geo())
+                               "Введите координаты конечной точки",
+                               reply_markup=markup_customer.open_site())
         await customer_states.CustomerCreateTaskComp.geo_position_to.set()
 
     @staticmethod
@@ -1225,9 +1225,9 @@ class CustomerCreateTaskComp:
                                        "Проверьте пожалуйста координаты, если вы ошиблись "
                                        "вы можете еще раз отправить геопозицию. "
                                        "Если же все в порядке нажмите Все верно",
-                                       reply_markup=markup_customer.inline_approve_geo_to())
+                                       reply_markup=markup_customer.inline_approve_geo_to_comp())
                 async with state.proxy() as data:
-                    data["geo_data_to"] = f'{city}, ' \
+                    data["geo_data_to_comp"] = f'{city}, ' \
                                           f'{address.raw.get("address").get("road")}, ' \
                                           f'{address.raw.get("address").get("house_number")}'
             except AttributeError:
@@ -1236,6 +1236,262 @@ class CustomerCreateTaskComp:
             await customer_states.CustomerStart.start.set()
             await bot.send_message(message.from_user.id,
                                    "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+
+    @staticmethod
+    async def approve_geo_to_comp(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.from_user.id,
+                               "Отлично! Введите название заказа",
+                               reply_markup=markup_customer.cancel())
+        await customer_states.CustomerCreateTaskComp.title.set()
+
+    @staticmethod
+    async def title_comp(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+        else:
+            if len(message.text) > 100:
+                await bot.send_message(message.from_user.id,
+                                       "Вы ввели слишком длинное название!"
+                                       "Ограничение в названии заказа 100 символов!",
+                                       reply_markup=markup_customer.cancel())
+            else:
+                async with state.proxy() as data:
+                    data["title"] = message.text
+                await customer_states.CustomerCreateTaskComp.next()
+                await bot.send_message(message.from_user.id,
+                                       "Введите, что нужно сделать",
+                                       reply_markup=markup_customer.cancel())
+
+    @staticmethod
+    async def description_comp(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+        else:
+            if len(message.text) > 255:
+                await bot.send_message(message.from_user.id,
+                                       "Вы ввели слишком длинное название!"
+                                       "Ограничение в названии заказа 255 символов!",
+                                       reply_markup=markup_customer.cancel())
+            else:
+                async with state.proxy() as data:
+                    data["description"] = message.text
+                await customer_states.CustomerCreateTaskComp.next()
+                await bot.send_message(message.from_user.id,
+                                       "Предложите цену исполнителю",
+                                       reply_markup=markup_customer.cancel())
+
+    @staticmethod
+    async def price_comp(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+        if message.text.isdigit():
+            async with state.proxy() as data:
+                data["price"] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "Выберите категорию Исполнителя",
+                                   reply_markup=markup_customer.performer_category())
+            await customer_states.CustomerCreateTaskComp.next()
+        elif message.text != f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await bot.send_message(message.from_user.id,
+                                   "Надо ввести целое число")
+
+    @staticmethod
+    async def performer_category_comp(message: types.Message, state: FSMContext):
+        if "На машине" in message.text:
+            async with state.proxy() as data:
+                data['performer_category'] = "car"
+            await bot.send_message(message.from_user.id,
+                                   "<b>Сколько часов максимум актуален ваш заказ ?</b>",
+                                   reply_markup=markup_customer.expired_data())
+            await customer_states.CustomerCreateTaskComp.next()
+        if "На скутере" in message.text:
+            async with state.proxy() as data:
+                data['performer_category'] = "scooter"
+            await bot.send_message(message.from_user.id,
+                                   "<b>Сколько часов максимум актуален ваш заказ ?</b>",
+                                   reply_markup=markup_customer.expired_data())
+            await customer_states.CustomerCreateTaskComp.next()
+        if "Пешеход" in message.text:
+            async with state.proxy() as data:
+                data['performer_category'] = "pedestrian"
+            await bot.send_message(message.from_user.id,
+                                   "<b>Сколько часов максимум актуален ваш заказ ?</b>",
+                                   reply_markup=markup_customer.expired_data())
+            await customer_states.CustomerCreateTaskComp.next()
+        if "Любой" in message.text:
+            async with state.proxy() as data:
+                data['performer_category'] = "any"
+            await bot.send_message(message.from_user.id,
+                                   "<b>Сколько часов максимум актуален ваш заказ ?</b>",
+                                   reply_markup=markup_customer.expired_data())
+            await customer_states.CustomerCreateTaskComp.next()
+
+    @staticmethod
+    async def expired_order_comp(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+        if message.text.isdigit():
+            if 1 <= int(message.text) <= 12:
+                await bot.send_message(message.from_user.id,
+                                       f"Ваш заказ действует <b>{message.text} часа</b>")
+                date = datetime.now() + timedelta(hours=int(message.text))
+                async with state.proxy() as data:
+                    data['order_expired'] = date
+                await bot.send_message(message.from_user.id,
+                                       "<b>Определите примерную ценность вашего товара</b>\n"
+                                       "<b>Если ценности нет напишите 0</b>\n"
+                                       "<b>(Допустим у вас категория 'Погрузка/Разгрузка)'</b>)",
+                                       reply_markup=markup_customer.cancel())
+                await customer_states.CustomerCreateTaskComp.next()
+            else:
+                await bot.send_message(message.from_user.id,
+                                       f"Введите от 1 до 12 часов")
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Нужно ввести цифру\n"
+                                   "Введите сколько часов действует ваш заказ")
+
+    @staticmethod
+    async def order_worth_comp(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+        if message.text.isdigit():
+            await bot.send_message(message.from_user.id,
+                                   f"Вы определили ценность вашего товара <b>{message.text} руб.</b>")
+            async with state.proxy() as data:
+                data['order_worth'] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "Загрузите фото или видео",
+                                   reply_markup=markup_customer.photo_or_video_create_task())
+            await customer_states.CustomerCreateTaskComp.next()
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Нужно ввести цифру\n"
+                                   "Определите примерную ценность вашего товара")
+
+    @staticmethod
+    async def photo_video_comp(message: types.Message, state: FSMContext):
+        order_id = f"{datetime.now().strftime('%m_%d')}_{randint(1, 99999)}"
+        async with state.proxy() as data:
+            data["order_id"] = order_id
+        if message.text == "Без фото или видео":
+            async with state.proxy() as data:
+                await customers_set.customer_add_order(message.from_user.id,
+                                                       data.get("geo_data_from_comp"),
+                                                       data.get("geo_data_to_comp"),
+                                                       data.get("title"),
+                                                       int(data.get("price")),
+                                                       data.get("description"),
+                                                       "No Photo", "No Video",
+                                                       order_id,
+                                                       datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
+                                                       data.get("category_delivery"),
+                                                       data.get("performer_category"),
+                                                       data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
+                                                       int(data.get("order_worth")))
+            await general_set.add_review(order_id)
+            await state.finish()
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "<b>Отклик без фото или видео отправлен.</b>\n"
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                   reply_markup=markup_customer.back_main_menu())
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+        if message.text == "Загрузить Фото":
+            await customer_states.CustomerCreateTaskComp.photo.set()
+            await bot.send_message(message.from_user.id,
+                                   f"{message.from_user.first_name} Загрузите фото",
+                                   reply_markup=markup_customer.cancel())
+        if message.text == "Загрузить Видео":
+            await customer_states.CustomerCreateTaskComp.video.set()
+            await bot.send_message(message.from_user.id,
+                                   f"{message.from_user.first_name} Загрузите видео",
+                                   reply_markup=markup_customer.cancel())
+
+    @staticmethod
+    async def photo_comp(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+        else:
+            try:
+                async with state.proxy() as data:
+                    data["photo"] = message.photo[2].file_id
+                await customers_set.customer_add_order(message.from_user.id,
+                                                       data.get("geo_data_from_comp"),
+                                                       data.get("geo_data_to_comp"),
+                                                       data.get("title"),
+                                                       int(data.get("price")),
+                                                       data.get("description"),
+                                                       data.get("photo"), "No Video",
+                                                       data.get("order_id"),
+                                                       datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
+                                                       data.get("category_delivery"),
+                                                       data.get("performer_category"),
+                                                       data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
+                                                       int(data.get("order_worth")))
+                await general_set.add_review(data.get("order_id"))
+                await state.finish()
+                await customer_states.CustomerStart.start.set()
+                await bot.send_message(message.from_user.id,
+                                       "<b>Отклик с фото отправлен.</b>\n"
+                                       "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                       reply_markup=markup_customer.back_main_menu())
+            except IndexError:
+                pass
+
+    @staticmethod
+    async def video_comp(message: types.Message, state: FSMContext):
+        if message.text == "Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+        else:
+            async with state.proxy() as data:
+                data["video"] = message.video.file_id
+            await customers_set.customer_add_order(message.from_user.id,
+                                                   data.get("geo_data_from_comp"),
+                                                   data.get("geo_data_to_comp"),
+                                                   data.get("title"),
+                                                   int(data.get("price")),
+                                                   data.get("description"),
+                                                   "No Photo", data.get("video"),
+                                                   data.get("order_id"),
+                                                   datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
+                                                   data.get("category_delivery"),
+                                                   data.get("performer_category"),
+                                                   data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
+                                                   int(data.get("order_worth")))
+            await general_set.add_review(data.get("order_id"))
+            await state.finish()
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "<b>Отклик с видео отправлен.</b>\n"
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
                                    reply_markup=markup_customer.back_main_menu())
 
     @staticmethod
@@ -1249,6 +1505,27 @@ class CustomerCreateTaskComp:
                                            state=customer_states.CustomerCreateTaskComp.geo_position_from)
         dp.register_message_handler(CustomerCreateTaskComp.geo_position_to_comp,
                                     state=customer_states.CustomerCreateTaskComp.geo_position_to)
+        dp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_comp,
+                                           text="approve_geo_to_comp",
+                                           state=customer_states.CustomerCreateTaskComp.geo_position_to)
+        dp.register_message_handler(CustomerCreateTaskComp.title_comp,
+                                    state=customer_states.CustomerCreateTaskComp.title)
+        dp.register_message_handler(CustomerCreateTaskComp.description_comp,
+                                    state=customer_states.CustomerCreateTaskComp.description)
+        dp.register_message_handler(CustomerCreateTaskComp.price_comp,
+                                    state=customer_states.CustomerCreateTaskComp.price)
+        dp.register_message_handler(CustomerCreateTaskComp.performer_category_comp,
+                                    state=customer_states.CustomerCreateTaskComp.performer_category)
+        dp.register_message_handler(CustomerCreateTaskComp.photo_video_comp,
+                                    state=customer_states.CustomerCreateTaskComp.photo_or_video)
+        dp.register_message_handler(CustomerCreateTaskComp.photo_comp, content_types=['photo', 'text'],
+                                    state=customer_states.CustomerCreateTaskComp.photo)
+        dp.register_message_handler(CustomerCreateTaskComp.video_comp, content_types=['video', 'text'],
+                                    state=customer_states.CustomerCreateTaskComp.video)
+        dp.register_message_handler(CustomerCreateTaskComp.expired_order_comp,
+                                    state=customer_states.CustomerCreateTaskComp.expired_data)
+        dp.register_message_handler(CustomerCreateTaskComp.order_worth_comp,
+                                    state=customer_states.CustomerCreateTaskComp.worth)
 
 
 class CustomerDetailsTasks:

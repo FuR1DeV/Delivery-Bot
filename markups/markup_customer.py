@@ -189,6 +189,13 @@ def inline_approve_geo_to():
     return approve_geo
 
 
+def inline_approve_geo_to_comp():
+    approve_geo = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to_comp")
+    approve_geo.insert(yes)
+    return approve_geo
+
+
 def inline_approve_change_geo_from():
     approve_geo = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from")
