@@ -983,7 +983,7 @@ class CustomerCreateTask:
             await bot.send_message(message.from_user.id,
                                    "Вы отменили создание заказа",
                                    reply_markup=markup_customer.back_main_menu())
-        if message.text.isdigit():
+        if message.text.isdigit() and int(message.text) < 15001:
             await bot.send_message(message.from_user.id,
                                    f"Вы определили ценность вашего товара <b>{message.text} руб.</b>")
             async with state.proxy() as data:
@@ -992,9 +992,13 @@ class CustomerCreateTask:
                                    "Загрузите фото или видео",
                                    reply_markup=markup_customer.photo_or_video_create_task())
             await customer_states.CustomerCreateTask.next()
-        else:
+        elif not message.text.isdigit():
             await bot.send_message(message.from_user.id,
                                    "Нужно ввести цифру\n"
+                                   "Определите примерную ценность вашего товара")
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Максимальная ценность товара в 15000 рублей\n"
                                    "Определите примерную ценность вашего товара")
 
     @staticmethod
@@ -1159,14 +1163,85 @@ class CustomerCreateTaskComp:
             async with state.proxy() as data:
                 data["category_delivery"] = message.text.split()[1]
             await bot.send_message(message.from_user.id,
-                                   "Введите координаты откуда забрать",
-                                   reply_markup=markup_customer.open_site())
+                                   "Выберите способ",
+                                   reply_markup=markup_customer.choose())
             await customer_states.CustomerCreateTaskComp.next()
         if message.text in f"{KEYBOARD.get('CROSS_MARK')} Отмена":
             await customer_states.CustomerStart.start.set()
             await bot.send_message(message.from_user.id,
                                    "Вы отменили создание заказа",
                                    reply_markup=markup_customer.back_main_menu())
+
+    @staticmethod
+    async def choose(message: types.Message):
+        if message.text == "Ввести координаты с карт":
+            await bot.send_message(message.from_user.id,
+                                   "Введите координаты откуда забрать",
+                                   reply_markup=markup_customer.open_site())
+            await customer_states.CustomerCreateTaskComp.geo_position_from.set()
+        if message.text == "Ввести адрес вручную":
+            await bot.send_message(message.from_user.id,
+                                   "Введите адрес в таком формате:\n"
+                                   "Город улица дом\n"
+                                   "Пример:\n"
+                                   "Москва Лобачевского 12",
+                                   reply_markup=markup_customer.cancel())
+            await customer_states.CustomerCreateTaskComp.geo_position_from_custom.set()
+
+    @staticmethod
+    async def geo_position_from_custom(message: types.Message, state: FSMContext):
+        if message.text != f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await bot.send_message(message.from_user.id,
+                                   f'Город подачи: {message.text.split()[0]}\n'
+                                   f'Адрес подачи: {message.text.split()[1]} - {message.text.split()[2]}')
+            await bot.send_message(message.from_user.id,
+                                   "Проверьте пожалуйста введенные данные, если вы ошиблись "
+                                   "вы можете еще раз отправить адрес.\n"
+                                   "Если же все в порядке нажмите Все верно",
+                                   reply_markup=markup_customer.inline_approve_geo_from_custom())
+            async with state.proxy() as data:
+                data["geo_data_from_comp"] = message.text
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+
+    @staticmethod
+    async def approve_geo_from_custom(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.from_user.id,
+                               "Введите адрес конечной точки\n"
+                               "Если у вас Разгрузка/Погрузка, введите тот же адрес",
+                               reply_markup=markup_customer.cancel())
+        await customer_states.CustomerCreateTaskComp.geo_position_to_custom.set()
+
+    @staticmethod
+    async def geo_position_to_custom(message: types.Message, state: FSMContext):
+        if message.text != f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await bot.send_message(message.from_user.id,
+                                   f'Город подачи: {message.text.split()[0]}\n'
+                                   f'Адрес подачи: {message.text.split()[1]} - {message.text.split()[2]}')
+            await bot.send_message(message.from_user.id,
+                                   "Проверьте пожалуйста введенные данные, если вы ошиблись "
+                                   "вы можете еще раз отправить адрес.\n"
+                                   "Если же все в порядке нажмите Все верно",
+                                   reply_markup=markup_customer.inline_approve_geo_to_custom())
+            async with state.proxy() as data:
+                data["geo_data_to_comp"] = message.text
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
+
+    @staticmethod
+    async def approve_geo_to_custom(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.from_user.id,
+                               "Отлично! Введите название заказа",
+                               reply_markup=markup_customer.cancel())
+        await customer_states.CustomerCreateTaskComp.title.set()
 
     @staticmethod
     async def geo_position_from_comp(message: types.Message, state: FSMContext):
@@ -1372,7 +1447,7 @@ class CustomerCreateTaskComp:
             await bot.send_message(message.from_user.id,
                                    "Вы отменили создание заказа",
                                    reply_markup=markup_customer.back_main_menu())
-        if message.text.isdigit():
+        if message.text.isdigit() and int(message.text) < 15001:
             await bot.send_message(message.from_user.id,
                                    f"Вы определили ценность вашего товара <b>{message.text} руб.</b>")
             async with state.proxy() as data:
@@ -1381,9 +1456,13 @@ class CustomerCreateTaskComp:
                                    "Загрузите фото или видео",
                                    reply_markup=markup_customer.photo_or_video_create_task())
             await customer_states.CustomerCreateTaskComp.next()
-        else:
+        elif not message.text.isdigit():
             await bot.send_message(message.from_user.id,
                                    "Нужно ввести цифру\n"
+                                   "Определите примерную ценность вашего товара")
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Максимальная ценность товара в 15000 рублей\n"
                                    "Определите примерную ценность вашего товара")
 
     @staticmethod
@@ -1526,6 +1605,18 @@ class CustomerCreateTaskComp:
                                     state=customer_states.CustomerCreateTaskComp.expired_data)
         dp.register_message_handler(CustomerCreateTaskComp.order_worth_comp,
                                     state=customer_states.CustomerCreateTaskComp.worth)
+        dp.register_message_handler(CustomerCreateTaskComp.choose,
+                                    state=customer_states.CustomerCreateTaskComp.choose)
+        dp.register_message_handler(CustomerCreateTaskComp.geo_position_from_custom,
+                                    state=customer_states.CustomerCreateTaskComp.geo_position_from_custom)
+        dp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_from_custom,
+                                           text="approve_geo_from_custom",
+                                           state=customer_states.CustomerCreateTaskComp.geo_position_from_custom)
+        dp.register_message_handler(CustomerCreateTaskComp.geo_position_to_custom,
+                                    state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
+        dp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_comp,
+                                           text="approve_geo_to_custom",
+                                           state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
 
 
 class CustomerDetailsTasks:

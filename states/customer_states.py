@@ -30,7 +30,10 @@ class CustomerCreateTask(StatesGroup):
 class CustomerCreateTaskComp(StatesGroup):
     create: State = State()
     category_delivery: State = State()
+    choose: State = State()
+    geo_position_from_custom: State = State()
     geo_position_from: State = State()
+    geo_position_to_custom: State = State()
     geo_position_to: State = State()
     title: State = State()
     description: State = State()

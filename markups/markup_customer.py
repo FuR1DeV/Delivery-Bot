@@ -140,9 +140,15 @@ def details_task_history_details_order():
 
 def open_site():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button = types.KeyboardButton(text='Открыть карту', web_app=WebAppInfo(url="https://www.google.com/maps"))
-    keyboard.add(button)
+    google = types.KeyboardButton(text='Карта Google', web_app=WebAppInfo(url="https://www.google.com/maps"))
+    keyboard.add(google)
     keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+    return keyboard
+
+
+def choose():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row(f"Ввести координаты с карт", "Ввести адрес вручную")
     return keyboard
 
 
@@ -182,9 +188,23 @@ def inline_approve_geo_from_comp():
     return approve_geo
 
 
+def inline_approve_geo_from_custom():
+    approve_geo = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from_custom")
+    approve_geo.insert(yes)
+    return approve_geo
+
+
 def inline_approve_geo_to():
     approve_geo = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to")
+    approve_geo.insert(yes)
+    return approve_geo
+
+
+def inline_approve_geo_to_custom():
+    approve_geo = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to_custom")
     approve_geo.insert(yes)
     return approve_geo
 
