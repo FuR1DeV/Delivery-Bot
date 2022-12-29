@@ -1174,12 +1174,12 @@ class CustomerCreateTaskComp:
 
     @staticmethod
     async def choose(message: types.Message):
-        if message.text == "Ввести координаты с карт":
+        if "Ввести координаты с карт" in message.text:
             await bot.send_message(message.from_user.id,
                                    "Введите координаты откуда забрать",
                                    reply_markup=markup_customer.open_site())
             await customer_states.CustomerCreateTaskComp.geo_position_from.set()
-        if message.text == "Ввести адрес вручную":
+        if "Ввести адрес вручную" in message.text:
             await bot.send_message(message.from_user.id,
                                    "Введите адрес в таком формате:\n"
                                    "Город улица дом\n"
@@ -1187,6 +1187,11 @@ class CustomerCreateTaskComp:
                                    "Москва Лобачевского 12",
                                    reply_markup=markup_customer.cancel())
             await customer_states.CustomerCreateTaskComp.geo_position_from_custom.set()
+        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+            await customer_states.CustomerStart.start.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы отменили создание заказа",
+                                   reply_markup=markup_customer.back_main_menu())
 
     @staticmethod
     async def geo_position_from_custom(message: types.Message, state: FSMContext):

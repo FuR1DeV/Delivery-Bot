@@ -140,7 +140,7 @@ def details_task_history_details_order():
 
 def open_site():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    google = types.KeyboardButton(text='Карта Google', web_app=WebAppInfo(url="https://www.google.com/maps"))
+    google = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Google', web_app=WebAppInfo(url="https://www.google.com/maps"))
     keyboard.add(google)
     keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
     return keyboard
@@ -148,7 +148,9 @@ def open_site():
 
 def choose():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"Ввести координаты с карт", "Ввести адрес вручную")
+    keyboard.row(f"{KEYBOARD.get('WORLD_MAP')} Ввести координаты с карт",
+                 f"{KEYBOARD.get('WRITING_HAND')} Ввести адрес вручную")
+    keyboard.row(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
     return keyboard
 
 
