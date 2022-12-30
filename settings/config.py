@@ -71,5 +71,6 @@ KEYBOARD = {
     'B_BUTTON': emojize(':B_button_(blood_type):'),
     'KICK_SCOOTER': emojize(':kick_scooter:'),
     'INPUT_LATIN_LETTERS': emojize(':input_latin_letters:'),
+    'WAVING_HAND': emojize(':waving_hand:'),
     'RIGHT_ARROW_CURVING_LEFT': emojize(':right_arrow_curving_left:'),
 }

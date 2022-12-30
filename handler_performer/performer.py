@@ -1480,6 +1480,14 @@ class PerformerDetailsTasksStatus:
                                        "Заказ закрыт",
                                        reply_markup=markup_performer.main_menu())
                 await performer_states.PerformerStart.performer_menu.set()
+        if "Сообщить о прибытии" in message.text:
+            async with state.proxy() as data:
+                order = await general_get.order_select(data.get("order_id"))
+            await bot.send_message(order.user_id,
+                                   "Курьер на месте, вас ожидает\n"
+                                   "Ждёт от вас обратной связи")
+            await bot.send_message(message.from_user.id,
+                                   "Заказчик принял сообщение о вашем прибытии!")
         if "Вернуться в детали заказа" in message.text:
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в детали заказа",
