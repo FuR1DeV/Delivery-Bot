@@ -160,9 +160,9 @@ class PerformerMain:
                                                f"{config.KEYBOARD.get('ID_BUTTON')} "
                                                f"ID заказа - <b>{i.order_id}</b>\n"
                                                f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                                f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <b>{i.geo_position_to}</b>\n"
+                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                                f"{config.KEYBOARD.get('INFORMATION')} "
                                                f"Название - <b>{i.title}</b>\n"
                                                f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -179,7 +179,8 @@ class PerformerMain:
                                                f"Заказ создан: <b>{i.order_create}</b>\n"
                                                f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                                f"Действует до: <b>{i.order_expired}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                               disable_web_page_preview=True)
                         keyboard.add(f"{icon} {i.order_id} {icon}")
                     except:
                         try:
@@ -192,9 +193,9 @@ class PerformerMain:
                                                    f"{config.KEYBOARD.get('ID_BUTTON')} "
                                                    f"ID заказа - <b>{i.order_id}</b>\n"
                                                    f"{config.KEYBOARD.get('A_BUTTON')} "
-                                                   f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                                   f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                                    f"{config.KEYBOARD.get('B_BUTTON')} "
-                                                   f"Куда - <b>{i.geo_position_to}</b>\n"
+                                                   f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                                    f"{config.KEYBOARD.get('INFORMATION')} "
                                                    f"Название - <b>{i.title}</b>\n"
                                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -211,7 +212,8 @@ class PerformerMain:
                                                    f"Заказ создан: <b>{i.order_create}</b>\n"
                                                    f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                                    f"Действует до: <b>{i.order_expired}</b>\n"
-                                                   f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                                   f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                                   disable_web_page_preview=True)
                             keyboard.add(f"{icon} {i.order_id} {icon}")
                         except:
                             await bot.send_message(message.from_user.id,
@@ -222,9 +224,9 @@ class PerformerMain:
                                                    f"{config.KEYBOARD.get('ID_BUTTON')} "
                                                    f"ID заказа - <b>{i.order_id}</b>\n"
                                                    f"{config.KEYBOARD.get('A_BUTTON')} "
-                                                   f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                                   f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                                    f"{config.KEYBOARD.get('B_BUTTON')} "
-                                                   f"Куда - <b>{i.geo_position_to}</b>\n"
+                                                   f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                                    f"{config.KEYBOARD.get('INFORMATION')} "
                                                    f"Название - <b>{i.title}</b>\n"
                                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -241,7 +243,8 @@ class PerformerMain:
                                                    f"Заказ создан: <b>{i.order_create}</b>\n"
                                                    f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                                    f"Действует до: <b>{i.order_expired}</b>\n"
-                                                   f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                                   f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                                   disable_web_page_preview=True)
                             keyboard.add(f"{icon} {i.order_id} {icon}")
                 keyboard.add("Вернуться в главное меню")
                 await bot.send_message(message.from_user.id,
@@ -343,16 +346,17 @@ class PerformerMain:
                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
                                            f"ID заказа - <b>{i.order_id}</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-                                           f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-                                           f"Куда - <b>{i.geo_position_to}</b>\n"
+                                           f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                            f"{config.KEYBOARD.get('INFORMATION')} "
                                            f"Название - <b>{i.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{i.description}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
                                            f"Цена - <b>{i.price}</b>\n"
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
                     keyboard.add(f"{i.order_id}")
                     async with state.proxy() as data:
                         data[i.order_id] = {
@@ -372,16 +376,17 @@ class PerformerMain:
                                                f"{config.KEYBOARD.get('ID_BUTTON')} "
                                                f"ID заказа - <b>{i.order_id}</b>\n"
                                                f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                                f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <b>{i.geo_position_to}</b>\n"
+                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                                f"{config.KEYBOARD.get('INFORMATION')} "
                                                f"Название - <b>{i.title}</b>\n"
                                                f"{config.KEYBOARD.get('CLIPBOARD')} "
                                                f"Описание - <b>{i.description}</b>\n"
                                                f"{config.KEYBOARD.get('DOLLAR')} "
                                                f"Цена - <b>{i.price}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                               disable_web_page_preview=True)
                         keyboard.add(f"{i.order_id}")
                         async with state.proxy() as data:
                             data[i.order_id] = {
@@ -399,16 +404,17 @@ class PerformerMain:
                                                f"{config.KEYBOARD.get('ID_BUTTON')} "
                                                f"ID заказа - <b>{i.order_id}</b>\n"
                                                f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                                f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <b>{i.geo_position_to}</b>\n"
+                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                                f"{config.KEYBOARD.get('INFORMATION')} "
                                                f"Название - <b>{i.title}</b>\n"
                                                f"{config.KEYBOARD.get('CLIPBOARD')} "
                                                f"Описание - <b>{i.description}</b>\n"
                                                f"{config.KEYBOARD.get('DOLLAR')} "
                                                f"Цена - <b>{i.price}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                               disable_web_page_preview=True)
                         keyboard.add(f"{i.order_id}")
                         async with state.proxy() as data:
                             data[i.order_id] = {
@@ -833,9 +839,9 @@ class PerformerTasks:
                                        f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
                                        f"Категория - <b>{i.category_delivery}</b>\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
-                                       f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                        f"{config.KEYBOARD.get('B_BUTTON')} "
-                                       f"Куда - <b>{i.geo_position_to}</b>\n"
+                                       f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                        f"{config.KEYBOARD.get('INFORMATION')} "
                                        f"Название - <b>{i.title}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -854,7 +860,8 @@ class PerformerTasks:
                                        f"Действует до: <b>{i.order_expired}</b>\n"
                                        f"{config.KEYBOARD.get('BAR_CHART')} "
                                        f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                       f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                       disable_web_page_preview=True)
                 if order_rating is None:
                     await bot.send_message(callback.from_user.id,
                                            "Поставьте <b>Лайк</b> или <b>Дизлайк</b> этому заказу",
@@ -878,9 +885,9 @@ class PerformerTasks:
                                            f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
                                            f"Категория - <b>{i.category_delivery}</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-                                           f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-                                           f"Куда - <b>{i.geo_position_to}</b>\n"
+                                           f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                            f"{config.KEYBOARD.get('INFORMATION')} "
                                            f"Название - <b>{i.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -899,7 +906,8 @@ class PerformerTasks:
                                            f"Действует до: <b>{i.order_expired}</b>\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
                     if order_rating is None:
                         await bot.send_message(callback.from_user.id,
                                                "Поставьте <b>Лайк</b> или <b>Дизлайк</b> этому заказу",
@@ -921,9 +929,9 @@ class PerformerTasks:
                                            f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
                                            f"Категория - <b>{i.category_delivery}</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-                                           f"Откуда - <b>{i.geo_position_from}</b>\n"
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-                                           f"Куда - <b>{i.geo_position_to}</b>\n"
+                                           f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                            f"{config.KEYBOARD.get('INFORMATION')} "
                                            f"Название - <b>{i.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -942,7 +950,8 @@ class PerformerTasks:
                                            f"Действует до: <b>{i.order_expired}</b>\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
                     if order_rating is None:
                         await bot.send_message(callback.from_user.id,
                                                "Поставьте <b>Лайк</b> или <b>Дизлайк</b> этому заказу",
@@ -977,9 +986,9 @@ class PerformerTasks:
                                        f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
                                        f"Категория - <b>{res.category_delivery}</b>\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
-                                       f"Откуда - <b>{res.geo_position_from}</b>\n"
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(res.geo_position_from.split())}'>{res.geo_position_from}</a>\n"
                                        f"{config.KEYBOARD.get('B_BUTTON')} "
-                                       f"Куда - <b>{res.geo_position_to}</b>\n"
+                                       f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(res.geo_position_to.split())}'>{res.geo_position_to}</a>\n"
                                        f"{config.KEYBOARD.get('INFORMATION')} "
                                        f"Название - <b>{res.title}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -1006,9 +1015,9 @@ class PerformerTasks:
                                            f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
                                            f"Категория - <b>{res.category_delivery}</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-                                           f"Откуда - <b>{res.geo_position_from}</b>\n"
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(res.geo_position_from.split())}'>{res.geo_position_from}</a>\n"
                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-                                           f"Куда - <b>{res.geo_position_to}</b>\n"
+                                           f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(res.geo_position_to.split())}'>{res.geo_position_to}</a>\n"
                                            f"{config.KEYBOARD.get('INFORMATION')} "
                                            f"Название - <b>{res.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -1025,7 +1034,8 @@ class PerformerTasks:
                                            f"Действует до: <b>{res.order_expired}</b>\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{res.order_rating}</b>\n"
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
                 except:
                     await bot.send_message(message.from_user.id,
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -1033,9 +1043,9 @@ class PerformerTasks:
                                            f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
                                            f"Категория - <b>{res.category_delivery}</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-                                           f"Откуда - <b>{res.geo_position_from}</b>\n"
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(res.geo_position_from.split())}'>{res.geo_position_from}</a>\n"
                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-                                           f"Куда - <b>{res.geo_position_to}</b>\n"
+                                           f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(res.geo_position_to.split())}'>{res.geo_position_to}</a>\n"
                                            f"{config.KEYBOARD.get('INFORMATION')} "
                                            f"Название - <b>{res.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -1052,7 +1062,8 @@ class PerformerTasks:
                                            f"Действует до: <b>{res.order_expired}</b>\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{res.order_rating}</b>\n"
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
             await bot.send_message(message.from_user.id,
                                    "Вы хотите взять эту задачу ?",
                                    reply_markup=markup_performer.inline_approve())
@@ -1268,9 +1279,9 @@ class PerformerDetailsTasks:
                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
                                            f"ID заказа - <b>{res_order.order_id}</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
-                                           f"Откуда - <b>{res_order.geo_position_from}</b>\n"
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_from.split())}'>{res_order.geo_position_from}</a>\n"
                                            f"{config.KEYBOARD.get('B_BUTTON')} "
-                                           f"Куда - <b>{res_order.geo_position_to}</b>\n"
+                                           f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_to.split())}'>{res_order.geo_position_to}</a>\n"
                                            f"{config.KEYBOARD.get('INFORMATION')} "
                                            f"Название - <b>{res_order.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -1283,7 +1294,8 @@ class PerformerDetailsTasks:
                                            f"Заказ создан: <b>{res_order.order_create}</b>\n"
                                            f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                            f"Действует до: <b>{res_order.order_expired}</b>\n"
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
                 except:
                     try:
                         await bot.send_video(message.from_user.id, res_order.video)
@@ -1295,9 +1307,9 @@ class PerformerDetailsTasks:
                                                f"{config.KEYBOARD.get('ID_BUTTON')} "
                                                f"ID заказа - <b>{res_order.order_id}</b>\n"
                                                f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <b>{res_order.geo_position_from}</b>\n"
+                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_from.split())}'>{res_order.geo_position_from}</a>\n"
                                                f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <b>{res_order.geo_position_to}</b>\n"
+                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_to.split())}'>{res_order.geo_position_to}</a>\n"
                                                f"{config.KEYBOARD.get('INFORMATION')} "
                                                f"Название - <b>{res_order.title}</b>\n"
                                                f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -1310,7 +1322,8 @@ class PerformerDetailsTasks:
                                                f"Заказ создан: <b>{res_order.order_create}</b>\n"
                                                f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                                f"Действует до: <b>{res_order.order_expired}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                               disable_web_page_preview=True)
                     except:
                         await bot.send_message(message.from_user.id,
                                                f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -1320,9 +1333,9 @@ class PerformerDetailsTasks:
                                                f"{config.KEYBOARD.get('ID_BUTTON')} "
                                                f"ID заказа - <b>{res_order.order_id}</b>\n"
                                                f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <b>{res_order.geo_position_from}</b>\n"
+                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_from.split())}'>{res_order.geo_position_from}</a>\n"
                                                f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <b>{res_order.geo_position_to}</b>\n"
+                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_to.split())}'>{res_order.geo_position_to}</a>\n"
                                                f"{config.KEYBOARD.get('INFORMATION')} "
                                                f"Название - <b>{res_order.title}</b>\n"
                                                f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -1335,7 +1348,8 @@ class PerformerDetailsTasks:
                                                f"Заказ создан: <b>{res_order.order_create}</b>\n"
                                                f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                                f"Действует до: <b>{res_order.order_expired}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n")
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                               disable_web_page_preview=True)
         if "Статус заказа" in message.text:
             res = await performers_get.performer_get_status_order(data.get("order_id"))
             if res is None:
