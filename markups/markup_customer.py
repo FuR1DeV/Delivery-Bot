@@ -141,7 +141,8 @@ def details_task_history_details_order():
 def open_site():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     google = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Google', web_app=WebAppInfo(url="https://www.google.com/maps"))
-    keyboard.add(google)
+    yandex = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Yandex', web_app=WebAppInfo(url="https://www.yandex.ru/maps"))
+    keyboard.row(google, yandex)
     keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
     return keyboard
 
