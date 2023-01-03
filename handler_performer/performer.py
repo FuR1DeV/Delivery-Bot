@@ -1428,7 +1428,7 @@ class PerformerDetailsTasksStatus:
                 if status.performer_status:
                     await bot.send_message(message.from_user.id,
                                            "Вы уже не сможете отменить заказ так как вы его завершили",
-                                           reply_markup=markup_performer.details_task_status())
+                                           reply_markup=markup_performer.details_task_status_end())
                     await performer_states.PerformerDetailsTasksStatus.enter_status.set()
                 else:
                     await bot.send_message(message.from_user.id,
@@ -1447,7 +1447,7 @@ class PerformerDetailsTasksStatus:
                 if status.performer_status:
                     await bot.send_message(message.from_user.id,
                                            "Вы уже завершали заказ",
-                                           reply_markup=markup_performer.details_task_status())
+                                           reply_markup=markup_performer.details_task_status_end())
                     await performer_states.PerformerDetailsTasksStatus.enter_status.set()
                 else:
                     await bot.send_message(message.from_user.id,
@@ -1493,7 +1493,6 @@ class PerformerDetailsTasksStatus:
                 order = await general_get.order_select(order_id)
                 await performers_set.performer_change_arrive_status(order_id)
                 res = await performers_get.performer_arrive_info(order_id)
-
             if int(res) <= 0:
                 await bot.send_message(order.user_id,
                                        f"Курьер на месте, вас ожидает\n"
@@ -1540,11 +1539,20 @@ class PerformerDetailsTasksStatus:
                                reply_markup=markup_performer.main_menu())
 
     @staticmethod
-    async def no_cancel_order(callback: types.CallbackQuery):
+    async def no_cancel_order(callback: types.CallbackQuery, state: FSMContext):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(callback.from_user.id,
-                               "Хорошо что передумали, заказ будет сделан!",
-                               reply_markup=markup_performer.details_task_status())
+        async with state.proxy() as data:
+            res = await performers_get.performer_arrive_info(data.get("order_id"))
+        if int(res) <= 0:
+            await bot.send_message(callback.from_user.id,
+                                   "Хорошо что передумали, заказ будет сделан!",
+                                   reply_markup=markup_performer.details_task_status_end())
+        if int(res) > 0:
+            await bot.send_message(callback.from_user.id,
+                                   "Хорошо что передумали, заказ будет сделан!",
+                                   reply_markup=markup_performer.details_task_status(res))
+
+
 
     @staticmethod
     async def close_order(callback: types.CallbackQuery, state: FSMContext):
@@ -1573,11 +1581,18 @@ class PerformerDetailsTasksStatus:
         await performer_states.PerformerDetailsTasksStatus.rating.set()
 
     @staticmethod
-    async def no_close(callback: types.CallbackQuery):
+    async def no_close(callback: types.CallbackQuery, state: FSMContext):
+        async with state.proxy() as data:
+            res = await performers_get.performer_arrive_info(data.get("order_id"))
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(callback.from_user.id,
-                               "Сделайте до конца, а потом завершайте",
-                               reply_markup=markup_performer.details_task_status())
+        if int(res) <= 0:
+            await bot.send_message(callback.from_user.id,
+                                   "Сделайте до конца, а потом завершайте",
+                                   reply_markup=markup_performer.details_task_status_end())
+        if int(res) > 0:
+            await bot.send_message(callback.from_user.id,
+                                   "Сделайте до конца, а потом завершайте",
+                                   reply_markup=markup_performer.details_task_status(res))
 
     @staticmethod
     async def rating(message: types.Message, state: FSMContext):
@@ -1601,7 +1616,7 @@ class PerformerDetailsTasksStatus:
         if "Войти в детали заказа" in message.text:
             await bot.send_message(message.from_user.id,
                                    "Вы вошли в детали заказа",
-                                   reply_markup=markup_performer.details_task_status())
+                                   reply_markup=markup_performer.details_task_status_end())
             await performer_states.PerformerDetailsTasksStatus.enter_status.set()
         else:
             async with state.proxy() as data:
@@ -1609,7 +1624,7 @@ class PerformerDetailsTasksStatus:
                                                                                    message.text)
                 await bot.send_message(message.from_user.id,
                                        "Отзыв отправлен!",
-                                       reply_markup=markup_performer.details_task_status())
+                                       reply_markup=markup_performer.details_task_status_end())
                 await performer_states.PerformerDetailsTasksStatus.enter_status.set()
 
     @staticmethod
