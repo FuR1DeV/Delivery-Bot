@@ -4,7 +4,7 @@ from random import randint
 from datetime import datetime, timedelta
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, MenuButtonWebApp, WebAppInfo
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from geopy.geocoders import Nominatim
 
 from bot import bot, dp
@@ -126,108 +126,44 @@ class CustomerMain:
                                f"{config.KEYBOARD.get('PERSON_RUNNING')}"
                     if i.order_get is not None:
                         order_get = i.order_get
-                    try:
+                    if i.image != "No Photo":
                         await bot.send_photo(message.from_user.id, i.image)
-                        await bot.send_message(message.from_user.id,
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                               f"<b>Детали заказа</b>\n"
-                                               f"{icon_category} "
-                                               f"Категория - <b>{i.category_delivery}</b>\n"
-                                               f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
-                                               f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                               f"{config.KEYBOARD.get('INFORMATION')} "
-                                               f"Название - <b>{i.title}</b>\n"
-                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                               f"Описание - <b>{i.description}</b>\n"
-                                               f"{config.KEYBOARD.get('DOLLAR')} "
-                                               f"Цена - <b>{i.price}</b>\n"
-                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                               f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                               f"ID заказа - <b>{i.order_id}</b>\n"
-                                               f"{icon} "
-                                               f"Исполнитель - <b>{p_status}</b>\n"
-                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                               f"Заказ создан: <b>{i.order_create}</b>\n"
-                                               f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                               f"Заказ взят: <b>{order_get}</b>\n"
-                                               f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                               f"Действует до: <b>{i.order_expired}</b>\n"
-                                               f"{config.KEYBOARD.get('BAR_CHART')} "
-                                               f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                               disable_web_page_preview=True)
-                        keyboard.add(f"{icon} {i.order_id} {icon_category}")
-                    except:
-                        try:
-                            await bot.send_video(message.from_user.id, i.video)
-                            await bot.send_message(message.from_user.id,
-                                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                                   f"<b>Детали заказа</b>\n"
-                                                   f"{icon_category} "
-                                                   f"Категория - <b>{i.category_delivery}</b>\n"
-                                                   f"{config.KEYBOARD.get('A_BUTTON')} "
-                                                   f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
-                                                   f"{config.KEYBOARD.get('B_BUTTON')} "
-                                                   f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                                   f"{config.KEYBOARD.get('INFORMATION')} "
-                                                   f"Название - <b>{i.title}</b>\n"
-                                                   f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                                   f"Описание - <b>{i.description}</b>\n"
-                                                   f"{config.KEYBOARD.get('DOLLAR')} "
-                                                   f"Цена - <b>{i.price}</b>\n"
-                                                   f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                                   f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                                   f"ID заказа - <b>{i.order_id}</b>\n"
-                                                   f"{icon} "
-                                                   f"Исполнитель - <b>{p_status}</b>\n"
-                                                   f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                                   f"Заказ создан: <b>{i.order_create}</b>\n"
-                                                   f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                                   f"Заказ взят: <b>{order_get}</b>\n"
-                                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                                   f"Действует до: <b>{i.order_expired}</b>\n"
-                                                   f"{config.KEYBOARD.get('BAR_CHART')} "
-                                                   f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                                   f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                                   disable_web_page_preview=True)
-                            keyboard.add(f"{icon} {i.order_id} {icon_category}")
-                        except:
-                            await bot.send_message(message.from_user.id,
-                                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                                   f"<b>Детали заказа</b>\n"
-                                                   f"{icon_category} "
-                                                   f"Категория - <b>{i.category_delivery}</b>\n"
-                                                   f"{config.KEYBOARD.get('A_BUTTON')} "
-                                                   f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
-                                                   f"{config.KEYBOARD.get('B_BUTTON')} "
-                                                   f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                                   f"{config.KEYBOARD.get('INFORMATION')} "
-                                                   f"Название - <b>{i.title}</b>\n"
-                                                   f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                                   f"Описание - <b>{i.description}</b>\n"
-                                                   f"{config.KEYBOARD.get('DOLLAR')} "
-                                                   f"Цена - <b>{i.price}</b>\n"
-                                                   f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                                   f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                                   f"ID заказа - <b>{i.order_id}</b>\n"
-                                                   f"{icon} "
-                                                   f"Исполнитель - <b>{p_status}</b>\n"
-                                                   f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                                   f"Заказ создан: <b>{i.order_create}</b>\n"
-                                                   f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                                   f"Заказ взят: <b>{order_get}</b>\n"
-                                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                                   f"Действует до: <b>{i.order_expired}</b>\n"
-                                                   f"{config.KEYBOARD.get('BAR_CHART')} "
-                                                   f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                                   f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                                   disable_web_page_preview=True)
-                            keyboard.add(f"{icon} {i.order_id} {icon_category}")
+                    if i.video != "No Video":
+                        await bot.send_video(message.from_user.id, i.video)
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"<b>Детали заказа</b>\n"
+                                           f"{icon_category} "
+                                           f"Категория - <b>{i.category_delivery}</b>\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
+                                           f"{config.KEYBOARD.get('B_BUTTON')} "
+                                           f"Куда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
+                                           f"{config.KEYBOARD.get('INFORMATION')} "
+                                           f"Название - <b>{i.title}</b>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{i.description}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена - <b>{i.price}</b>\n"
+                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                           f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID заказа - <b>{i.order_id}</b>\n"
+                                           f"{icon} "
+                                           f"Исполнитель - <b>{p_status}</b>\n"
+                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                           f"Заказ создан: <b>{i.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                           f"Заказ взят: <b>{order_get}</b>\n"
+                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                           f"Действует до: <b>{i.order_expired}</b>\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} "
+                                           f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
+                    keyboard.add(f"{icon} {i.order_id} {icon_category}")
                 keyboard.add("Вернуться в главное меню")
                 refresh = InlineKeyboardMarkup()
                 r = InlineKeyboardButton(text="Обновить", callback_data="refresh")
@@ -296,122 +232,63 @@ class CustomerMain:
                 for k, v in category.items():
                     if i.category_delivery == k:
                         icon_category = v
-                try:
-                    if i.performer_category == "pedestrian":
-                        p_status = "Пешеход"
-                        icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-                    if i.performer_category == "scooter":
-                        p_status = "На самокате"
-                        icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
-                    if i.performer_category == "car":
-                        p_status = "На машине"
-                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-                    elif i.performer_category == "any":
-                        p_status = "Любой"
-                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
-                               f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
-                               f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-                    await bot.send_photo(callback.from_user.id, i[7])
-                    await bot.send_message(callback.from_user.id,
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                           f"<b>Детали заказа</b>\n"
-                                           f"{icon_category} "
-                                           f"Категория - <b>{i.category_delivery}</b>\n"
-                                           f"{config.KEYBOARD.get('A_BUTTON')} "
-                                           f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
-                                           f"{config.KEYBOARD.get('B_BUTTON')} "
-                                           f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                           f"{config.KEYBOARD.get('INFORMATION')} "
-                                           f"Название - <b>{i.title}</b>\n"
-                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                           f"Описание - <b>{i.description}</b>\n"
-                                           f"{config.KEYBOARD.get('DOLLAR')} "
-                                           f"Цена - <b>{i.price}</b>\n"
-                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                           f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                           f"{config.KEYBOARD.get('WRENCH')} "
-                                           f"В работе - <b>{bool(i.in_work)}</b>\n"
-                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                           f"ID заказа - <b>{i.order_id}</b>\n"
-                                           f"{icon} "
-                                           f"Исполнитель - <b>{p_status}</b>\n"
-                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                           f"Заказ создан: <b>{i.order_create}</b>\n"
-                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                           f"Действует до: <b>{i.order_expired}</b>\n"
-                                           f"{config.KEYBOARD.get('BAR_CHART')} "
-                                           f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                           disable_web_page_preview=True)
-                    keyboard.add(f"{icon} {i.order_id} {icon_category}")
-                except:
-                    try:
-                        await bot.send_video(callback.from_user.id, i.video)
-                        await bot.send_message(callback.from_user.id,
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                               f"<b>Детали заказа</b>\n"
-                                               f"{icon_category} "
-                                               f"Категория - <b>{i.category_delivery}</b>\n"
-                                               f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
-                                               f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                               f"{config.KEYBOARD.get('INFORMATION')} "
-                                               f"Название - <b>{i.title}</b>\n"
-                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                               f"Описание - <b>{i.description}</b>\n"
-                                               f"{config.KEYBOARD.get('DOLLAR')} "
-                                               f"Цена - <b>{i.price}</b>\n"
-                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                               f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                               f"{config.KEYBOARD.get('WRENCH')} "
-                                               f"В работе - <b>{bool(i.in_work)}</b>\n"
-                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                               f"ID заказа - <b>{i.order_id}</b>\n"
-                                               f"{icon} "
-                                               f"Исполнитель - <b>{p_status}</b>\n"
-                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                               f"Заказ создан: <b>{i.order_create}</b>\n"
-                                               f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                               f"Действует до: <b>{i.order_expired}</b>\n"
-                                               f"{config.KEYBOARD.get('BAR_CHART')} "
-                                               f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                               disable_web_page_preview=True)
-                        keyboard.add(f"{icon} {i.order_id} {icon_category}")
-                    except:
-                        await bot.send_message(callback.from_user.id,
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                               f"<b>Детали заказа</b>\n"
-                                               f"{icon_category} "
-                                               f"Категория - <b>{i.category_delivery}</b>\n"
-                                               f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
-                                               f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                               f"{config.KEYBOARD.get('INFORMATION')} "
-                                               f"Название - <b>{i.title}</b>\n"
-                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                               f"Описание - <b>{i.description}</b>\n"
-                                               f"{config.KEYBOARD.get('DOLLAR')} "
-                                               f"Цена - <b>{i.price}</b>\n"
-                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                               f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                               f"{config.KEYBOARD.get('WRENCH')} "
-                                               f"В работе - <b>{bool(i.in_work)}</b>\n"
-                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                               f"ID заказа - <b>{i.order_id}</b>\n"
-                                               f"{icon} "
-                                               f"Исполнитель - <b>{p_status}</b>\n"
-                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                               f"Заказ создан: <b>{i.order_create}</b>\n"
-                                               f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                               f"Действует до: <b>{i.order_expired}</b>\n"
-                                               f"{config.KEYBOARD.get('BAR_CHART')} "
-                                               f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                               disable_web_page_preview=True)
-                        keyboard.add(f"{icon} {i.order_id} {icon_category}")
+                if i.performer_category == "pedestrian":
+                    p_status = "Пешеход"
+                    icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                if i.performer_category == "scooter":
+                    p_status = "На самокате"
+                    icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+                if i.performer_category == "car":
+                    p_status = "На машине"
+                    icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
+                elif i.performer_category == "any":
+                    p_status = "Любой"
+                    icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
+                           f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
+                           f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                else:
+                    p_status = "Любой"
+                    icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
+                           f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
+                           f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                if i.image != "No Photo":
+                    await bot.send_photo(callback.from_user.id, i.image)
+                if i.video != "No Video":
+                    await bot.send_video(callback.from_user.id, i.video)
+                await bot.send_message(callback.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"<b>Детали заказа</b>\n"
+                                       f"{icon_category} "
+                                       f"Категория - <b>{i.category_delivery}</b>\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
+                                       f"{config.KEYBOARD.get('B_BUTTON')} "
+                                       f"Куда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
+                                       f"{config.KEYBOARD.get('INFORMATION')} "
+                                       f"Название - <b>{i.title}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{i.description}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена - <b>{i.price}</b>\n"
+                                       f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                       f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
+                                       f"{config.KEYBOARD.get('WRENCH')} "
+                                       f"В работе - <b>{bool(i.in_work)}</b>\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"ID заказа - <b>{i.order_id}</b>\n"
+                                       f"{icon} "
+                                       f"Исполнитель - <b>{p_status}</b>\n"
+                                       f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                       f"Заказ создан: <b>{i.order_create}</b>\n"
+                                       f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                       f"Действует до: <b>{i.order_expired}</b>\n"
+                                       f"{config.KEYBOARD.get('BAR_CHART')} "
+                                       f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                       disable_web_page_preview=True)
+                keyboard.add(f"{icon} {i.order_id} {icon_category}")
             keyboard.add("Вернуться в главное меню")
             refresh = InlineKeyboardMarkup()
             r = InlineKeyboardButton(text="Обновить", callback_data="refresh")
@@ -488,151 +365,69 @@ class CustomerMain:
                         f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
                         f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
                         f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
+            icon_category = None
             for i in res:
-                try:
-                    icon_category = None
-                    for k, v in category.items():
-                        if i.category_delivery == k:
-                            icon_category = v
-                    if i.performer_category == "pedestrian":
-                        p_status = "Пешеход"
-                        icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-                    if i.performer_category == "scooter":
-                        p_status = "На самокате"
-                        icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
-                    if i.performer_category == "car":
-                        p_status = "На машине"
-                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-                    elif i.performer_category == "any":
-                        p_status = "Любой"
-                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
-                               f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
-                               f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-                    await bot.send_photo(callback.from_user.id, i.photo)
-                    await bot.send_message(callback.from_user.id,
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                           f"<b>Детали заказа</b>\n"
-                                           f"{icon_category} "
-                                           f"Категория - <b>{i.category_delivery}</b>\n"
-                                           f"{config.KEYBOARD.get('A_BUTTON')} "
-                                           f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
-                                           f"{config.KEYBOARD.get('B_BUTTON')} "
-                                           f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                           f"{config.KEYBOARD.get('INFORMATION')} "
-                                           f"Название - <b>{i.title}</b>\n"
-                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                           f"Описание - <b>{i.description}</b>\n"
-                                           f"{config.KEYBOARD.get('DOLLAR')} "
-                                           f"Цена - <b>{i.price}</b>\n"
-                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                           f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                           f"ID заказа - <b>{i.order_id}</b>\n"
-                                           f"{icon} "
-                                           f"Исполнитель - <b>{p_status}</b>\n"
-                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                           f"Заказ создан: <b>{i.order_create}</b>\n"
-                                           f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                           f"Заказ взят: <b>{i.order_get}</b>\n"
-                                           f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
-                                           f"Заказ завершен: <b>{i.order_end}</b>\n"
-                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                           f"Действует до: <b>{i.order_expired}</b>\n",
-                                           disable_web_page_preview=True)
-                    keyboard.add(f"{i.order_id}")
-                    async with state.proxy() as data:
-                        data[i.order_id] = {
-                            'Откуда': i.geo_position_from,
-                            'Куда': i.geo_position_to,
-                            'Название': i.title,
-                            'ID заказа': i.order_id,
-                            'ID исполнителя': i.in_work,
-                            'Бюджет': i.price,
-                        }
-                except:
-                    try:
-                        await bot.send_video(callback.from_user.id, i.video)
-                        await bot.send_message(callback.from_user.id,
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                               f"<b>Детали заказа</b>\n"
-                                               f"{icon_category} "
-                                               f"Категория - <b>{i.category_delivery}</b>\n"
-                                               f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
-                                               f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                               f"{config.KEYBOARD.get('INFORMATION')} "
-                                               f"Название - <b>{i.title}</b>\n"
-                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                               f"Описание - <b>{i.description}</b>\n"
-                                               f"{config.KEYBOARD.get('DOLLAR')} "
-                                               f"Цена - <b>{i.price}</b>\n"
-                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                               f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                               f"ID заказа - <b>{i.order_id}</b>\n"
-                                               f"{icon} "
-                                               f"Исполнитель - <b>{p_status}</b>\n"
-                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                               f"Заказ создан: <b>{i.order_create}</b>\n"
-                                               f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                               f"Заказ взят: <b>{i.order_get}</b>\n"
-                                               f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
-                                               f"Заказ завершен: <b>{i.order_end}</b>\n"
-                                               f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                               f"Действует до: <b>{i.order_expired}</b>\n",
-                                               disable_web_page_preview=True)
-                        keyboard.add(f"{i.order_id}")
-                        async with state.proxy() as data:
-                            data[i.order_id] = {
-                                'Откуда': i.geo_position_from,
-                                'Куда': i.geo_position_to,
-                                'Название': i.title,
-                                'ID заказа': i.order_id,
-                                'ID исполнителя': i.in_work,
-                                'Бюджет': i.price,
-                            }
-                    except:
-                        await bot.send_message(callback.from_user.id,
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                               f"<b>Детали заказа</b>\n"
-                                               f"{icon_category} "
-                                               f"Категория - <b>{i.category_delivery}</b>\n"
-                                               f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
-                                               f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                               f"{config.KEYBOARD.get('INFORMATION')} "
-                                               f"Название - <b>{i.title}</b>\n"
-                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                               f"Описание - <b>{i.description}</b>\n"
-                                               f"{config.KEYBOARD.get('DOLLAR')} "
-                                               f"Цена - <b>{i.price}</b>\n"
-                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                               f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                               f"ID заказа - <b>{i.order_id}</b>\n"
-                                               f"{icon} "
-                                               f"Исполнитель - <b>{p_status}</b>\n"
-                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                               f"Заказ создан: <b>{i.order_create}</b>\n"
-                                               f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                               f"Заказ взят: <b>{i.order_get}</b>\n"
-                                               f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
-                                               f"Заказ завершен: <b>{i.order_end}</b>\n"
-                                               f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                               f"Действует до: <b>{i.order_expired}</b>\n",
-                                               disable_web_page_preview=True)
-                        keyboard.add(f"{i.order_id}")
-                        async with state.proxy() as data:
-                            data[i.order_id] = {
-                                'Откуда': i.geo_position_from,
-                                'Куда': i.geo_position_to,
-                                'Название': i.title,
-                                'ID заказа': i.order_id,
-                                'ID исполнителя': i.in_work,
-                                'Бюджет': i.price,
-                            }
+                for k, v in category.items():
+                    if i.category_delivery == k:
+                        icon_category = v
+                if i.performer_category == "pedestrian":
+                    p_status = "Пешеход"
+                    icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                if i.performer_category == "scooter":
+                    p_status = "На самокате"
+                    icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+                if i.performer_category == "car":
+                    p_status = "На машине"
+                    icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
+                else:
+                    p_status = "Любой"
+                    icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
+                           f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
+                           f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                if i.image != "No Photo":
+                    await bot.send_photo(callback.from_user.id, i.image)
+                if i.video != "No Video":
+                    await bot.send_video(callback.from_user.id, i.video)
+                await bot.send_message(callback.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"<b>Детали заказа</b>\n"
+                                       f"{icon_category} "
+                                       f"Категория - <b>{i.category_delivery}</b>\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
+                                       f"{config.KEYBOARD.get('B_BUTTON')} "
+                                       f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
+                                       f"{config.KEYBOARD.get('INFORMATION')} "
+                                       f"Название - <b>{i.title}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{i.description}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена - <b>{i.price}</b>\n"
+                                       f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                       f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"ID заказа - <b>{i.order_id}</b>\n"
+                                       f"{icon} "
+                                       f"Исполнитель - <b>{p_status}</b>\n"
+                                       f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                       f"Заказ создан: <b>{i.order_create}</b>\n"
+                                       f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                       f"Заказ взят: <b>{i.order_get}</b>\n"
+                                       f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
+                                       f"Заказ завершен: <b>{i.order_end}</b>\n"
+                                       f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                       f"Действует до: <b>{i.order_expired}</b>\n",
+                                       disable_web_page_preview=True)
+                keyboard.add(f"{i.order_id}")
+                async with state.proxy() as data:
+                    data[i.order_id] = {
+                        'Откуда': i.geo_position_from,
+                        'Куда': i.geo_position_to,
+                        'Название': i.title,
+                        'ID заказа': i.order_id,
+                        'ID исполнителя': i.in_work,
+                        'Бюджет': i.price,
+                    }
             keyboard.add("Вернуться в главное меню")
             await bot.send_message(callback.from_user.id,
                                    "Выберите ID задачи чтобы войти в детали заказа",
@@ -1703,87 +1498,39 @@ class CustomerDetailsTasks:
                                        "Вы вернулись в главное меню",
                                        reply_markup=markup_customer.main_menu())
             else:
-                try:
-                    await bot.send_photo(message.from_user.id, res_order.photo)
-                    await bot.send_message(message.from_user.id,
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                           f"<b>Детали заказа</b>\n"
-                                           f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
-                                           f"Категория - <b>{res_order.category_delivery}</b>\n"
-                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                           f"ID заказа - <b>{res_order.order_id}</b>\n"
-                                           f"{config.KEYBOARD.get('A_BUTTON')} "
-                                           f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_from.split())}'>{res_order.geo_position_from}</a>\n"
-                                           f"{config.KEYBOARD.get('B_BUTTON')} "
-                                           f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_to.split())}'>{res_order.geo_position_to}</a>\n"
-                                           f"{config.KEYBOARD.get('INFORMATION')} "
-                                           f"Название - <b>{res_order.title}</b>\n"
-                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                           f"Описание - <b>{res_order.description}</b>\n"
-                                           f"{config.KEYBOARD.get('DOLLAR')} "
-                                           f"Цена - <b>{res_order.price}</b>\n"
-                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                           f"Ценность вашего товара - <b>{res_order.order_worth}</b>\n"
-                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                           f"Создан <b>{res_order.order_create}</b>\n"
-                                           f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                           f"Взят <b>{res_order.order_get}</b>\n"
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                           disable_web_page_preview=True)
-                except:
-                    try:
-                        await bot.send_video(message.from_user.id, res_order.video)
-                        await bot.send_message(message.from_user.id,
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                               f"<b>Детали заказа</b>\n"
-                                               f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
-                                               f"Категория - <b>{res_order.category_delivery}</b>\n"
-                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                               f"ID заказа - <b>{res_order.order_id}</b>\n"
-                                               f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_from.split())}'>{res_order.geo_position_from}</a>\n"
-                                               f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_to.split())}'>{res_order.geo_position_to}</a>\n"
-                                               f"{config.KEYBOARD.get('INFORMATION')} "
-                                               f"Название - <b>{res_order.title}</b>\n"
-                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                               f"Описание - <b>{res_order.description}</b>\n"
-                                               f"{config.KEYBOARD.get('DOLLAR')} "
-                                               f"Цена - <b>{res_order.price}</b>\n"
-                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                               f"Ценность вашего товара - <b>{res_order.order_worth}</b>\n"
-                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                               f"Создан <b>{res_order.order_create}</b>\n"
-                                               f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                               f"Взят <b>{res_order.order_get}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                               disable_web_page_preview=True)
-                    except:
-                        await bot.send_message(message.from_user.id,
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                               f"<b>Детали заказа</b>\n"
-                                               f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
-                                               f"Категория - <b>{res_order.category_delivery}</b>\n"
-                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                               f"ID заказа - <b>{res_order.order_id}</b>\n"
-                                               f"{config.KEYBOARD.get('A_BUTTON')} "
-                                               f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_from.split())}'>{res_order.geo_position_from}</a>\n"
-                                               f"{config.KEYBOARD.get('B_BUTTON')} "
-                                               f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(res_order.geo_position_to.split())}'>{res_order.geo_position_to}</a>\n"
-                                               f"{config.KEYBOARD.get('INFORMATION')} "
-                                               f"Название - <b>{res_order.title}</b>\n"
-                                               f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                               f"Описание - <b>{res_order.description}</b>\n"
-                                               f"{config.KEYBOARD.get('DOLLAR')} "
-                                               f"Цена - <b>{res_order.price}</b>\n"
-                                               f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                               f"Ценность вашего товара - <b>{res_order.order_worth}</b>\n"
-                                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                               f"Создан <b>{res_order.order_create}</b>\n"
-                                               f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                               f"Взят <b>{res_order.order_get}</b>\n"
-                                               f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                               disable_web_page_preview=True)
+                if res_order.image != "No Photo":
+                    await bot.send_photo(message.from_user.id, res_order.image)
+                if res_order.video != "No Video":
+                    await bot.send_video(message.from_user.id, res_order.video)
+                await bot.send_message(message.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"<b>Детали заказа</b>\n"
+                                       f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
+                                       f"Категория - <b>{res_order.category_delivery}</b>\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"ID заказа - <b>{res_order.order_id}</b>\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(res_order.geo_position_from.split())}'>"
+                                       f"{res_order.geo_position_from}</a>\n"
+                                       f"{config.KEYBOARD.get('B_BUTTON')} "
+                                       f"Куда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(res_order.geo_position_to.split())}'>"
+                                       f"{res_order.geo_position_to}</a>\n"
+                                       f"{config.KEYBOARD.get('INFORMATION')} "
+                                       f"Название - <b>{res_order.title}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{res_order.description}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена - <b>{res_order.price}</b>\n"
+                                       f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                       f"Ценность вашего товара - <b>{res_order.order_worth}</b>\n"
+                                       f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                       f"Создан <b>{res_order.order_create}</b>\n"
+                                       f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                       f"Взят <b>{res_order.order_get}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                       disable_web_page_preview=True)
         if "Статус заказа" in message.text:
             res = await customers_get.customer_get_status_order(data.get("order_id"))
             if res is None:
@@ -2464,7 +2211,7 @@ class CustomerHistory:
             if order.performer_category == "car":
                 p_status = "На машине"
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-            elif order.performer_category == "any":
+            else:
                 p_status = "Любой"
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
                        f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
@@ -2499,7 +2246,8 @@ class CustomerHistory:
                                    f"Заказ завершен: <b>{order.order_end}</b>\n"
                                    f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                    f"Действует до: <b>{order.order_expired}</b>\n",
-                                   reply_markup=markup_customer.details_task_history_details_order())
+                                   reply_markup=markup_customer.details_task_history_details_order(),
+                                   disable_web_page_preview=True)
         if "Профиль исполнителя" in message.text:
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -2530,14 +2278,14 @@ class CustomerHistory:
         async with state.proxy() as data:
             order = data.get(data.get("order_id"))
         if message.text == "Посмотреть фото":
-            try:
-                await bot.send_photo(message.from_user.id, order.photo)
-            except:
+            if order.image != "No Photo":
+                await bot.send_photo(message.from_user.id, order.image)
+            else:
                 await bot.send_message(message.from_user.id, "В вашем заказе нет фото")
         if message.text == "Посмотреть видео":
-            try:
+            if order.video != "No Video":
                 await bot.send_video(message.from_user.id, order.video)
-            except:
+            else:
                 await bot.send_message(message.from_user.id, "В вашем заказе нет видео")
         if "Назад в детали заказа" in message.text:
             await customer_states.CustomerHistory.order_history.set()
