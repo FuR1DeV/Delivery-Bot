@@ -369,6 +369,8 @@ class CustomerMain:
                 for k, v in category.items():
                     if i.category_delivery == k:
                         icon_category = v
+                icon = None
+                p_status = None
                 if i.performer_category == "pedestrian":
                     p_status = "Пешеход"
                     icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
@@ -378,7 +380,7 @@ class CustomerMain:
                 if i.performer_category == "car":
                     p_status = "На машине"
                     icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-                else:
+                elif i.performer_category == "any":
                     p_status = "Любой"
                     icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
                            f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
@@ -393,9 +395,11 @@ class CustomerMain:
                                        f"{icon_category} "
                                        f"Категория - <b>{i.category_delivery}</b>\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
-                                       f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
                                        f"{config.KEYBOARD.get('B_BUTTON')} "
-                                       f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
+                                       f"Куда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
                                        f"{config.KEYBOARD.get('INFORMATION')} "
                                        f"Название - <b>{i.title}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -451,7 +455,8 @@ class CustomerMain:
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(res[-1],
                                f"{config.KEYBOARD.get('CROSS_MARK')} "
-                               f"Заказчик <b>{callback.from_user.id}</b> не одобрил ваш запрос по заказу <b>{res[2]}</b>. "
+                               f"Заказчик <b>{callback.from_user.id}</b> "
+                               f"не одобрил ваш запрос по заказу <b>{res[2]}</b>. "
                                f"Возможно ему не понравился ваш рейтинг "
                                f"{config.KEYBOARD.get('CROSS_MARK')}")
 
@@ -490,29 +495,29 @@ class CustomerMain:
                                "Заказчик <b>подтвердил</b> получение информации о вашем прибытии")
 
     @staticmethod
-    def register_customer_handler(dp: Dispatcher):
-        dp.register_message_handler(CustomerMain.phone, content_types=['contact'],
-                                    state=customer_states.CustomerPhone.phone)
-        dp.register_callback_query_handler(CustomerMain.hi_customer, text='customer')
-        dp.register_message_handler(CustomerMain.main, state=customer_states.CustomerStart.start)
-        dp.register_message_handler(CustomerMain.customer_menu, state=customer_states.CustomerStart.customer_menu)
-        dp.register_callback_query_handler(CustomerMain.customer_approve, state=["*"], text='customer_yes')
-        dp.register_callback_query_handler(CustomerMain.customer_decline, state=["*"], text='customer_no')
-        dp.register_callback_query_handler(CustomerMain.proposal_from_performer_yes, state=["*"], text='proposal_yes')
-        dp.register_callback_query_handler(CustomerMain.proposal_from_performer_no, state=["*"], text='proposal_no')
-        dp.register_callback_query_handler(CustomerMain.choose_month,
-                                           state=customer_states.CustomerStart.customer_menu,
-                                           text_contains='year_finish_')
-        dp.register_callback_query_handler(CustomerMain.choose_day,
-                                           state=customer_states.CustomerStart.customer_menu,
-                                           text_contains='month_finish_')
-        dp.register_callback_query_handler(CustomerMain.choose_job,
-                                           state=customer_states.CustomerStart.customer_menu,
-                                           text_contains='day_finish_')
-        dp.register_callback_query_handler(CustomerMain.refresh,
-                                           state=["*"], text='refresh')
-        dp.register_callback_query_handler(CustomerMain.approve_info_arrived,
-                                           state=["*"], text_contains='arrive_approve_')
+    def register_customer_handler(disp: Dispatcher):
+        disp.register_message_handler(CustomerMain.phone, content_types=['contact'],
+                                      state=customer_states.CustomerPhone.phone)
+        disp.register_callback_query_handler(CustomerMain.hi_customer, text='customer')
+        disp.register_message_handler(CustomerMain.main, state=customer_states.CustomerStart.start)
+        disp.register_message_handler(CustomerMain.customer_menu, state=customer_states.CustomerStart.customer_menu)
+        disp.register_callback_query_handler(CustomerMain.customer_approve, state=["*"], text='customer_yes')
+        disp.register_callback_query_handler(CustomerMain.customer_decline, state=["*"], text='customer_no')
+        disp.register_callback_query_handler(CustomerMain.proposal_from_performer_yes, state=["*"], text='proposal_yes')
+        disp.register_callback_query_handler(CustomerMain.proposal_from_performer_no, state=["*"], text='proposal_no')
+        disp.register_callback_query_handler(CustomerMain.choose_month,
+                                             state=customer_states.CustomerStart.customer_menu,
+                                             text_contains='year_finish_')
+        disp.register_callback_query_handler(CustomerMain.choose_day,
+                                             state=customer_states.CustomerStart.customer_menu,
+                                             text_contains='month_finish_')
+        disp.register_callback_query_handler(CustomerMain.choose_job,
+                                             state=customer_states.CustomerStart.customer_menu,
+                                             text_contains='day_finish_')
+        disp.register_callback_query_handler(CustomerMain.refresh,
+                                             state=["*"], text='refresh')
+        disp.register_callback_query_handler(CustomerMain.approve_info_arrived,
+                                             state=["*"], text_contains='arrive_approve_')
 
 
 class CustomerProfile:
@@ -541,9 +546,9 @@ class CustomerProfile:
                                    )
 
     @staticmethod
-    def register_customer_profile(dp):
-        dp.register_message_handler(CustomerProfile.customer_profile,
-                                    state=customer_states.CustomerProfile.my_profile)
+    def register_customer_profile(disp: Dispatcher):
+        disp.register_message_handler(CustomerProfile.customer_profile,
+                                      state=customer_states.CustomerProfile.my_profile)
 
 
 class CustomerCreateTask:
@@ -921,41 +926,41 @@ class CustomerCreateTask:
                                    reply_markup=markup_customer.back_main_menu())
 
     @staticmethod
-    def register_customer_create_task(dp: Dispatcher):
-        dp.register_message_handler(CustomerCreateTask.create_task,
-                                    state=customer_states.CustomerCreateTask.create)
-        dp.register_message_handler(CustomerCreateTask.category_delivery,
-                                    state=customer_states.CustomerCreateTask.category_delivery)
-        dp.register_message_handler(CustomerCreateTask.geo_position_from,
-                                    content_types=['location', 'text'],
-                                    state=customer_states.CustomerCreateTask.geo_position_from)
-        dp.register_callback_query_handler(CustomerCreateTask.approve_geo_from,
-                                           text="approve_geo_from",
-                                           state=customer_states.CustomerCreateTask.geo_position_from)
-        dp.register_message_handler(CustomerCreateTask.geo_position_to,
-                                    content_types=['location', 'text'],
-                                    state=customer_states.CustomerCreateTask.geo_position_to)
-        dp.register_callback_query_handler(CustomerCreateTask.approve_geo_to,
-                                           text="approve_geo_to",
-                                           state=customer_states.CustomerCreateTask.geo_position_to)
-        dp.register_message_handler(CustomerCreateTask.title,
-                                    state=customer_states.CustomerCreateTask.title)
-        dp.register_message_handler(CustomerCreateTask.description,
-                                    state=customer_states.CustomerCreateTask.description)
-        dp.register_message_handler(CustomerCreateTask.price,
-                                    state=customer_states.CustomerCreateTask.price)
-        dp.register_message_handler(CustomerCreateTask.performer_category,
-                                    state=customer_states.CustomerCreateTask.performer_category)
-        dp.register_message_handler(CustomerCreateTask.photo_video,
-                                    state=customer_states.CustomerCreateTask.photo_or_video)
-        dp.register_message_handler(CustomerCreateTask.photo, content_types=['photo', 'text'],
-                                    state=customer_states.CustomerCreateTask.photo)
-        dp.register_message_handler(CustomerCreateTask.video, content_types=['video', 'text'],
-                                    state=customer_states.CustomerCreateTask.video)
-        dp.register_message_handler(CustomerCreateTask.expired_order,
-                                    state=customer_states.CustomerCreateTask.expired_data)
-        dp.register_message_handler(CustomerCreateTask.order_worth,
-                                    state=customer_states.CustomerCreateTask.worth)
+    def register_customer_create_task(disp: Dispatcher):
+        disp.register_message_handler(CustomerCreateTask.create_task,
+                                      state=customer_states.CustomerCreateTask.create)
+        disp.register_message_handler(CustomerCreateTask.category_delivery,
+                                      state=customer_states.CustomerCreateTask.category_delivery)
+        disp.register_message_handler(CustomerCreateTask.geo_position_from,
+                                      content_types=['location', 'text'],
+                                      state=customer_states.CustomerCreateTask.geo_position_from)
+        disp.register_callback_query_handler(CustomerCreateTask.approve_geo_from,
+                                             text="approve_geo_from",
+                                             state=customer_states.CustomerCreateTask.geo_position_from)
+        disp.register_message_handler(CustomerCreateTask.geo_position_to,
+                                      content_types=['location', 'text'],
+                                      state=customer_states.CustomerCreateTask.geo_position_to)
+        disp.register_callback_query_handler(CustomerCreateTask.approve_geo_to,
+                                             text="approve_geo_to",
+                                             state=customer_states.CustomerCreateTask.geo_position_to)
+        disp.register_message_handler(CustomerCreateTask.title,
+                                      state=customer_states.CustomerCreateTask.title)
+        disp.register_message_handler(CustomerCreateTask.description,
+                                      state=customer_states.CustomerCreateTask.description)
+        disp.register_message_handler(CustomerCreateTask.price,
+                                      state=customer_states.CustomerCreateTask.price)
+        disp.register_message_handler(CustomerCreateTask.performer_category,
+                                      state=customer_states.CustomerCreateTask.performer_category)
+        disp.register_message_handler(CustomerCreateTask.photo_video,
+                                      state=customer_states.CustomerCreateTask.photo_or_video)
+        disp.register_message_handler(CustomerCreateTask.photo, content_types=['photo', 'text'],
+                                      state=customer_states.CustomerCreateTask.photo)
+        disp.register_message_handler(CustomerCreateTask.video, content_types=['video', 'text'],
+                                      state=customer_states.CustomerCreateTask.video)
+        disp.register_message_handler(CustomerCreateTask.expired_order,
+                                      state=customer_states.CustomerCreateTask.expired_data)
+        disp.register_message_handler(CustomerCreateTask.order_worth,
+                                      state=customer_states.CustomerCreateTask.worth)
 
 
 class CustomerCreateTaskComp:
@@ -1119,8 +1124,8 @@ class CustomerCreateTaskComp:
                                        reply_markup=markup_customer.inline_approve_geo_to_comp())
                 async with state.proxy() as data:
                     data["geo_data_to_comp"] = f'{city}, ' \
-                                          f'{address.raw.get("address").get("road")}, ' \
-                                          f'{address.raw.get("address").get("house_number")}'
+                                               f'{address.raw.get("address").get("road")}, ' \
+                                               f'{address.raw.get("address").get("house_number")}'
             except AttributeError:
                 pass
         if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
@@ -1390,49 +1395,49 @@ class CustomerCreateTaskComp:
                                    reply_markup=markup_customer.back_main_menu())
 
     @staticmethod
-    def register_customer_create_task_comp(dp: Dispatcher):
-        dp.register_message_handler(CustomerCreateTaskComp.category_delivery_comp,
-                                    state=customer_states.CustomerCreateTaskComp.category_delivery)
-        dp.register_message_handler(CustomerCreateTaskComp.geo_position_from_comp,
-                                    state=customer_states.CustomerCreateTaskComp.geo_position_from)
-        dp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_from_comp,
-                                           text="approve_geo_from_comp",
-                                           state=customer_states.CustomerCreateTaskComp.geo_position_from)
-        dp.register_message_handler(CustomerCreateTaskComp.geo_position_to_comp,
-                                    state=customer_states.CustomerCreateTaskComp.geo_position_to)
-        dp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_comp,
-                                           text="approve_geo_to_comp",
-                                           state=customer_states.CustomerCreateTaskComp.geo_position_to)
-        dp.register_message_handler(CustomerCreateTaskComp.title_comp,
-                                    state=customer_states.CustomerCreateTaskComp.title)
-        dp.register_message_handler(CustomerCreateTaskComp.description_comp,
-                                    state=customer_states.CustomerCreateTaskComp.description)
-        dp.register_message_handler(CustomerCreateTaskComp.price_comp,
-                                    state=customer_states.CustomerCreateTaskComp.price)
-        dp.register_message_handler(CustomerCreateTaskComp.performer_category_comp,
-                                    state=customer_states.CustomerCreateTaskComp.performer_category)
-        dp.register_message_handler(CustomerCreateTaskComp.photo_video_comp,
-                                    state=customer_states.CustomerCreateTaskComp.photo_or_video)
-        dp.register_message_handler(CustomerCreateTaskComp.photo_comp, content_types=['photo', 'text'],
-                                    state=customer_states.CustomerCreateTaskComp.photo)
-        dp.register_message_handler(CustomerCreateTaskComp.video_comp, content_types=['video', 'text'],
-                                    state=customer_states.CustomerCreateTaskComp.video)
-        dp.register_message_handler(CustomerCreateTaskComp.expired_order_comp,
-                                    state=customer_states.CustomerCreateTaskComp.expired_data)
-        dp.register_message_handler(CustomerCreateTaskComp.order_worth_comp,
-                                    state=customer_states.CustomerCreateTaskComp.worth)
-        dp.register_message_handler(CustomerCreateTaskComp.choose,
-                                    state=customer_states.CustomerCreateTaskComp.choose)
-        dp.register_message_handler(CustomerCreateTaskComp.geo_position_from_custom,
-                                    state=customer_states.CustomerCreateTaskComp.geo_position_from_custom)
-        dp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_from_custom,
-                                           text="approve_geo_from_custom",
-                                           state=customer_states.CustomerCreateTaskComp.geo_position_from_custom)
-        dp.register_message_handler(CustomerCreateTaskComp.geo_position_to_custom,
-                                    state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
-        dp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_comp,
-                                           text="approve_geo_to_custom",
-                                           state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
+    def register_customer_create_task_comp(disp: Dispatcher):
+        disp.register_message_handler(CustomerCreateTaskComp.category_delivery_comp,
+                                      state=customer_states.CustomerCreateTaskComp.category_delivery)
+        disp.register_message_handler(CustomerCreateTaskComp.geo_position_from_comp,
+                                      state=customer_states.CustomerCreateTaskComp.geo_position_from)
+        disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_from_comp,
+                                             text="approve_geo_from_comp",
+                                             state=customer_states.CustomerCreateTaskComp.geo_position_from)
+        disp.register_message_handler(CustomerCreateTaskComp.geo_position_to_comp,
+                                      state=customer_states.CustomerCreateTaskComp.geo_position_to)
+        disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_comp,
+                                             text="approve_geo_to_comp",
+                                             state=customer_states.CustomerCreateTaskComp.geo_position_to)
+        disp.register_message_handler(CustomerCreateTaskComp.title_comp,
+                                      state=customer_states.CustomerCreateTaskComp.title)
+        disp.register_message_handler(CustomerCreateTaskComp.description_comp,
+                                      state=customer_states.CustomerCreateTaskComp.description)
+        disp.register_message_handler(CustomerCreateTaskComp.price_comp,
+                                      state=customer_states.CustomerCreateTaskComp.price)
+        disp.register_message_handler(CustomerCreateTaskComp.performer_category_comp,
+                                      state=customer_states.CustomerCreateTaskComp.performer_category)
+        disp.register_message_handler(CustomerCreateTaskComp.photo_video_comp,
+                                      state=customer_states.CustomerCreateTaskComp.photo_or_video)
+        disp.register_message_handler(CustomerCreateTaskComp.photo_comp, content_types=['photo', 'text'],
+                                      state=customer_states.CustomerCreateTaskComp.photo)
+        disp.register_message_handler(CustomerCreateTaskComp.video_comp, content_types=['video', 'text'],
+                                      state=customer_states.CustomerCreateTaskComp.video)
+        disp.register_message_handler(CustomerCreateTaskComp.expired_order_comp,
+                                      state=customer_states.CustomerCreateTaskComp.expired_data)
+        disp.register_message_handler(CustomerCreateTaskComp.order_worth_comp,
+                                      state=customer_states.CustomerCreateTaskComp.worth)
+        disp.register_message_handler(CustomerCreateTaskComp.choose,
+                                      state=customer_states.CustomerCreateTaskComp.choose)
+        disp.register_message_handler(CustomerCreateTaskComp.geo_position_from_custom,
+                                      state=customer_states.CustomerCreateTaskComp.geo_position_from_custom)
+        disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_from_custom,
+                                             text="approve_geo_from_custom",
+                                             state=customer_states.CustomerCreateTaskComp.geo_position_from_custom)
+        disp.register_message_handler(CustomerCreateTaskComp.geo_position_to_custom,
+                                      state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
+        disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_comp,
+                                             text="approve_geo_to_custom",
+                                             state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
 
 
 class CustomerDetailsTasks:
@@ -1640,22 +1645,22 @@ class CustomerDetailsTasks:
                                reply_markup=markup_customer.details_task_not_at_work())
 
     @staticmethod
-    def register_customer_details_tasks(dp):
-        dp.register_message_handler(CustomerDetailsTasks.customer_details,
-                                    state=customer_states.CustomerDetailsTasks.my_tasks)
-        dp.register_message_handler(CustomerDetailsTasks.detail_task,
-                                    state=customer_states.CustomerDetailsTasks.enter_task)
-        dp.register_message_handler(CustomerDetailsTasks.detail_task_not_at_work,
-                                    state=customer_states.CustomerDetailsTasks.not_at_work)
-        dp.register_callback_query_handler(CustomerDetailsTasks.cancel_order_not_at_work,
-                                           text='cancel',
-                                           state=customer_states.CustomerDetailsTasks.not_at_work)
-        dp.register_callback_query_handler(CustomerDetailsTasks.no_cancel_order_not_at_work,
-                                           text='no_cancel',
-                                           state=customer_states.CustomerDetailsTasks.not_at_work)
-        dp.register_callback_query_handler(CustomerDetailsTasks.no_change_order_not_at_work,
-                                           text='no_change',
-                                           state=customer_states.CustomerDetailsTasks.not_at_work)
+    def register_customer_details_tasks(disp: Dispatcher):
+        disp.register_message_handler(CustomerDetailsTasks.customer_details,
+                                      state=customer_states.CustomerDetailsTasks.my_tasks)
+        disp.register_message_handler(CustomerDetailsTasks.detail_task,
+                                      state=customer_states.CustomerDetailsTasks.enter_task)
+        disp.register_message_handler(CustomerDetailsTasks.detail_task_not_at_work,
+                                      state=customer_states.CustomerDetailsTasks.not_at_work)
+        disp.register_callback_query_handler(CustomerDetailsTasks.cancel_order_not_at_work,
+                                             text='cancel',
+                                             state=customer_states.CustomerDetailsTasks.not_at_work)
+        disp.register_callback_query_handler(CustomerDetailsTasks.no_cancel_order_not_at_work,
+                                             text='no_cancel',
+                                             state=customer_states.CustomerDetailsTasks.not_at_work)
+        disp.register_callback_query_handler(CustomerDetailsTasks.no_change_order_not_at_work,
+                                             text='no_change',
+                                             state=customer_states.CustomerDetailsTasks.not_at_work)
 
 
 class CustomerDetailsTasksChange:
@@ -1858,28 +1863,28 @@ class CustomerDetailsTasksChange:
         await customer_states.CustomerChangeOrder.enter.set()
 
     @staticmethod
-    def register_customer_details_tasks_change(dp):
-        dp.register_callback_query_handler(CustomerDetailsTasksChange.change_task_enter,
-                                           text='change',
-                                           state=customer_states.CustomerDetailsTasks.not_at_work)
-        dp.register_message_handler(CustomerDetailsTasksChange.change_task_main,
-                                    state=customer_states.CustomerChangeOrder.enter)
-        dp.register_message_handler(CustomerDetailsTasksChange.change,
-                                    state=customer_states.CustomerChangeOrder.change)
-        dp.register_message_handler(CustomerDetailsTasksChange.change_money,
-                                    state=customer_states.CustomerChangeOrder.change_money)
-        dp.register_message_handler(CustomerDetailsTasksChange.change_geo_position_from,
-                                    content_types=['location', 'text'],
-                                    state=customer_states.CustomerChangeOrder.change_geo_from)
-        dp.register_callback_query_handler(CustomerDetailsTasksChange.approve_change_geo_from,
-                                           text="approve_geo_from",
-                                           state=customer_states.CustomerChangeOrder.change_geo_from)
-        dp.register_message_handler(CustomerDetailsTasksChange.change_geo_position_to,
-                                    content_types=['location', 'text'],
-                                    state=customer_states.CustomerChangeOrder.change_geo_to)
-        dp.register_callback_query_handler(CustomerDetailsTasksChange.approve_change_geo_to,
-                                           text="approve_geo_to",
-                                           state=customer_states.CustomerChangeOrder.change_geo_to)
+    def register_customer_details_tasks_change(disp: Dispatcher):
+        disp.register_callback_query_handler(CustomerDetailsTasksChange.change_task_enter,
+                                             text='change',
+                                             state=customer_states.CustomerDetailsTasks.not_at_work)
+        disp.register_message_handler(CustomerDetailsTasksChange.change_task_main,
+                                      state=customer_states.CustomerChangeOrder.enter)
+        disp.register_message_handler(CustomerDetailsTasksChange.change,
+                                      state=customer_states.CustomerChangeOrder.change)
+        disp.register_message_handler(CustomerDetailsTasksChange.change_money,
+                                      state=customer_states.CustomerChangeOrder.change_money)
+        disp.register_message_handler(CustomerDetailsTasksChange.change_geo_position_from,
+                                      content_types=['location', 'text'],
+                                      state=customer_states.CustomerChangeOrder.change_geo_from)
+        disp.register_callback_query_handler(CustomerDetailsTasksChange.approve_change_geo_from,
+                                             text="approve_geo_from",
+                                             state=customer_states.CustomerChangeOrder.change_geo_from)
+        disp.register_message_handler(CustomerDetailsTasksChange.change_geo_position_to,
+                                      content_types=['location', 'text'],
+                                      state=customer_states.CustomerChangeOrder.change_geo_to)
+        disp.register_callback_query_handler(CustomerDetailsTasksChange.approve_change_geo_to,
+                                             text="approve_geo_to",
+                                             state=customer_states.CustomerChangeOrder.change_geo_to)
 
 
 class CustomerDetailsTasksStatus:
@@ -1971,7 +1976,7 @@ class CustomerDetailsTasksStatus:
             await bot.send_message(data.get("user_id"),
                                    f"{config.KEYBOARD.get('CROSS_MARK') * 14}")
             await bot.send_message(data.get("user_id"),
-                                   f"Ваша задача <b>{data.get('order_id')}</b> была отменёна заказчиком!")
+                                   f"Ваша задача <b>{data.get('order_id')}</b> была отменена заказчиком!")
             await bot.send_message(data.get("user_id"),
                                    f"{config.KEYBOARD.get('CROSS_MARK') * 14}")
         await customer_states.CustomerStart.customer_menu.set()
@@ -2052,25 +2057,25 @@ class CustomerDetailsTasksStatus:
                 await customer_states.CustomerDetailsTasksStatus.enter_status.set()
 
     @staticmethod
-    def register_customer_details_tasks_status(dp):
-        dp.register_message_handler(CustomerDetailsTasksStatus.details_status,
-                                    state=customer_states.CustomerDetailsTasksStatus.enter_status)
-        dp.register_callback_query_handler(CustomerDetailsTasksStatus.cancel_order,
-                                           text="cancel",
-                                           state=customer_states.CustomerDetailsTasksStatus.enter_status)
-        dp.register_callback_query_handler(CustomerDetailsTasksStatus.no_cancel_order,
-                                           text="no_cancel",
-                                           state=customer_states.CustomerDetailsTasksStatus.enter_status)
-        dp.register_callback_query_handler(CustomerDetailsTasksStatus.close_order,
-                                           text="close_order",
-                                           state=customer_states.CustomerDetailsTasksStatus.enter_status)
-        dp.register_callback_query_handler(CustomerDetailsTasksStatus.no_close,
-                                           text="no_close",
-                                           state=customer_states.CustomerDetailsTasksStatus.enter_status)
-        dp.register_message_handler(CustomerDetailsTasksStatus.rating,
-                                    state=customer_states.CustomerDetailsTasksStatus.rating)
-        dp.register_message_handler(CustomerDetailsTasksStatus.review,
-                                    state=customer_states.CustomerDetailsTasksStatus.review)
+    def register_customer_details_tasks_status(disp: Dispatcher):
+        disp.register_message_handler(CustomerDetailsTasksStatus.details_status,
+                                      state=customer_states.CustomerDetailsTasksStatus.enter_status)
+        disp.register_callback_query_handler(CustomerDetailsTasksStatus.cancel_order,
+                                             text="cancel",
+                                             state=customer_states.CustomerDetailsTasksStatus.enter_status)
+        disp.register_callback_query_handler(CustomerDetailsTasksStatus.no_cancel_order,
+                                             text="no_cancel",
+                                             state=customer_states.CustomerDetailsTasksStatus.enter_status)
+        disp.register_callback_query_handler(CustomerDetailsTasksStatus.close_order,
+                                             text="close_order",
+                                             state=customer_states.CustomerDetailsTasksStatus.enter_status)
+        disp.register_callback_query_handler(CustomerDetailsTasksStatus.no_close,
+                                             text="no_close",
+                                             state=customer_states.CustomerDetailsTasksStatus.enter_status)
+        disp.register_message_handler(CustomerDetailsTasksStatus.rating,
+                                      state=customer_states.CustomerDetailsTasksStatus.rating)
+        disp.register_message_handler(CustomerDetailsTasksStatus.review,
+                                      state=customer_states.CustomerDetailsTasksStatus.review)
 
 
 class CustomerHelp:
@@ -2106,7 +2111,7 @@ class CustomerHelp:
                                    f"Имя заказчика {message.from_user.first_name}\n"
                                    f"ID заказчика {message.from_user.id}\n"
                                    f"Сообщение от заказчика - <b>{message.text}</b>\n")
-            await bot.send_message(message.from_user.id, "Сообщение досталено в техподдержку!")
+            await bot.send_message(message.from_user.id, "Сообщение доставлено в техподдержку!")
 
     @staticmethod
     async def customer_upload_photo(message: types.Message):
@@ -2149,16 +2154,16 @@ class CustomerHelp:
             await customer_states.CustomerHelp.help.set()
 
     @staticmethod
-    def register_customer_help(dp: Dispatcher):
-        dp.register_message_handler(CustomerHelp.customer_help,
-                                    content_types=['text'],
-                                    state=customer_states.CustomerHelp.help)
-        dp.register_message_handler(CustomerHelp.customer_upload_photo,
-                                    content_types=['photo', 'text'],
-                                    state=customer_states.CustomerHelp.upload_photo)
-        dp.register_message_handler(CustomerHelp.customer_upload_video,
-                                    content_types=['video', 'text'],
-                                    state=customer_states.CustomerHelp.upload_video)
+    def register_customer_help(disp: Dispatcher):
+        disp.register_message_handler(CustomerHelp.customer_help,
+                                      content_types=['text'],
+                                      state=customer_states.CustomerHelp.help)
+        disp.register_message_handler(CustomerHelp.customer_upload_photo,
+                                      content_types=['photo', 'text'],
+                                      state=customer_states.CustomerHelp.upload_photo)
+        disp.register_message_handler(CustomerHelp.customer_upload_video,
+                                      content_types=['video', 'text'],
+                                      state=customer_states.CustomerHelp.upload_video)
 
 
 class CustomerHistory:
@@ -2198,6 +2203,8 @@ class CustomerHistory:
                         f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
                         f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
             icon_category = None
+            icon = None
+            p_status = None
             for k, v in category.items():
                 if order.category_delivery == k:
                     icon_category = v
@@ -2210,7 +2217,7 @@ class CustomerHistory:
             if order.performer_category == "car":
                 p_status = "На машине"
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-            else:
+            elif order.performer_category == "any":
                 p_status = "Любой"
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
                        f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
@@ -2222,9 +2229,11 @@ class CustomerHistory:
                                    f"{icon_category} "
                                    f"Категория - <b>{order.category_delivery}</b>\n"
                                    f"{config.KEYBOARD.get('A_BUTTON')} "
-                                   f"Откуда - <a href='https://yandex.ru/maps/?text={'+'.join(order.geo_position_from.split())}'>{order.geo_position_from}</a>\n"
+                                   f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                   f"{'+'.join(order.geo_position_from.split())}'>{order.geo_position_from}</a>\n"
                                    f"{config.KEYBOARD.get('B_BUTTON')} "
-                                   f"Куда - <a href='https://yandex.ru/maps/?text={'+'.join(order.geo_position_to.split())}'>{order.geo_position_to}</a>\n"
+                                   f"Куда - <a href='https://yandex.ru/maps/?text="
+                                   f"{'+'.join(order.geo_position_to.split())}'>{order.geo_position_to}</a>\n"
                                    f"{config.KEYBOARD.get('INFORMATION')} "
                                    f"Название - <b>{order.title}</b>\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
@@ -2293,11 +2302,10 @@ class CustomerHistory:
                                    reply_markup=markup_customer.details_task_history())
 
     @staticmethod
-    def register_customer_history(dp):
-        dp.register_message_handler(CustomerHistory.history,
-                                    state=customer_states.CustomerHistory.enter_history)
-        dp.register_message_handler(CustomerHistory.order_history,
-                                    state=customer_states.CustomerHistory.order_history)
-        dp.register_message_handler(CustomerHistory.order_details,
-                                    state=customer_states.CustomerHistory.order_history_details)
-
+    def register_customer_history(disp: Dispatcher):
+        disp.register_message_handler(CustomerHistory.history,
+                                      state=customer_states.CustomerHistory.enter_history)
+        disp.register_message_handler(CustomerHistory.order_history,
+                                      state=customer_states.CustomerHistory.order_history)
+        disp.register_message_handler(CustomerHistory.order_details,
+                                      state=customer_states.CustomerHistory.order_history_details)
