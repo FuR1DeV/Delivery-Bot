@@ -1358,12 +1358,19 @@ class PerformerDetailsTasks:
                                        "Вы вернулись в главное меню",
                                        reply_markup=markup_performer.main_menu())
             else:
-                await bot.send_message(message.from_user.id,
-                                       "Вы вошли в статус заказа, тут вы можете отменить заказ, "
-                                       "Завершить заказ или проверить статус заказа для его закрытия",
-                                       reply_markup=markup_performer.details_task_status())
-                await performer_states.PerformerDetailsTasksStatus.enter_status.set()
+                arrive = await performers_get.performer_arrive_info(data.get("order_id"))
                 PerformerDetailsTasksStatus.register_performer_details_tasks_status(dp)
+                await performer_states.PerformerDetailsTasksStatus.enter_status.set()
+                if int(arrive) > 0:
+                    await bot.send_message(message.from_user.id,
+                                           "Вы вошли в статус заказа, тут вы можете отменить заказ, "
+                                           "Завершить заказ или проверить статус заказа для его закрытия",
+                                           reply_markup=markup_performer.details_task_status(arrive))
+                if int(arrive) <= 0:
+                    await bot.send_message(message.from_user.id,
+                                           "Вы вошли в статус заказа, тут вы можете отменить заказ, "
+                                           "Завершить заказ или проверить статус заказа для его закрытия",
+                                           reply_markup=markup_performer.details_task_status_end())
         if "Профиль заказчика" in message.text:
             res = await performers_get.performer_get_status_order(data.get("order_id"))
             if res is None:
@@ -1483,11 +1490,23 @@ class PerformerDetailsTasksStatus:
         if "Сообщить о прибытии" in message.text:
             async with state.proxy() as data:
                 order = await general_get.order_select(data.get("order_id"))
-            await bot.send_message(order.user_id,
-                                   "Курьер на месте, вас ожидает\n"
-                                   "Ждёт от вас обратной связи")
-            await bot.send_message(message.from_user.id,
-                                   "Заказчик принял сообщение о вашем прибытии!")
+                await performers_set.performer_change_arrive_status(data.get("order_id"))
+                res = await performers_get.performer_arrive_info(data.get("order_id"))
+
+            if int(res) <= 0:
+                await bot.send_message(order.user_id,
+                                       "Курьер на месте, вас ожидает\n"
+                                       "Ждёт от вас обратной связи")
+                await bot.send_message(message.from_user.id,
+                                       "Заказчик принял сообщение о вашем прибытии!",
+                                       reply_markup=markup_performer.details_task_status_end())
+            if int(res) > 0:
+                await bot.send_message(order.user_id,
+                                       "Курьер на месте, вас ожидает\n"
+                                       "Ждёт от вас обратной связи")
+                await bot.send_message(message.from_user.id,
+                                       "Заказчик принял сообщение о вашем прибытии!",
+                                       reply_markup=markup_performer.details_task_status(res))
         if "Вернуться в детали заказа" in message.text:
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в детали заказа",

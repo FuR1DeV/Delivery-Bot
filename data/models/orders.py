@@ -36,6 +36,8 @@ class OrdersStatus(BaseModel):
     performer_status = Column(Integer, server_default="0")
     customer_status = Column(Integer, server_default="0")
     order_id = Column(String, nullable=False)
+    performer_arrive = Column(String, server_default="3")
+    customer_arrive = Column(String, server_default="3")
     query: sql.select
 
 

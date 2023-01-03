@@ -142,3 +142,6 @@ async def performer_trying_change_self_category(user_id):
     return performer.performer_category_limit
 
 
+async def performer_arrive_info(order_id):
+    arrive = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
+    return arrive.performer_arrive

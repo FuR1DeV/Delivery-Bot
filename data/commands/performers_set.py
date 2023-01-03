@@ -115,6 +115,9 @@ async def private_chat_add(user_id, count_word, enter_date):
     await performer.create()
 
 
-
+async def performer_change_arrive_status(order_id):
+    arrive = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
+    res = int(arrive.performer_arrive) - 1
+    await arrive.update(performer_arrive=str(res)).apply()
 
 
