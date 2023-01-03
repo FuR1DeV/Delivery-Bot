@@ -189,6 +189,14 @@ def details_task_status_end():
     return keyboard
 
 
+def inline_approve_arrive(user_id):
+    approve = InlineKeyboardMarkup()
+    get = InlineKeyboardButton(text='Принято. Отправить сообщение Исполнителю',
+                               callback_data=f'arrive_approve_{user_id}')
+    approve.insert(get)
+    return approve
+
+
 def details_task_history():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('TELEPHONE')} Позвонить Заказчику",

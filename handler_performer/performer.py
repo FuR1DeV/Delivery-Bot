@@ -1489,23 +1489,28 @@ class PerformerDetailsTasksStatus:
                 await performer_states.PerformerStart.performer_menu.set()
         if "Сообщить о прибытии" in message.text:
             async with state.proxy() as data:
-                order = await general_get.order_select(data.get("order_id"))
-                await performers_set.performer_change_arrive_status(data.get("order_id"))
-                res = await performers_get.performer_arrive_info(data.get("order_id"))
+                order_id = data.get("order_id")
+                order = await general_get.order_select(order_id)
+                await performers_set.performer_change_arrive_status(order_id)
+                res = await performers_get.performer_arrive_info(order_id)
 
             if int(res) <= 0:
                 await bot.send_message(order.user_id,
-                                       "Курьер на месте, вас ожидает\n"
-                                       "Ждёт от вас обратной связи")
+                                       f"Курьер на месте, вас ожидает\n"
+                                       f"Ждёт от вас обратной связи\n"
+                                       f"Заказ {order_id}",
+                                       reply_markup=markup_performer.inline_approve_arrive(message.from_user.id))
                 await bot.send_message(message.from_user.id,
-                                       "Заказчик принял сообщение о вашем прибытии!",
+                                       "Заказчику отправлено сообщение о вашем прибытии!",
                                        reply_markup=markup_performer.details_task_status_end())
             if int(res) > 0:
                 await bot.send_message(order.user_id,
-                                       "Курьер на месте, вас ожидает\n"
-                                       "Ждёт от вас обратной связи")
+                                       f"Курьер на месте, вас ожидает\n"
+                                       f"Ждёт от вас обратной связи\n"
+                                       f"Заказ {order_id}",
+                                       reply_markup=markup_performer.inline_approve_arrive(message.from_user.id))
                 await bot.send_message(message.from_user.id,
-                                       "Заказчик принял сообщение о вашем прибытии!",
+                                       "Заказчику отправлено сообщение о вашем прибытии!",
                                        reply_markup=markup_performer.details_task_status(res))
         if "Вернуться в детали заказа" in message.text:
             await bot.send_message(message.from_user.id,

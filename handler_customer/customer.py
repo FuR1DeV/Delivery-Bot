@@ -690,6 +690,12 @@ class CustomerMain:
                                f"от Исполнителя <b>{res[7]}</b> на ваш заказ <b>{res[11]}</b>")
 
     @staticmethod
+    async def approve_info_arrived(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.data[15:],
+                               "Заказчик <b>подтвердил</b> получение информации о вашем прибытии")
+
+    @staticmethod
     def register_customer_handler(dp: Dispatcher):
         dp.register_message_handler(CustomerMain.phone, content_types=['contact'],
                                     state=customer_states.CustomerPhone.phone)
@@ -711,6 +717,8 @@ class CustomerMain:
                                            text_contains='day_finish_')
         dp.register_callback_query_handler(CustomerMain.refresh,
                                            state=["*"], text='refresh')
+        dp.register_callback_query_handler(CustomerMain.approve_info_arrived,
+                                           state=["*"], text_contains='arrive_approve_')
 
 
 class CustomerProfile:
