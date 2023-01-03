@@ -229,6 +229,8 @@ class CustomerMain:
             for i in res:
                 order_get = "Пока не взят"
                 icon_category = None
+                icon = None
+                p_status = None
                 for k, v in category.items():
                     if i.category_delivery == k:
                         icon_category = v
@@ -246,11 +248,8 @@ class CustomerMain:
                     icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
                            f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
                            f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-                else:
-                    p_status = "Любой"
-                    icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
-                           f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
-                           f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                if i.order_get is not None:
+                    order_get = i.order_get
                 if i.image != "No Photo":
                     await bot.send_photo(callback.from_user.id, i.image)
                 if i.video != "No Video":
@@ -274,14 +273,14 @@ class CustomerMain:
                                        f"Цена - <b>{i.price}</b>\n"
                                        f"{config.KEYBOARD.get('MONEY_BAG')} "
                                        f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
-                                       f"{config.KEYBOARD.get('WRENCH')} "
-                                       f"В работе - <b>{bool(i.in_work)}</b>\n"
                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
                                        f"ID заказа - <b>{i.order_id}</b>\n"
                                        f"{icon} "
                                        f"Исполнитель - <b>{p_status}</b>\n"
                                        f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                        f"Заказ создан: <b>{i.order_create}</b>\n"
+                                       f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                       f"Заказ взят: <b>{order_get}</b>\n"
                                        f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                        f"Действует до: <b>{i.order_expired}</b>\n"
                                        f"{config.KEYBOARD.get('BAR_CHART')} "
