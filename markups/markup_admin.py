@@ -1,4 +1,3 @@
-from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove, ReplyKeyboardMarkup
 from settings import config
 
@@ -105,7 +104,7 @@ def statistics():
     return keyboard
 
 
-def enter_ID():
+def enter_id():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("Введите ID заказа", "Выгрузить БД отзывов")
     keyboard.row("Выгрузить БД заказов")

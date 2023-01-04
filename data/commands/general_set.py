@@ -1,11 +1,10 @@
 import logging
 from datetime import datetime
 
-from data.models.customers import Customers
 from data.models.performers import Performers
 from data.models.admins import Payment
 from data.models.orders import Orders, Reviews, OrdersStatus, Commission
-from data.commands import customers_get, performers_get, general_get
+from data.commands import performers_get, general_get
 
 logger = logging.getLogger("bot.data.commands.general_set_db")
 
@@ -30,7 +29,8 @@ async def operation_commission(order):
     commission_for_performer = await Commission.query.where(Commission.category == "performers").gino.first()
     """Вычисляем комиссию"""
     res_commission_category = (int(order.price) * float(commission_category)) / 100
-    res_commission_for_performer = ((int(order.price) * float(commission_for_performer.commission)) / 100) + res_commission_category
+    res_commission_for_performer = ((int(order.price) *
+                                     float(commission_for_performer.commission)) / 100) + res_commission_category
     """Взимаем комиссию с Заказчика"""
     """Временные промо со сниженным процентом"""
     # try:

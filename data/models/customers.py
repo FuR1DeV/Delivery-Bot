@@ -18,4 +18,3 @@ class Customers(BaseModel):
     canceled_orders = Column(Integer, nullable=False, server_default="0")
 
     query: sql.select
-

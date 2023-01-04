@@ -140,8 +140,10 @@ def details_task_history_details_order():
 
 def open_site():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    google = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Google', web_app=WebAppInfo(url="https://www.google.com/maps"))
-    yandex = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Yandex', web_app=WebAppInfo(url="https://www.yandex.ru/maps"))
+    google = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Google',
+                                  web_app=WebAppInfo(url="https://www.google.com/maps"))
+    yandex = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Yandex',
+                                  web_app=WebAppInfo(url="https://www.yandex.ru/maps"))
     keyboard.row(google, yandex)
     keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
     return keyboard
@@ -243,12 +245,12 @@ def inline_close_task():
 
 
 def inline_cancel_task():
-    cancel = InlineKeyboardMarkup()
+    cancel_ = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text="Отменяем", callback_data="cancel")
     no = InlineKeyboardButton(text="Передумал", callback_data="no_cancel")
-    cancel.insert(yes)
-    cancel.insert(no)
-    return cancel
+    cancel_.insert(yes)
+    cancel_.insert(no)
+    return cancel_
 
 
 def inline_change_task():
@@ -261,32 +263,32 @@ def inline_change_task():
 
 
 def inline_approve():
-    approve = InlineKeyboardMarkup()
+    approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Взять',
                                callback_data='performer_get')
     decline = InlineKeyboardButton(text='Отказаться',
                                    callback_data='performer_decline')
-    approve.insert(get)
-    approve.insert(decline)
-    return approve
+    approve_.insert(get)
+    approve_.insert(decline)
+    return approve_
 
 
 def inline_approve_proposal_with_new_price(price):
-    approve = InlineKeyboardMarkup()
+    approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text=f'Взять за {price}',
                                callback_data='performer_get_with_new_price')
     decline = InlineKeyboardButton(text=f'Отказаться',
                                    callback_data='performer_decline')
-    approve.insert(get)
-    approve.insert(decline)
-    return approve
+    approve_.insert(get)
+    approve_.insert(decline)
+    return approve_
 
 
 def rating():
-    rating = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    rating.row("5", "4")
-    rating.row("3", "2", "1")
-    return rating
+    rating_ = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    rating_.row("5", "4")
+    rating_.row("3", "2", "1")
+    return rating_
 
 
 def help_customer():

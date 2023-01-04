@@ -7,8 +7,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import InputFile, ParseMode
 
 from bot import bot, dp
-# from data.get_set_db import global_db_obj, global_set_db_obj, admin_get_db_obj, admin_set_db_obj
-from data.commands import general_get, general_get, admins_get, admins_set
+from data.commands import general_get, admins_get, admins_set
 from handler_customer.customer import CustomerMain
 from handler_performer.performer import PerformerMain
 from markups import markup_start, markup_admin
@@ -68,7 +67,7 @@ class AdminMain:
         if message.text == "Просмотр заказов":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
-                                   reply_markup=markup_admin.enter_ID())
+                                   reply_markup=markup_admin.enter_id())
             await states.Orders.enter.set()
             AdminOrders.register_orders_handler(dp)
         if message.text == "Статистика":
@@ -114,10 +113,10 @@ class AdminMain:
             await states.AdminStates.enter.set()
 
     @staticmethod
-    async def register_admin_handler(dp: Dispatcher):
-        dp.register_message_handler(AdminMain.admin_main, state=states.AdminStates.enter)
-        dp.register_message_handler(AdminMain.loading_db, state=states.AdminStates.loading_db)
-        dp.register_message_handler(AdminMain.orders, state=states.AdminStates.orders)
+    async def register_admin_handler(disp: Dispatcher):
+        disp.register_message_handler(AdminMain.admin_main, state=states.AdminStates.enter)
+        disp.register_message_handler(AdminMain.loading_db, state=states.AdminStates.loading_db)
+        disp.register_message_handler(AdminMain.orders, state=states.AdminStates.orders)
 
 
 class AdminOrders:
@@ -132,10 +131,10 @@ class AdminOrders:
             res = await general_get.all_orders()
             with open("logs/table_orders.csv", "w", newline='', encoding="utf-8") as file:
                 writer = csv.writer(file)
-                writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price", "description",
-                                 "image", "video", "performer_id", "completed", "order_id", "order_create", "order_get",
-                                 "order_cancel", "order_end", "category_delivery", "block", "performer_category",
-                                 "order_expired", "order_worth", "order_rating"])
+                writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price",
+                                 "description", "image", "video", "performer_id", "completed", "order_id",
+                                 "order_create", "order_get", "order_cancel", "order_end", "category_delivery",
+                                 "block", "performer_category", "order_expired", "order_worth", "order_rating"])
                 for i in res:
                     writer.writerow([i.id, i.user_id, i.geo_position_from, i.geo_position_to, i.title, i.price,
                                      i.description, i.image, i.video, i.in_work, i.completed, i.order_id,
@@ -195,7 +194,7 @@ class AdminOrders:
         else:
             await bot.send_message(message.from_user.id,
                                    f"Такой заказ {message.text} не найден! \n",
-                                   reply_markup=markup_admin.enter_ID())
+                                   reply_markup=markup_admin.enter_id())
             await states.Orders.enter.set()
 
     @staticmethod
@@ -303,14 +302,14 @@ class AdminOrders:
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете просмотреть все заказы, статистику, и отзывы",
-                                   reply_markup=markup_admin.enter_ID())
+                                   reply_markup=markup_admin.enter_id())
             await states.Orders.enter.set()
 
     @staticmethod
-    def register_orders_handler(dp: Dispatcher):
-        dp.register_message_handler(AdminOrders.enter_orders, state=states.Orders.enter)
-        dp.register_message_handler(AdminOrders.order, state=states.Orders.order)
-        dp.register_message_handler(AdminOrders.order_details, state=states.Orders.detail_order)
+    def register_orders_handler(disp: Dispatcher):
+        disp.register_message_handler(AdminOrders.enter_orders, state=states.Orders.enter)
+        disp.register_message_handler(AdminOrders.order, state=states.Orders.order)
+        disp.register_message_handler(AdminOrders.order_details, state=states.Orders.detail_order)
 
 
 class AdminStats:
@@ -346,8 +345,8 @@ class AdminStats:
             await states.AdminStates.orders.set()
 
     @staticmethod
-    def register_orders_handler(dp: Dispatcher):
-        dp.register_message_handler(AdminStats.stat_main, state=states.Statistics.enter)
+    def register_orders_handler(disp: Dispatcher):
+        disp.register_message_handler(AdminStats.stat_main, state=states.Statistics.enter)
 
 
 class AdminCommission:
@@ -467,7 +466,7 @@ class AdminCommission:
             async with state.proxy() as data:
                 data["category"] = message.text
             await bot.send_message(message.from_user.id,
-                                   "Установите комиссию для Позгрузки/Разгрузки",
+                                   "Установите комиссию для Погрузки/Разгрузки",
                                    reply_markup=markup_admin.back()
                                    )
             await states.CommissionForCategories.commission_for_category.set()
@@ -570,8 +569,8 @@ class AdminCommission:
         if callback.data == "time_back":
             await bot.send_message(callback.from_user.id, "Пользователь найден!")
             await bot.send_message(callback.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                                         f"Пользователь НЕ заблокирован! "
-                                                         f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}",
+                                                          f"Пользователь НЕ заблокирован! "
+                                                          f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}",
                                    reply_markup=markup_admin.commission_promo_discount())
             await states.Commission.commission_promo_set_discount.set()
         else:
@@ -612,25 +611,25 @@ class AdminCommission:
                 await states.Commission.commission_set.set()
 
     @staticmethod
-    def register_commission_handler(dp: Dispatcher):
-        dp.register_message_handler(AdminCommission.commission, state=states.Commission.commission)
-        dp.register_message_handler(AdminCommission.commission_set, state=states.Commission.commission_set)
-        dp.register_message_handler(AdminCommission.commission_for_performer,
-                                    state=states.Commission.commission_for_performer)
-        dp.register_message_handler(AdminCommission.commission_for_categories,
-                                    state=states.CommissionForCategories.commission_for_categories)
-        dp.register_message_handler(AdminCommission.commission_for,
-                                    state=states.CommissionForCategories.commission_for_category)
-        dp.register_message_handler(AdminCommission.commission_promo,
-                                    state=states.Commission.commission_promo)
-        dp.register_message_handler(AdminCommission.commission_promo_find_id,
-                                    state=states.Commission.commission_promo_find_id)
-        dp.register_callback_query_handler(AdminCommission.commission_promo_set_discount,
-                                           state=states.Commission.commission_promo_set_discount,
-                                           text_contains='commission_')
-        dp.register_callback_query_handler(AdminCommission.commission_promo_set_time,
-                                           state=states.Commission.commission_promo_set_discount,
-                                           text_contains='time_')
+    def register_commission_handler(disp: Dispatcher):
+        disp.register_message_handler(AdminCommission.commission, state=states.Commission.commission)
+        disp.register_message_handler(AdminCommission.commission_set, state=states.Commission.commission_set)
+        disp.register_message_handler(AdminCommission.commission_for_performer,
+                                      state=states.Commission.commission_for_performer)
+        disp.register_message_handler(AdminCommission.commission_for_categories,
+                                      state=states.CommissionForCategories.commission_for_categories)
+        disp.register_message_handler(AdminCommission.commission_for,
+                                      state=states.CommissionForCategories.commission_for_category)
+        disp.register_message_handler(AdminCommission.commission_promo,
+                                      state=states.Commission.commission_promo)
+        disp.register_message_handler(AdminCommission.commission_promo_find_id,
+                                      state=states.Commission.commission_promo_find_id)
+        disp.register_callback_query_handler(AdminCommission.commission_promo_set_discount,
+                                             state=states.Commission.commission_promo_set_discount,
+                                             text_contains='commission_')
+        disp.register_callback_query_handler(AdminCommission.commission_promo_set_time,
+                                             state=states.Commission.commission_promo_set_discount,
+                                             text_contains='time_')
 
 
 class AdminControlChange:
@@ -670,9 +669,9 @@ class AdminControlChange:
             await bot.send_message(message.from_user.id, "Нужно ввести целое число")
 
     @staticmethod
-    def register_control_change_handler(dp: Dispatcher):
-        dp.register_message_handler(AdminControlChange.change_main, state=states.ChangeUsers.enter)
-        dp.register_message_handler(AdminControlChange.add_money, state=states.ChangeUsers.add_money)
+    def register_control_change_handler(disp: Dispatcher):
+        disp.register_message_handler(AdminControlChange.change_main, state=states.ChangeUsers.enter)
+        disp.register_message_handler(AdminControlChange.add_money, state=states.ChangeUsers.add_money)
 
 
 class AdminControl:
@@ -704,7 +703,7 @@ class AdminControl:
                                    reply_markup=markup_admin.back())
             await states.AboutUsers.find_first_name.set()
         if message.text == "По username":
-            await bot.send_message(message.from_user.id, "Поиск никнейму")
+            await bot.send_message(message.from_user.id, "Поиск по Никнейму")
             await bot.send_message(message.from_user.id,
                                    "Введите username пользователя",
                                    reply_markup=markup_admin.back())
@@ -986,8 +985,8 @@ class AdminControl:
                                        "то вам нужно воспользоваться поиском по ID (Скопируйте нужный вам ID)")
 
     @staticmethod
-    def register_control_handler(dp: Dispatcher):
-        dp.register_message_handler(AdminControl.control, state=states.AboutUsers.enter)
-        dp.register_message_handler(AdminControl.find_id, state=states.AboutUsers.find_id)
-        dp.register_message_handler(AdminControl.find_first_name, state=states.AboutUsers.find_first_name)
-        dp.register_message_handler(AdminControl.find_username, state=states.AboutUsers.find_username)
+    def register_control_handler(disp: Dispatcher):
+        disp.register_message_handler(AdminControl.control, state=states.AboutUsers.enter)
+        disp.register_message_handler(AdminControl.find_id, state=states.AboutUsers.find_id)
+        disp.register_message_handler(AdminControl.find_first_name, state=states.AboutUsers.find_first_name)
+        disp.register_message_handler(AdminControl.find_username, state=states.AboutUsers.find_username)

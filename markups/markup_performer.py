@@ -2,45 +2,44 @@ from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
 
 from settings.config import KEYBOARD
-from data.commands import performers_get
 
 markup_clean = ReplyKeyboardRemove()
 
 
 def inline_approve():
-    approve = InlineKeyboardMarkup()
+    approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Запросить',
                                callback_data='performer_request')
     decline = InlineKeyboardButton(text='Отказаться',
                                    callback_data='performer_decline')
     price = InlineKeyboardButton(text='Предложить цену',
                                  callback_data='performer_proposal')
-    approve.insert(get)
-    approve.insert(decline)
-    approve.insert(price)
-    return approve
+    approve_.insert(get)
+    approve_.insert(decline)
+    approve_.insert(price)
+    return approve_
 
 
 def inline_approve_main():
-    approve = InlineKeyboardMarkup()
+    approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Соглашаюсь',
                                callback_data='customer_yes')
     decline = InlineKeyboardButton(text='Отказаться',
                                    callback_data='customer_no')
-    approve.insert(get)
-    approve.insert(decline)
-    return approve
+    approve_.insert(get)
+    approve_.insert(decline)
+    return approve_
 
 
 def inline_approve_proposal():
-    approve = InlineKeyboardMarkup()
+    approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Соглашаюсь',
                                callback_data='proposal_yes')
     decline = InlineKeyboardButton(text='Отказаться',
                                    callback_data='proposal_no')
-    approve.insert(get)
-    approve.insert(decline)
-    return approve
+    approve_.insert(get)
+    approve_.insert(decline)
+    return approve_
 
 
 def inline_you_sure():
@@ -62,12 +61,12 @@ def inline_close_task():
 
 
 def inline_cancel_task():
-    cancel = InlineKeyboardMarkup()
+    cancel_ = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text="Отменяем", callback_data="cancel")
     no = InlineKeyboardButton(text="Передумал", callback_data="no_cancel")
-    cancel.insert(yes)
-    cancel.insert(no)
-    return cancel
+    cancel_.insert(yes)
+    cancel_.insert(no)
+    return cancel_
 
 
 def main_menu():
@@ -100,10 +99,10 @@ def back_main_menu():
 
 
 def rating():
-    rating = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    rating.row("5", "4")
-    rating.row("3", "2", "1")
-    return rating
+    rating_ = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    rating_.row("5", "4")
+    rating_.row("3", "2", "1")
+    return rating_
 
 
 def cancel():
@@ -190,11 +189,11 @@ def details_task_status_end():
 
 
 def inline_approve_arrive(user_id):
-    approve = InlineKeyboardMarkup()
+    approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Принято. Отправить сообщение Исполнителю',
                                callback_data=f'arrive_approve_{user_id}')
-    approve.insert(get)
-    return approve
+    approve_.insert(get)
+    return approve_
 
 
 def details_task_history():

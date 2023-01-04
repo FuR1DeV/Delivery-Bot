@@ -1,7 +1,5 @@
 import logging
 
-from sqlalchemy import and_
-
 from data.models.customers import Customers
 from data.models.orders import Orders, OrdersStatus, Reviews
 from data.commands import customers_get, performers_get
@@ -25,8 +23,8 @@ async def customer_add_order(user_id, geo_position_from, geo_position_to, title,
     logger.info(f'Заказчик {user_id} добавляет заказ {order_id}')
     order = Orders(user_id=user_id, geo_position_from=geo_position_from, geo_position_to=geo_position_to, title=title,
                    price=price, description=description, image=image, video=video, order_id=order_id,
-                   order_create=order_create, category_delivery=category_delivery, performer_category=performer_category,
-                   order_expired=order_expired, order_worth=order_worth)
+                   order_create=order_create, category_delivery=category_delivery,
+                   performer_category=performer_category, order_expired=order_expired, order_worth=order_worth)
     customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
     create = customer.create_orders + 1
     await customer.update(create_orders=create).apply()
@@ -94,5 +92,3 @@ async def customer_change_order(order_id, change, result):
     if change == "geo_position_to":
         order = await Orders.query.where(Orders.order_id == order_id).gino.first()
         await order.update(geo_position_to=result).apply()
-
-

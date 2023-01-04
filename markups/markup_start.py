@@ -9,4 +9,3 @@ start_2 = InlineKeyboardButton(text='Я Исполнитель',
                                callback_data='performer')
 inline_start.insert(start_1)
 inline_start.insert(start_2)
-

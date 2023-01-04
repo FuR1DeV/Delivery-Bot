@@ -1,12 +1,9 @@
 import logging
 
-from sqlalchemy import and_
-
 from data.models.admins import Admins
 from data.models.customers import Customers
 from data.models.performers import Performers
-from data.models.orders import Orders, Reviews, Commission, CommissionPromo
-from data.commands import customers_get, performers_get
+from data.models.orders import Orders, Reviews, Commission
 
 
 logger = logging.getLogger("bot.data.commands.customer_set_db")

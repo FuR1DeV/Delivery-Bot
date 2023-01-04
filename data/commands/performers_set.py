@@ -1,6 +1,6 @@
 import logging
 from data.models.performers import Performers
-from data.models.orders import Orders, OrdersStatus, OrdersRating, Reviews
+from data.models.orders import OrdersStatus, OrdersRating, Reviews
 from data.commands import performers_get, customers_get, general_get
 
 logger = logging.getLogger("bot.data.commands.performer_set_db")
@@ -119,5 +119,3 @@ async def performer_change_arrive_status(order_id):
     arrive = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
     res = int(arrive.performer_arrive) - 1
     await arrive.update(performer_arrive=str(res)).apply()
-
-

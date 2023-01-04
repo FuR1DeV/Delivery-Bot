@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, String, DECIMAL, sql, Text
+from sqlalchemy import Column, Integer, BigInteger, String, DECIMAL, sql
 from sqlalchemy.dialects.postgresql import TIMESTAMP
 
 from data.db_gino import BaseModel

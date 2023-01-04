@@ -3,7 +3,6 @@ from data.models.customers import Customers
 from data.models.performers import Performers
 from data.models.admins import Payment
 from data.models.orders import Orders, OrdersStatus, Commission, Reviews
-from data.commands import customers_get
 
 
 logger = logging.getLogger("bot.data.commands.general_set_db")
@@ -62,11 +61,3 @@ async def get_payment(bill_id):
     logger.info('Функция проверки платежа в БД')
     payment = Payment.query.where(Payment.bill_id == bill_id).gino.first()
     return payment
-
-
-
-
-
-
-
-

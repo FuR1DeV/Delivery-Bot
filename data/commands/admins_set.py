@@ -1,12 +1,9 @@
 import logging
 
-from sqlalchemy import and_
-
 from data.models.customers import Customers
 from data.models.performers import Performers
 from data.models.admins import Admins
-from data.models.orders import Orders, OrdersStatus, Reviews, Commission
-from data.commands import customers_get, performers_get
+from data.models.orders import Commission
 
 
 logger = logging.getLogger("bot.data.commands.customer_set_db")
@@ -71,6 +68,3 @@ async def admin_set_commission_for_categories(category, res):
     if category == "Другое":
         commission = await Commission.query.where(Commission.category == "Другое").gino.first()
         await commission.update(commission=res).apply()
-
-
-
