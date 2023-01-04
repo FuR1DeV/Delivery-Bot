@@ -17,22 +17,22 @@ from states import states
 
 
 def init_logger(name):
-    logger = logging.getLogger(name)
-    FORMAT = '%(asctime)s -:- %(levelname)s -:- %(name)s -:- %(message)s'
-    logger.setLevel(logging.DEBUG)
+    logger_ = logging.getLogger(name)
+    format_ = '%(asctime)s -:- %(levelname)s -:- %(name)s -:- %(message)s'
+    logger_.setLevel(logging.DEBUG)
     console = logging.StreamHandler()
-    console.setFormatter(logging.Formatter(FORMAT))
+    console.setFormatter(logging.Formatter(format_))
     console.setLevel(logging.DEBUG)
     info_debug = logging.FileHandler(filename="logs/info_debug.log")
-    info_debug.setFormatter(logging.Formatter(FORMAT))
+    info_debug.setFormatter(logging.Formatter(format_))
     info_debug.setLevel(logging.DEBUG)
     err_warning = logging.FileHandler(filename="logs/err_warning.log")
-    err_warning.setFormatter(logging.Formatter(FORMAT))
+    err_warning.setFormatter(logging.Formatter(format_))
     err_warning.setLevel(logging.WARNING)
-    logger.addHandler(console)
-    logger.addHandler(info_debug)
-    logger.addHandler(err_warning)
-    logger.debug("Логгер инициализирован")
+    logger_.addHandler(console)
+    logger_.addHandler(info_debug)
+    logger_.addHandler(err_warning)
+    logger_.debug("Логгер инициализирован")
 
 
 init_logger('bot')
@@ -92,9 +92,9 @@ async def user_left(message: types.Message):
 # @dp.message_handler()
 # async def bad_words(message: types.Message):
 #     count = 5
-#     lists = ["бля", "блять", "сука", "гандон", "гондон", "хуй", "пидр", "пидор", "лох", "блядь", "ебать", "ебля", "пизда", "блядина",
-#              "блядский", "блядство", "выблядок", "выебон", "выёбывается", "доебался", "ебало",
-#              "ебанёшься", "ебанул", "ебанулся", "ебашит", "ёбнул", "заебал", "заебись", "заёб",
+#     lists = ["бля", "блять", "сука", "гандон", "гондон", "хуй", "пидр", "пидор", "лох", "блядь", "ебать",
+#              "ебля", "пизда", "блядина", "блядский", "блядство", "выблядок", "выебон", "выёбывается",
+#              "доебался", "ебало", "ебанёшься", "ебанул", "ебанулся", "ебашит", "ёбнул", "заебал", "заебись", "заёб",
 #              "ебля", "наебашился", "наебнулся", "пёзды", "пиздабол", "пиздатый", "пиздец", "поебень",
 #              "распиздяй", "спиздил", "уёбище", "хитровыебанный", "хуёво", "хуйня"]
 #     for i in lists:

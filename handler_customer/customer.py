@@ -182,27 +182,22 @@ class CustomerMain:
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
         if "Завершенные заказы" in message.text:
-            try:
-                res = await customers_get.customer_all_completed_orders(message.from_user.id)
-                if res:
-                    finished_orders = InlineKeyboardMarkup()
-                    year = []
-                    for i in res:
-                        year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
-                    res_years = Counter(year)
-                    for k, v in res_years.items():
-                        finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
-                                                                    callback_data=f"year_finish_{k}"))
-                    await bot.send_message(message.from_user.id,
-                                           "<b>Выберите год</b>\n"
-                                           "В скобках указано количество завершенных заказов",
-                                           reply_markup=finished_orders)
-                    await customer_states.CustomerStart.customer_menu.set()
-                else:
-                    await customer_states.CustomerStart.customer_menu.set()
-                    await bot.send_message(message.from_user.id,
-                                           "У вас еще нет завершенных заказов!")
-            except:
+            res = await customers_get.customer_all_completed_orders(message.from_user.id)
+            if res:
+                finished_orders = InlineKeyboardMarkup()
+                year = []
+                for i in res:
+                    year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
+                res_years = Counter(year)
+                for k, v in res_years.items():
+                    finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
+                                                                callback_data=f"year_finish_{k}"))
+                await bot.send_message(message.from_user.id,
+                                       "<b>Выберите год</b>\n"
+                                       "В скобках указано количество завершенных заказов",
+                                       reply_markup=finished_orders)
+                await customer_states.CustomerStart.customer_menu.set()
+            else:
                 await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "У вас еще нет завершенных заказов!")
@@ -1458,7 +1453,7 @@ class CustomerDetailsTasks:
                 in_work = await customers_get.customer_in_work_order(data.get("order_id"))
                 async with state.proxy() as data:
                     data["user_id"] = in_work
-            except:
+            except IndexError:
                 pass
             if in_work:
                 for i in res:

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, String, DECIMAL, sql, Text, Numeric
+from sqlalchemy import Column, Integer, BigInteger, String, DECIMAL, sql, Text
 
 from data.db_gino import BaseModel
 

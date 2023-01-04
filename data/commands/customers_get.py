@@ -93,5 +93,3 @@ async def customer_get_complete_order(order_id):
     order = await Orders.query.where(and_(Orders.order_id == order_id,
                                           Orders.completed == 1)).gino.first()
     return order
-
-
