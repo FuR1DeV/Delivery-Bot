@@ -3,8 +3,7 @@ import logging
 from data.models.customers import Customers
 from data.models.performers import Performers
 from data.models.admins import Admins
-from data.models.orders import Commission
-
+from data.models.orders import Commission, CommissionPromo
 
 logger = logging.getLogger("bot.data.commands.customer_set_db")
 
@@ -68,3 +67,10 @@ async def admin_set_commission_for_categories(category, res):
     if category == "Другое":
         commission = await Commission.query.where(Commission.category == "Другое").gino.first()
         await commission.update(commission=res).apply()
+
+
+async def set_commission_for_promo(user_id, percent, promo_time):
+    logger.info(f'Добавляется временное промо для {user_id} '
+                f'комиссия - {percent}, время - {promo_time}')
+    commission = CommissionPromo(user_id=user_id, percent=percent, promo_time=promo_time)
+    await commission.create()

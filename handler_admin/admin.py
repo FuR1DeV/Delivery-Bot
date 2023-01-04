@@ -360,7 +360,7 @@ class AdminCommission:
             await bot.send_message(message.from_user.id,
                                    "Выводим информацию о комиссии")
             await bot.send_message(message.from_user.id,
-                                   f"Для Заказчика - {res[0].commission}\n"
+                                   f"Для Исполнителя - {res[0].commission}\n"
                                    f"Цветы - {res[1].commission}\n"
                                    f"Подарки - {res[2].commission}\n"
                                    f"Кондитерка - {res[3].commission}\n"
@@ -526,18 +526,18 @@ class AdminCommission:
     @staticmethod
     async def commission_promo_find_id(message: types.Message, state: FSMContext):
         if message.text.isdigit():
-            res = admin_get_db_obj.admin_check_users("performers", message.text)
-            try:
-                if not bool(res[8]):
+            res = await admins_get.admin_check_users("performers", int(message.text))
+            if res:
+                if not bool(res.ban):
                     await bot.send_message(message.from_user.id, "Пользователь найден!")
                     await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
                                                                  f"Пользователь НЕ заблокирован! "
                                                                  f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}",
                                            reply_markup=markup_admin.commission_promo_discount())
                     async with state.proxy() as data:
-                        data["user"] = res
+                        data["user_id"] = res.user_id
                     await states.Commission.commission_promo_set_discount.set()
-            except TypeError:
+            else:
                 await bot.send_message(message.from_user.id, "Пользователь не найден!")
         if not message.text.isdigit() and message.text != "Назад":
             await bot.send_message(message.from_user.id, "Надо ввести целое число!")
@@ -582,32 +582,35 @@ class AdminCommission:
             if comm == "free":
                 comm = "0.0"
             date = datetime.now() + timedelta(hours=int(data.get('time')))
-            exists = global_db_obj.check_commission_promo(data.get('user')[1])
+            exists = await admins_get.check_commission_promo(data.get('user_id'))
             if exists:
-                date_promo, percent_promo = str(exists[1]), exists[0]
-                limitation = str(datetime.now() - datetime.strptime(date_promo, '%Y-%m-%d %H:%M:%S'))[:1]
+                limitation = str(datetime.now() - exists.promo_time)[:1]
                 if limitation == "-":
                     await bot.send_message(callback.from_user.id,
                                            f"Вы уже установили промо!\n"
-                                           f"Сейчас действует <b>{exists[0]}</b> "
-                                           f"до <b>{exists[1]}</b>",
+                                           f"Сейчас действует <b>{exists.percent}</b> \n"
+                                           f"до <b>{exists.promo_time.strftime('%d-%m-%Y, %H:%M:%S')}</b>",
                                            reply_markup=markup_admin.commission_set())
                     await states.Commission.commission_set.set()
                 if limitation != "-":
                     await bot.send_message(callback.from_user.id,
-                                           f"Отлично! Теперь у пользователя <b>{data.get('user')[1]}</b> "
-                                           f"Комиссия <b>{comm}</b> "
+                                           f"Отлично! Теперь у пользователя <b>{data.get('user_id')}</b>\n"
+                                           f"Комиссия <b>{comm}</b>\n"
                                            f"на время <b>{data.get('time')}</b> часа",
                                            reply_markup=markup_admin.commission_set())
-                    global_set_db_obj.set_commission_for_promo(data.get('user')[1], comm, str(date)[:19])
+                    await admins_set.set_commission_for_promo(data.get('user_id'),
+                                                              comm,
+                                                              date)
                     await states.Commission.commission_set.set()
             if exists is None:
                 await bot.send_message(callback.from_user.id,
-                                       f"Отлично! Теперь у пользователя <b>{data.get('user')[1]}</b> "
+                                       f"Отлично! Теперь у пользователя <b>{data.get('user_id')}</b> "
                                        f"Комиссия <b>{comm}</b> "
                                        f"на время <b>{data.get('time')}</b> часа",
                                        reply_markup=markup_admin.commission_set())
-                global_set_db_obj.set_commission_for_promo(data.get('user')[1], comm, str(date)[:19])
+                await admins_set.set_commission_for_promo(data.get('user_id'),
+                                                          comm,
+                                                          date)
                 await states.Commission.commission_set.set()
 
     @staticmethod

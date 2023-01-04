@@ -3,7 +3,7 @@ import logging
 from data.models.admins import Admins
 from data.models.customers import Customers
 from data.models.performers import Performers
-from data.models.orders import Orders, Reviews, Commission
+from data.models.orders import Orders, Reviews, Commission, CommissionPromo
 
 
 logger = logging.getLogger("bot.data.commands.customer_set_db")
@@ -61,4 +61,10 @@ async def admin_check_users_username(type_user: str, username):
 async def admin_check_commission():
     logger.info(f'Админ проверяет комиссию')
     commission = await Commission.query.gino.all()
+    return commission
+
+
+async def check_commission_promo(user_id):
+    logger.info(f'Проверяется промо комиссия')
+    commission = await CommissionPromo.query.where(CommissionPromo.user_id == user_id).gino.first()
     return commission
