@@ -199,27 +199,22 @@ class PerformerMain:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id, "У вас еще нет взятых заказов")
         if "Выполненные Задачи" in message.text:
-            try:
-                res = await performers_get.performer_all_completed_orders(message.from_user.id)
-                if res:
-                    finished_orders = InlineKeyboardMarkup()
-                    year = []
-                    for i in res:
-                        year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
-                    res_years = Counter(year)
-                    for k, v in res_years.items():
-                        finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
-                                                                    callback_data=f"p_year_finish_{k}"))
-                    await bot.send_message(message.from_user.id,
-                                           "Выберите год\n"
-                                           "В скобках указано количество завершенных заказов",
-                                           reply_markup=finished_orders)
-                    await performer_states.PerformerStart.performer_menu.set()
-                else:
-                    await performer_states.PerformerStart.performer_menu.set()
-                    await bot.send_message(message.from_user.id,
-                                           "У вас еще нет завершенных заказов!")
-            except:
+            res = await performers_get.performer_all_completed_orders(message.from_user.id)
+            if res:
+                finished_orders = InlineKeyboardMarkup()
+                year = []
+                for i in res:
+                    year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
+                res_years = Counter(year)
+                for k, v in res_years.items():
+                    finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
+                                                                callback_data=f"p_year_finish_{k}"))
+                await bot.send_message(message.from_user.id,
+                                       "Выберите год\n"
+                                       "В скобках указано количество завершенных заказов",
+                                       reply_markup=finished_orders)
+                await performer_states.PerformerStart.performer_menu.set()
+            else:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "У вас еще нет завершенных заказов!")
