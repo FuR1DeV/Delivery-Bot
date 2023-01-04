@@ -115,7 +115,7 @@ def enter_id():
 def order():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("Просмотр Заказчика", "Просмотр Исполнителя")
-    keyboard.row("Просмотр Отзывов")
+    keyboard.row("Просмотр Отзывов", "Детали Заказа")
     keyboard.row("Выгрузить БД этого заказа")
     keyboard.row("Назад")
     return keyboard

@@ -12,6 +12,7 @@ from handler_customer.customer import CustomerMain
 from handler_performer.performer import PerformerMain
 from markups import markup_start, markup_admin
 from settings import config
+from settings.config import KEYBOARD
 from states import states
 
 
@@ -163,32 +164,71 @@ class AdminOrders:
     async def order(message: types.Message, state: FSMContext):
         res = await admins_get.admin_check_order(message.text)
         if res:
-            await bot.send_message(message.from_user.id,
-                                   f"Просматриваем заказ {message.text}\n")
             async with state.proxy() as data:
                 data["order_id"] = res.order_id
+            category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
+                        f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
+                        f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
+                        f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
+                        f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
+                        f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
+            icon_category = None
+            for k, v in category.items():
+                if res.category_delivery == k:
+                    icon_category = v
+            icon = None
+            p_status = None
+            if res.performer_category == "pedestrian":
+                p_status = "Пешеход"
+                icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+            if res.performer_category == "scooter":
+                p_status = "На самокате"
+                icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+            if res.performer_category == "car":
+                p_status = "На машине"
+                icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
+            elif res.performer_category == "any":
+                p_status = "Любой"
+                icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
+                       f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
+                       f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+            if res.image != "No Photo":
+                await bot.send_photo(message.from_user.id, res.image)
+            if res.video != "No Video":
+                await bot.send_video(message.from_user.id, res.video)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"<b>Детали заказа</b>\n"
-                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                   f"ID заказа <b>{res.order_id}</b>\n"
+                                   f"{icon_category} "
+                                   f"Категория - <b>{res.category_delivery}</b>\n"
                                    f"{config.KEYBOARD.get('A_BUTTON')} "
-                                   f"Откуда <b>{res.geo_position_from}</b>\n"
+                                   f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                   f"{'+'.join(res.geo_position_from.split())}'>{res.geo_position_from}</a>\n"
                                    f"{config.KEYBOARD.get('B_BUTTON')} "
-                                   f"Куда <b>{res.geo_position_to}</b>\n"
+                                   f"Куда - <a href='https://yandex.ru/maps/?text="
+                                   f"{'+'.join(res.geo_position_to.split())}'>{res.geo_position_to}</a>\n"
                                    f"{config.KEYBOARD.get('INFORMATION')} "
-                                   f"Название <b>{res.title}</b>\n"
+                                   f"Название - <b>{res.title}</b>\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                   f"Описание <b>{res.description}</b>\n"
+                                   f"Описание - <b>{res.description}</b>\n"
                                    f"{config.KEYBOARD.get('DOLLAR')} "
-                                   f"Цена <b>{res.price}</b>\n"
+                                   f"Цена - <b>{res.price}</b>\n"
+                                   f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                   f"Ценность вашего товара - <b>{res.order_worth}</b>\n"
+                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                   f"ID заказа - <b>{res.order_id}</b>\n"
+                                   f"{icon} "
+                                   f"Исполнитель - <b>{p_status}</b>\n"
                                    f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                   f"Создан <b>{res.order_create}</b>\n"
+                                   f"Заказ создан: <b>{res.order_create}</b>\n"
                                    f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                   f"Взят <b>{res.order_get}</b>\n"
+                                   f"Заказ взят: <b>{res.order_get}</b>\n"
                                    f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
-                                   f"Завершен <b>{res.order_end}</b>\n"
+                                   f"Заказ завершен: <b>{res.order_end}</b>\n"
+                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                   f"Действует до: <b>{res.order_expired}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                   disable_web_page_preview=True,
                                    reply_markup=markup_admin.order())
             await states.Orders.detail_order.set()
         else:
@@ -264,6 +304,71 @@ class AdminOrders:
                                    f"<b>{review_res.review_from_performer}</b>\n"
                                    f"Оценка от <b>Исполнителя</b> - <b>{review_res.rating_from_performer}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 10}")
+        if message.text == "Детали Заказа":
+            category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
+                        f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
+                        f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
+                        f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
+                        f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
+                        f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
+            icon_category = None
+            for k, v in category.items():
+                if order.category_delivery == k:
+                    icon_category = v
+            icon = None
+            p_status = None
+            if order.performer_category == "pedestrian":
+                p_status = "Пешеход"
+                icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+            if order.performer_category == "scooter":
+                p_status = "На самокате"
+                icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+            if order.performer_category == "car":
+                p_status = "На машине"
+                icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
+            elif order.performer_category == "any":
+                p_status = "Любой"
+                icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
+                       f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
+                       f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+            if order.image != "No Photo":
+                await bot.send_photo(message.from_user.id, order.image)
+            if order.video != "No Video":
+                await bot.send_video(message.from_user.id, order.video)
+            await bot.send_message(message.from_user.id,
+                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                   f"<b>Детали заказа</b>\n"
+                                   f"{icon_category} "
+                                   f"Категория - <b>{order.category_delivery}</b>\n"
+                                   f"{config.KEYBOARD.get('A_BUTTON')} "
+                                   f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                   f"{'+'.join(order.geo_position_from.split())}'>{order.geo_position_from}</a>\n"
+                                   f"{config.KEYBOARD.get('B_BUTTON')} "
+                                   f"Куда - <a href='https://yandex.ru/maps/?text="
+                                   f"{'+'.join(order.geo_position_to.split())}'>{order.geo_position_to}</a>\n"
+                                   f"{config.KEYBOARD.get('INFORMATION')} "
+                                   f"Название - <b>{order.title}</b>\n"
+                                   f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                   f"Описание - <b>{order.description}</b>\n"
+                                   f"{config.KEYBOARD.get('DOLLAR')} "
+                                   f"Цена - <b>{order.price}</b>\n"
+                                   f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                   f"Ценность вашего товара - <b>{order.order_worth}</b>\n"
+                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                   f"ID заказа - <b>{order.order_id}</b>\n"
+                                   f"{icon} "
+                                   f"Исполнитель - <b>{p_status}</b>\n"
+                                   f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                   f"Заказ создан: <b>{order.order_create}</b>\n"
+                                   f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                   f"Заказ взят: <b>{order.order_get}</b>\n"
+                                   f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
+                                   f"Заказ завершен: <b>{order.order_end}</b>\n"
+                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                   f"Действует до: <b>{order.order_expired}</b>\n"
+                                   f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                   disable_web_page_preview=True,
+                                   reply_markup=markup_admin.order())
         if message.text == "Выгрузить БД этого заказа":
             await bot.send_message(message.from_user.id,
                                    f"Подготавливаем документ")
