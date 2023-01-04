@@ -369,6 +369,16 @@ class AdminOrders:
                                    f"{config.KEYBOARD.get('DASH') * 14}\n",
                                    disable_web_page_preview=True,
                                    reply_markup=markup_admin.order())
+        if message.text == "Просмотр Фото":
+            if order.image != "No Photo":
+                await bot.send_photo(message.from_user.id, order.image)
+            else:
+                await bot.send_message(message.from_user.id, "В этом заказе нет Фото")
+        if message.text == "Просмотр Видео":
+            if order.video != "No Video":
+                await bot.send_video(message.from_user.id, order.video)
+            else:
+                await bot.send_message(message.from_user.id, "В этом заказе нет Видео")
         if message.text == "Выгрузить БД этого заказа":
             await bot.send_message(message.from_user.id,
                                    f"Подготавливаем документ")
