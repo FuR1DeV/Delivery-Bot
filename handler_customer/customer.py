@@ -2107,7 +2107,7 @@ class CustomerHelp:
             await customer_states.CustomerStart.customer_menu.set()
         if message.text != "Загрузить Фото" and message.text != "Загрузить Видео" \
                 and message.text != "Завершить" and message.text != "Вернуться главное меню":
-            await bot.send_message('@delivery_kerka_dev',
+            await bot.send_message('@FlowWorkDeliveryHelp',
                                    f"Имя заказчика {message.from_user.first_name}\n"
                                    f"ID заказчика {message.from_user.id}\n"
                                    f"Сообщение от заказчика - <b>{message.text}</b>\n")
@@ -2117,11 +2117,11 @@ class CustomerHelp:
     async def customer_upload_photo(message: types.Message):
         if message.content_type == "photo":
             CustomerHelp.logger.debug(f"Функция отправки фото от заказчика {message.from_user.id} в тех поддержку")
-            await bot.send_message('@delivery_kerka_dev',
+            await bot.send_message('@FlowWorkDeliveryHelp',
                                    f"Имя заказчика {message.from_user.first_name}\n"
                                    f"ID заказчика {message.from_user.id}\n"
                                    f"Фото заказчика {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
-            await bot.send_photo('@delivery_kerka_dev',
+            await bot.send_photo('@FlowWorkDeliveryHelp',
                                  message.photo[2].file_id)
             await bot.send_message(message.from_user.id,
                                    'Фотография успешно отправлена в тех поддержку!',
@@ -2137,11 +2137,11 @@ class CustomerHelp:
     async def customer_upload_video(message: types.Message):
         if message.content_type == "video":
             CustomerHelp.logger.debug(f"Функция отправки видео от заказчика {message.from_user.id} в тех поддержку")
-            await bot.send_message('@delivery_kerka_dev',
+            await bot.send_message('@FlowWorkDeliveryHelp',
                                    f"Имя заказчика {message.from_user.first_name}\n"
                                    f"ID заказчика {message.from_user.id}\n"
                                    f"Видео заказчика {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
-            await bot.send_video('@delivery_kerka_dev',
+            await bot.send_video('@FlowWorkDeliveryHelp',
                                  message.video.file_id)
             await bot.send_message(message.from_user.id,
                                    'Видео успешно отправлена в тех поддержку!',

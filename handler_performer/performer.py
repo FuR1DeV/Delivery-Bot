@@ -1403,7 +1403,7 @@ class PerformerHelp:
         if message.text != "Загрузить Фото" and message.text != "Загрузить Видео" \
                 and message.text != "Завершить" and message.text != "Вернуться главное меню" \
                 and message.text != "Закрытый чат курьеров":
-            await bot.send_message('@delivery_kerka_dev',
+            await bot.send_message('@FlowWorkDeliveryHelp',
                                    f"Имя исполнителя {message.from_user.first_name}\n"
                                    f"ID исполнителя {message.from_user.id}\n"
                                    f"Сообщение от исполнителя - <b>{message.text}</b>\n")
@@ -1415,11 +1415,11 @@ class PerformerHelp:
             user_status_chat = data.get("user_status_chat")
         PerformerHelp.logger.debug(f"Функция отправки фото от исполнителя {message.from_user.id} в тех поддержку")
         if message.content_type == "photo":
-            await bot.send_message('@delivery_kerka_dev',
+            await bot.send_message('@FlowWorkDeliveryHelp',
                                    f"Имя исполнителя {message.from_user.first_name}\n"
                                    f"ID исполнителя {message.from_user.id}\n"
                                    f"Фото исполнителя {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
-            await bot.send_photo('@delivery_kerka_dev',
+            await bot.send_photo('@FlowWorkDeliveryHelp',
                                  message.photo[2].file_id)
             await bot.send_message(message.from_user.id,
                                    'Фотография успешно отправлена в тех поддержку!',
@@ -1437,11 +1437,11 @@ class PerformerHelp:
             user_status_chat = data.get("user_status_chat")
         PerformerHelp.logger.debug(f"Функция отправки видео от исполнителя {message.from_user.id} в тех поддержку")
         if message.content_type == "video":
-            await bot.send_message('@delivery_kerka_dev',
+            await bot.send_message('@FlowWorkDeliveryHelp',
                                    f"Имя исполнителя {message.from_user.first_name}\n"
                                    f"ID исполнителя {message.from_user.id}\n"
                                    f"Видео исполнителя {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
-            await bot.send_video('@delivery_kerka_dev',
+            await bot.send_video('@FlowWorkDeliveryHelp',
                                  message.video.file_id)
             await bot.send_message(message.from_user.id,
                                    'Видео успешно отправлена в тех поддержку!',
@@ -1460,7 +1460,7 @@ class PerformerHelp:
         res = await performers_get.performer_select(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
                                "<b>С вас списалось 300 рублей!</b>")
-        await bot.send_message('@delivery_kerka_dev',
+        await bot.send_message('@FlowWorkDeliveryHelp',
                                f"{config.KEYBOARD.get('DOLLAR') * 10}\n"
                                f"<b>Вступил в закрытый чат:</b>\n"
                                f"Имя исполнителя {callback.from_user.first_name}\n"
