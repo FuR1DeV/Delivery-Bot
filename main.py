@@ -7,7 +7,7 @@ from aiogram.dispatcher import FSMContext
 import asyncio
 
 from bot import dp, bot
-from data.commands import general_set, performers_set, admins_set, admins_get
+from data.commands import general_set, performers_set, admins_set, admins_get, general_get
 from handler_admin.admin import AdminMain
 from handler_customer.customer import CustomerMain
 from handler_performer.performer import PerformerMain
@@ -119,12 +119,12 @@ async def join_request(message: types.ChatJoinRequest):
     await message.approve()
 
 
-# async def db_checker_orders_expired():
-#     exists = global_db_obj.check_orders_expired()
-#     for i in exists:
-#         limitation = str(datetime.now() - datetime.strptime(str(i[1]), '%Y-%m-%d %H:%M:%S'))[:1]
-#         if limitation != "-":
-#             global_set_db_obj.order_expired_delete(i[0])
+async def db_checker_orders_expired():
+    orders = await general_get.check_orders_expired()
+    for i in orders:
+        limitation = str(datetime.now() - datetime.strptime(str(i[1]), '%Y-%m-%d %H:%M:%S'))[:1]
+        if limitation != "-":
+            global_set_db_obj.order_expired_delete(i[0])
 
 
 async def db_checker_orders_status():

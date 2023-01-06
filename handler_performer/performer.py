@@ -993,9 +993,10 @@ class PerformerDetailsTasks:
             async with state.proxy() as data:
                 try:
                     msg = message.text.split()[1]
+                    print(message.text.split())
                     data["order_id"] = msg
                     data["user_id"] = await performers_get.performer_checks_customer_user_id(msg)
-                except IndexError:
+                except (AttributeError, IndexError):
                     await bot.send_message(message.from_user.id,
                                            "Откройте клавиатуру и нажмите на ID вашего заказа")
             for i in res:

@@ -61,3 +61,8 @@ async def get_payment(bill_id):
     logger.info('Функция проверки платежа в БД')
     payment = Payment.query.where(Payment.bill_id == bill_id).gino.first()
     return payment
+
+
+async def check_orders_expired():
+    orders = Orders.query.where(Orders.in_work == 0).gino.all()
+    return orders
