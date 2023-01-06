@@ -83,32 +83,32 @@ async def user_left(message: types.Message):
     await message.delete()
 
 
-# @dp.message_handler(commands=["kick"])
-# async def kick_user_handler(message: types.Message):
-#     await bot.ban_chat_member(message.chat.id, message.from_user.id)
-#     global_set_db_obj.private_chat_delete_user(message.from_user.id)
-#
-#
-# @dp.message_handler()
-# async def bad_words(message: types.Message):
-#     count = 5
-#     lists = ["бля", "блять", "сука", "гандон", "гондон", "хуй", "пидр", "пидор", "лох", "блядь", "ебать",
-#              "ебля", "пизда", "блядина", "блядский", "блядство", "выблядок", "выебон", "выёбывается",
-#              "доебался", "ебало", "ебанёшься", "ебанул", "ебанулся", "ебашит", "ёбнул", "заебал", "заебись", "заёб",
-#              "ебля", "наебашился", "наебнулся", "пёзды", "пиздабол", "пиздатый", "пиздец", "поебень",
-#              "распиздяй", "спиздил", "уёбище", "хитровыебанный", "хуёво", "хуйня"]
-#     for i in lists:
-#         if i in message.text.lower():
-#             await message.delete()
-#             global_set_db_obj.private_chat_change_count_word(message.from_user.id)
-#             words = global_db_obj.check_private_chat_count_word(message.from_user.id)[0]
-#             ban = count - words
-#             if ban == 0:
-#                 await kick_user_handler(message)
-#             else:
-#                 await message.answer(f"<b>У вас осталось {count - words} слова</b>\n"
-#                                      f"<b>Не материтесь {message.from_user.first_name} "
-#                                      f"иначе вы будете заблокированы!</b>")
+@dp.message_handler(commands=["kick"])
+async def kick_user_handler(message: types.Message):
+    await bot.ban_chat_member(message.chat.id, message.from_user.id)
+    await general_set.private_chat_delete_user(message.from_user.id)
+
+
+@dp.message_handler()
+async def bad_words(message: types.Message):
+    count = 5
+    lists = ["бля", "блять", "сука", "гандон", "гондон", "хуй", "пидр", "пидор", "лох", "блядь", "ебать",
+             "ебля", "пизда", "блядина", "блядский", "блядство", "выблядок", "выебон", "выёбывается",
+             "доебался", "ебало", "ебанёшься", "ебанул", "ебанулся", "ебашит", "ёбнул", "заебал", "заебись", "заёб",
+             "ебля", "наебашился", "наебнулся", "пёзды", "пиздабол", "пиздатый", "пиздец", "поебень",
+             "распиздяй", "спиздил", "уёбище", "хитровыебанный", "хуёво", "хуйня"]
+    for i in lists:
+        if i in message.text.lower():
+            await message.delete()
+            await general_set.private_chat_change_count_word(message.from_user.id)
+            words = await general_get.check_private_chat_count_word(message.from_user.id)
+            ban = count - words
+            if ban == 0:
+                await kick_user_handler(message)
+            else:
+                await message.answer(f"<b>У вас осталось {count - words} слова</b>\n"
+                                     f"<b>Не материтесь {message.from_user.first_name} "
+                                     f"иначе вы будете заблокированы!</b>")
 
 
 @dp.chat_join_request_handler(state="*")

@@ -2,8 +2,8 @@ import logging
 from datetime import datetime
 
 from data.models.performers import Performers
-from data.models.admins import Payment
-from data.models.orders import Orders, Reviews, OrdersStatus, Commission
+from data.models.admins import Payment, PrivateChat
+from data.models.orders import Orders, Reviews, OrdersStatus, Commission, CommissionPromo
 from data.commands import performers_get, general_get
 
 logger = logging.getLogger("bot.data.commands.general_set_db")
@@ -33,23 +33,22 @@ async def operation_commission(order):
                                      float(commission_for_performer.commission)) / 100) + res_commission_category
     """Взимаем комиссию с Заказчика"""
     """Временные промо со сниженным процентом"""
-    # try:
-    #     promo = global_db_obj.check_commission_promo(order[9])
-    #     date_promo, percent_promo = str(promo[1]), promo[0]
-    #     limitation = str(datetime.now() - datetime.strptime(date_promo, '%Y-%m-%d %H:%M:%S'))[:1]
-    #     if limitation == "-":
-    #         global_set_db_obj.set_commission_for_performer(order[9], float(percent_promo))
-    #         # global_set_db_obj.set_commission_for_customer(order[1], res_commission_for_customer)
-    #     if limitation != "-":
-    #         global_set_db_obj.set_commission_for_performer(order[9], res_commission_for_performer)
-    #         # global_set_db_obj.set_commission_for_customer(order[1], res_commission_for_customer)
     performer = await Performers.query.where(Performers.user_id == order.in_work).gino.first()
     money = float(performer.performer_money) - res_commission_for_performer
+    promo = await general_get.check_commission_promo(order.in_work)
+    if promo:
+        res_commission_for_performer = ((int(order.price) * float(promo.percent)) / 100)
+        money = float(performer.performer_money) - res_commission_for_performer
     await performer.update(performer_money=round(money, 2)).apply()
 
 
 async def check_orders_status():
     orders_status = await OrdersStatus.query.gino.all()
+    promo = await CommissionPromo.query.gino.all()
+    for i in promo:
+        limitation = str(datetime.now() - i.promo_time)[:1]
+        if limitation != "-":
+            await delete_expired_promo(i.user_id)
     for i in orders_status:
         if i.performer_status + i.customer_status == 2:
 
@@ -123,3 +122,18 @@ async def delete_order_expired(order_id):
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
     logger.info(f'Система удаляет заказ {order_id}. Время заказа истекло')
     await order.delete()
+
+
+async def private_chat_delete_user(user_id):
+    user = await PrivateChat.query.where(PrivateChat.user_id == user_id).gino.first()
+    await user.delete()
+
+
+async def private_chat_change_count_word(user_id):
+    user = await PrivateChat.query.where(PrivateChat.user_id == user_id).gino.first()
+    await user.update(count_word=user.count_word + 1)
+
+
+async def delete_expired_promo(user_id):
+    promo = await CommissionPromo.query.where(CommissionPromo.user_id == user_id).gino.first()
+    await promo.delete()

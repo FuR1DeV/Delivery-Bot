@@ -1,8 +1,8 @@
 import logging
 from data.models.customers import Customers
 from data.models.performers import Performers
-from data.models.admins import Payment
-from data.models.orders import Orders, OrdersStatus, Commission, Reviews
+from data.models.admins import Payment, PrivateChat
+from data.models.orders import Orders, OrdersStatus, Commission, Reviews, CommissionPromo
 
 
 logger = logging.getLogger("bot.data.commands.general_set_db")
@@ -66,3 +66,13 @@ async def get_payment(bill_id):
 async def check_orders_expired():
     orders = await Orders.query.where(Orders.in_work == 0).gino.all()
     return orders
+
+
+async def check_private_chat_count_word(user_id):
+    user = await PrivateChat.query.where(PrivateChat.user_id == user_id).gino.first()
+    return user.count_word
+
+
+async def check_commission_promo(user_id):
+    promo = await CommissionPromo.query.where(CommissionPromo.user_id == user_id).gino.first()
+    return promo

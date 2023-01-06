@@ -993,7 +993,6 @@ class PerformerDetailsTasks:
             async with state.proxy() as data:
                 try:
                     msg = message.text.split()[1]
-                    print(message.text.split())
                     data["order_id"] = msg
                     data["user_id"] = await performers_get.performer_checks_customer_user_id(msg)
                 except (AttributeError, IndexError):
@@ -1014,63 +1013,63 @@ class PerformerDetailsTasks:
     @staticmethod
     async def detail_task(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
-            res_order = await performers_get.performer_view_order(data.get("order_id"))
-            res_customer = await customers_get.customer_select(data.get("user_id"))
+            order = await performers_get.performer_view_order(data.get("order_id"))
+            customer = await customers_get.customer_select(data.get("user_id"))
         if "Позвонить/написать заказчику" in message.text:
-            res = await performers_get.performer_get_status_order(data.get("order_id"))
-            if res is None:
+            end_order = await performers_get.performer_get_status_order(data.get("order_id"))
+            if end_order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "Вы вернулись в главное меню",
                                        reply_markup=markup_performer.main_menu())
             else:
                 await bot.send_message(message.from_user.id,
-                                       f"Вот его номер телефона {res_customer.telephone}\n"
-                                       f"Или напишите ему в телеграм @{res_customer.username}")
+                                       f"Вот его номер телефона {customer.telephone}\n"
+                                       f"Или напишите ему в телеграм @{customer.username}")
         if "Детали заказа" in message.text:
-            res = await performers_get.performer_get_status_order(data.get("order_id"))
-            if res is None:
+            end_order = await performers_get.performer_get_status_order(data.get("order_id"))
+            if end_order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "Вы вернулись в главное меню",
                                        reply_markup=markup_performer.main_menu())
             else:
-                if res.image != "No Photo":
-                    await bot.send_photo(message.from_user.id, res.image)
-                if res.video != "No Video":
-                    await bot.send_video(message.from_user.id, res.video)
+                if order.image != "No Photo":
+                    await bot.send_photo(message.from_user.id, order.image)
+                if order.video != "No Video":
+                    await bot.send_video(message.from_user.id, order.video)
                 await bot.send_message(message.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
                                        f"<b>Детали заказа</b>\n"
                                        f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
-                                       f"Категория - <b>{res_order.category_delivery}</b>\n"
+                                       f"Категория - <b>{order.category_delivery}</b>\n"
                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                       f"ID заказа - <b>{res_order.order_id}</b>\n"
+                                       f"ID заказа - <b>{order.order_id}</b>\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
                                        f"Откуда - <a href='https://yandex.ru/maps/?text="
-                                       f"{'+'.join(res_order.geo_position_from.split())}'>"
-                                       f"{res_order.geo_position_from}</a>\n"
+                                       f"{'+'.join(order.geo_position_from.split())}'>"
+                                       f"{order.geo_position_from}</a>\n"
                                        f"{config.KEYBOARD.get('B_BUTTON')} "
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
-                                       f"{'+'.join(res_order.geo_position_to.split())}'>"
-                                       f"{res_order.geo_position_to}</a>\n"
+                                       f"{'+'.join(order.geo_position_to.split())}'>"
+                                       f"{order.geo_position_to}</a>\n"
                                        f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{res_order.title}</b>\n"
+                                       f"Название - <b>{order.title}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                       f"Описание - <b>{res_order.description}</b>\n"
+                                       f"Описание - <b>{order.description}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
-                                       f"Цена - <b>{res_order.price}</b>\n"
+                                       f"Цена - <b>{order.price}</b>\n"
                                        f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                       f"Ценность этого товара - <b>{res_order.order_worth}</b>\n"
+                                       f"Ценность этого товара - <b>{order.order_worth}</b>\n"
                                        f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                       f"Заказ создан: <b>{res_order.order_create}</b>\n"
+                                       f"Заказ создан: <b>{order.order_create}</b>\n"
                                        f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                       f"Действует до: <b>{res_order.order_expired}</b>\n"
+                                       f"Действует до: <b>{order.order_expired}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n",
                                        disable_web_page_preview=True)
         if "Статус заказа" in message.text:
-            res = await performers_get.performer_get_status_order(data.get("order_id"))
-            if res is None:
+            end_order = await performers_get.performer_get_status_order(data.get("order_id"))
+            if end_order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "Вы вернулись в главное меню",
@@ -1090,8 +1089,8 @@ class PerformerDetailsTasks:
                                            "Завершить заказ или проверить статус заказа для его закрытия",
                                            reply_markup=markup_performer.details_task_status_end())
         if "Профиль заказчика" in message.text:
-            res = await performers_get.performer_get_status_order(data.get("order_id"))
-            if res is None:
+            end_order = await performers_get.performer_get_status_order(data.get("order_id"))
+            if end_order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "Вы вернулись в главное меню",
@@ -1101,21 +1100,21 @@ class PerformerDetailsTasks:
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
                                        f"Профиль <b>Заказчика</b>:\n"
                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                       f"ID : <b>{res_customer.user_id}</b>\n"
+                                       f"ID : <b>{customer.user_id}</b>\n"
                                        f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-                                       f"Никнейм <b>@{res_customer.username}</b>\n"
+                                       f"Никнейм <b>@{customer.username}</b>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Номер <b>{res_customer.telephone}</b>\n"
+                                       f"Номер <b>{customer.telephone}</b>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Имя <b>{res_customer.first_name}</b>\n"
+                                       f"Имя <b>{customer.first_name}</b>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Фамилия <b>{res_customer.last_name}</b>\n"
+                                       f"Фамилия <b>{customer.last_name}</b>\n"
                                        f"{config.KEYBOARD.get('BAR_CHART')} "
-                                       f"Рейтинг <b>{str(res_customer.customer_rating)[0:5]}</b>\n"
+                                       f"Рейтинг <b>{str(customer.customer_rating)[0:5]}</b>\n"
                                        f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                       f"Заказов создал - <b>{res_customer.create_orders}</b>\n"
+                                       f"Заказов создал - <b>{customer.create_orders}</b>\n"
                                        f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                       f"Заказов отменил - <b>{res_customer.canceled_orders}</b>\n"
+                                       f"Заказов отменил - <b>{customer.canceled_orders}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}")
         if "Вернуться в главное меню" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
