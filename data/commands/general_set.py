@@ -117,3 +117,9 @@ async def create_commission():
         for k, v in cat.items():
             commission = Commission(category=k, commission=v)
             await commission.create()
+
+
+async def delete_order_expired(order_id):
+    order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    logger.info(f'Система удаляет заказ {order_id}. Время заказа истекло')
+    await order.delete()

@@ -64,5 +64,5 @@ async def get_payment(bill_id):
 
 
 async def check_orders_expired():
-    orders = Orders.query.where(Orders.in_work == 0).gino.all()
+    orders = await Orders.query.where(Orders.in_work == 0).gino.all()
     return orders

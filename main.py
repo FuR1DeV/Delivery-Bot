@@ -122,9 +122,9 @@ async def join_request(message: types.ChatJoinRequest):
 async def db_checker_orders_expired():
     orders = await general_get.check_orders_expired()
     for i in orders:
-        limitation = str(datetime.now() - datetime.strptime(str(i[1]), '%Y-%m-%d %H:%M:%S'))[:1]
+        limitation = str(datetime.now() - datetime.strptime(i.order_expired, '%d-%m-%Y, %H:%M:%S'))[:1]
         if limitation != "-":
-            global_set_db_obj.order_expired_delete(i[0])
+            await general_set.delete_order_expired(i.order_id)
 
 
 async def db_checker_orders_status():
@@ -132,7 +132,7 @@ async def db_checker_orders_status():
 
 
 async def scheduler():
-    # aioschedule.every().minute.do(db_checker_orders_expired)
+    aioschedule.every().minute.do(db_checker_orders_expired)
     aioschedule.every().second.do(db_checker_orders_status)
     while True:
         await aioschedule.run_pending()
