@@ -28,9 +28,9 @@ def category_delivery():
                  f"{KEYBOARD.get('WRAPPED_GIFT')} Подарки",
                  f"{KEYBOARD.get('SHORTCAKE')} Кондитерка")
     keyboard.row(f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')} Документы",
-                 f"{KEYBOARD.get('ARROWS_BUTTON')} Погрузка/Разгрузка")
-    keyboard.row(f"{KEYBOARD.get('INPUT_LATIN_LETTERS')} Другое")
-    keyboard.row(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+                 f"{KEYBOARD.get('ARROWS_BUTTON')} Погрузка/Разгрузка",
+                 f"{KEYBOARD.get('INPUT_LATIN_LETTERS')} Другое")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
@@ -49,7 +49,7 @@ def cancel():
 def approve():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(f"{KEYBOARD.get('COMP')} С компьютера", f"{KEYBOARD.get('PHONE')} С телефона")
-    keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
     return keyboard
 
 
@@ -59,13 +59,13 @@ def performer_category():
                  f"{KEYBOARD.get('KICK_SCOOTER')} На скутере {KEYBOARD.get('KICK_SCOOTER')}")
     keyboard.add(f"{KEYBOARD.get('PERSON_RUNNING')} Пешеход {KEYBOARD.get('PERSON_RUNNING')}",
                  f"Любой")
-    keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
 def expired_data():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
@@ -74,7 +74,7 @@ def photo_or_video_create_task():
     keyboard.add("Без фото или видео")
     keyboard.add("Загрузить Фото")
     keyboard.add("Загрузить Видео")
-    keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
@@ -159,9 +159,17 @@ def choose():
 
 def send_my_geo():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button = types.KeyboardButton(text='Отправить моё местоположение', request_location=True)
+    button = types.KeyboardButton(text=f'{KEYBOARD.get("A_BUTTON")} Отправить моё местоположение', request_location=True)
     keyboard.add(button)
-    keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    return keyboard
+
+
+def send_my_geo_2():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button = types.KeyboardButton(text=f'{KEYBOARD.get("B_BUTTON")} Конечная точка - моё местоположение', request_location=True)
+    keyboard.add(button)
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 

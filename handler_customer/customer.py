@@ -90,7 +90,7 @@ class CustomerMain:
             CustomerCreateTaskComp.register_customer_create_task_comp(dp)
             await customer_states.CustomerCreateTask.create.set()
             await bot.send_message(message.from_user.id,
-                                   "Хотите создать новый заказ ?",
+                                   "Вы можете создать новый заказ с Компьютера или с Телефона",
                                    reply_markup=markup_customer.approve())
         if "Мои заказы" in message.text:
             res = await customers_get.customer_all_orders(message.from_user.id)
@@ -559,11 +559,11 @@ class CustomerCreateTask:
                                    "Выберите категорию доставки",
                                    reply_markup=markup_customer.category_delivery())
             await customer_states.CustomerCreateTaskComp.category_delivery.set()
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
+            await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   reply_markup=markup_customer.main_menu())
 
     @staticmethod
     async def category_delivery(message: types.Message, state: FSMContext):
@@ -579,6 +579,7 @@ class CustomerCreateTask:
             async with state.proxy() as data:
                 data["category_delivery"] = message.text.split()[1]
             await bot.send_message(message.from_user.id,
+                                   "<b>Точка А</b>\n"
                                    "Откуда забрать посылку ?\n"
                                    "Вы можете отправить своё местоположение\n"
                                    "Или отправить любое другое местоположение отправив геопозицию\n"
@@ -586,11 +587,13 @@ class CustomerCreateTask:
                                    "На карте вы можете отправить точку откуда забрать посылку",
                                    reply_markup=markup_customer.send_my_geo())
             await customer_states.CustomerCreateTask.next()
-        if message.text in f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.create.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать способ создания заказа\n"
+                                   "С <b>компьютера</b> или с <b>телефона</b>",
+                                   reply_markup=markup_customer.approve())
 
     @staticmethod
     async def geo_position_from(message: types.Message, state: FSMContext):
@@ -616,18 +619,19 @@ class CustomerCreateTask:
                                         f'{address.raw.get("address").get("house_number")}'
         except AttributeError:
             pass
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.category_delivery.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы можете выбрать <b>категорию Заказа</b>",
+                                   reply_markup=markup_customer.category_delivery())
 
     @staticmethod
     async def approve_geo_from(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
                                "Теперь надо указать конечную точку доставки",
-                               reply_markup=markup_customer.send_my_geo())
+                               reply_markup=markup_customer.send_my_geo_2())
         await customer_states.CustomerCreateTask.geo_position_to.set()
 
     @staticmethod
@@ -654,27 +658,29 @@ class CustomerCreateTask:
                                       f'{address.raw.get("address").get("house_number")}'
         except AttributeError:
             pass
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.geo_position_from.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы можете указать <b>Точку А</b> (Откуда забрать)",
+                                   reply_markup=markup_customer.send_my_geo())
 
     @staticmethod
     async def approve_geo_to(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
                                "Отлично! Введите название заказа",
-                               reply_markup=markup_customer.cancel())
+                               reply_markup=markup_customer.back())
         await customer_states.CustomerCreateTask.title.set()
 
     @staticmethod
     async def title(message: types.Message, state: FSMContext):
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.geo_position_to.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы можете указать <b>Точку B</b> (Конечная точка)",
+                                   reply_markup=markup_customer.send_my_geo_2())
         else:
             if len(message.text) > 100:
                 await bot.send_message(message.from_user.id,
@@ -686,16 +692,18 @@ class CustomerCreateTask:
                     data["title"] = message.text
                 await customer_states.CustomerCreateTask.next()
                 await bot.send_message(message.from_user.id,
-                                       "Введите, что нужно сделать",
-                                       reply_markup=markup_customer.cancel())
+                                       "Введите, что нужно сделать\n"
+                                       "<b>Описание Заказа</b>",
+                                       reply_markup=markup_customer.back())
 
     @staticmethod
     async def description(message: types.Message, state: FSMContext):
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.title.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете ввести <b>название Заказа</b>",
+                                   reply_markup=markup_customer.back())
         else:
             if len(message.text) > 255:
                 await bot.send_message(message.from_user.id,
@@ -708,15 +716,16 @@ class CustomerCreateTask:
                 await customer_states.CustomerCreateTask.next()
                 await bot.send_message(message.from_user.id,
                                        "Предложите цену исполнителю",
-                                       reply_markup=markup_customer.cancel())
+                                       reply_markup=markup_customer.back())
 
     @staticmethod
     async def price(message: types.Message, state: FSMContext):
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.description.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете ввести <b>описание Заказа</b>",
+                                   reply_markup=markup_customer.back())
         if message.text.isdigit():
             async with state.proxy() as data:
                 data["price"] = message.text
@@ -724,7 +733,7 @@ class CustomerCreateTask:
                                    "Выберите категорию Исполнителя",
                                    reply_markup=markup_customer.performer_category())
             await customer_states.CustomerCreateTask.next()
-        elif message.text != f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+        elif message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await bot.send_message(message.from_user.id,
                                    "Надо ввести целое число")
 
@@ -758,14 +767,21 @@ class CustomerCreateTask:
                                    "<b>Сколько часов максимум актуален ваш заказ ?</b>",
                                    reply_markup=markup_customer.expired_data())
             await customer_states.CustomerCreateTask.next()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.price.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете ввести <b>цену Заказа</b>",
+                                   reply_markup=markup_customer.back())
 
     @staticmethod
     async def expired_order(message: types.Message, state: FSMContext):
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.performer_category.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать желаемую <b>категорию Исполнителя</b>",
+                                   reply_markup=markup_customer.performer_category())
         if message.text.isdigit():
             if 1 <= int(message.text) <= 12:
                 await bot.send_message(message.from_user.id,
@@ -777,23 +793,25 @@ class CustomerCreateTask:
                                        "<b>Определите примерную ценность вашего товара</b>\n"
                                        "<b>Если ценности нет напишите 0</b>\n"
                                        "<b>(Допустим у вас категория 'Погрузка/Разгрузка)'</b>)",
-                                       reply_markup=markup_customer.cancel())
+                                       reply_markup=markup_customer.back())
                 await customer_states.CustomerCreateTask.next()
             else:
                 await bot.send_message(message.from_user.id,
                                        f"Введите от 1 до 12 часов")
-        else:
+        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад" \
+                and not message.text.isdigit():
             await bot.send_message(message.from_user.id,
                                    "Нужно ввести цифру\n"
                                    "Введите сколько часов действует ваш заказ")
 
     @staticmethod
     async def order_worth(message: types.Message, state: FSMContext):
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.expired_data.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать определить <b>срок истечения вашего Заказа</b>",
+                                   reply_markup=markup_customer.back())
         if message.text.isdigit() and int(message.text) < 15001:
             await bot.send_message(message.from_user.id,
                                    f"Вы определили ценность вашего товара <b>{message.text} руб.</b>")
@@ -803,13 +821,13 @@ class CustomerCreateTask:
                                    "Загрузите фото или видео",
                                    reply_markup=markup_customer.photo_or_video_create_task())
             await customer_states.CustomerCreateTask.next()
-        elif not message.text.isdigit():
-            await bot.send_message(message.from_user.id,
-                                   "Нужно ввести цифру\n"
-                                   "Определите примерную ценность вашего товара")
-        else:
+        if message.text.isdigit() and int(message.text) > 15000:
             await bot.send_message(message.from_user.id,
                                    "Максимальная ценность товара в 15000 рублей\n"
+                                   "Определите примерную ценность вашего товара")
+        elif message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад" and not message.text.isdigit():
+            await bot.send_message(message.from_user.id,
+                                   "Нужно ввести цифру\n"
                                    "Определите примерную ценность вашего товара")
 
     @staticmethod
@@ -834,34 +852,37 @@ class CustomerCreateTask:
                                                        int(data.get("order_worth")))
             await general_set.add_review(order_id)
             await state.finish()
-            await customer_states.CustomerStart.start.set()
+            await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "<b>Отклик без фото или видео отправлен.</b>\n"
                                    "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
-                                   reply_markup=markup_customer.back_main_menu())
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
-            await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   reply_markup=markup_customer.main_menu())
         if message.text == "Загрузить Фото":
             await customer_states.CustomerCreateTask.photo.set()
             await bot.send_message(message.from_user.id,
                                    f"{message.from_user.first_name} Загрузите фото",
-                                   reply_markup=markup_customer.cancel())
+                                   reply_markup=markup_customer.back())
         if message.text == "Загрузить Видео":
             await customer_states.CustomerCreateTask.video.set()
             await bot.send_message(message.from_user.id,
                                    f"{message.from_user.first_name} Загрузите видео",
-                                   reply_markup=markup_customer.cancel())
+                                   reply_markup=markup_customer.back())
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.worth.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать определить <b>ценность вашего товара</b>",
+                                   reply_markup=markup_customer.back())
 
     @staticmethod
     async def photo(message: types.Message, state: FSMContext):
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.photo_or_video.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать загрузку с Фото или Видео\n"
+                                   "Или можно Без Фото и Видео",
+                                   reply_markup=markup_customer.photo_or_video_create_task())
         else:
             try:
                 async with state.proxy() as data:
@@ -881,21 +902,23 @@ class CustomerCreateTask:
                                                        int(data.get("order_worth")))
                 await general_set.add_review(data.get("order_id"))
                 await state.finish()
-                await customer_states.CustomerStart.start.set()
+                await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "<b>Отклик с фото отправлен.</b>\n"
                                        "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
-                                       reply_markup=markup_customer.back_main_menu())
+                                       reply_markup=markup_customer.main_menu())
             except IndexError:
                 pass
 
     @staticmethod
     async def video(message: types.Message, state: FSMContext):
-        if message.text == "Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.photo_or_video.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать загрузку с Фото или Видео\n"
+                                   "Или можно Без Фото и Видео",
+                                   reply_markup=markup_customer.photo_or_video_create_task())
         else:
             async with state.proxy() as data:
                 data["video"] = message.video.file_id
@@ -914,11 +937,11 @@ class CustomerCreateTask:
                                                    int(data.get("order_worth")))
             await general_set.add_review(data.get("order_id"))
             await state.finish()
-            await customer_states.CustomerStart.start.set()
+            await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "<b>Отклик с видео отправлен.</b>\n"
                                    "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   reply_markup=markup_customer.main_menu())
 
     @staticmethod
     def register_customer_create_task(disp: Dispatcher):
