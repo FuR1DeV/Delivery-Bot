@@ -159,7 +159,8 @@ def choose():
 
 def send_my_geo():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button = types.KeyboardButton(text=f'{KEYBOARD.get("A_BUTTON")} Отправить моё местоположение', request_location=True)
+    button = types.KeyboardButton(text=f'{KEYBOARD.get("A_BUTTON")} Отправить моё местоположение',
+                                  request_location=True)
     keyboard.add(button)
     keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
@@ -167,7 +168,8 @@ def send_my_geo():
 
 def send_my_geo_2():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button = types.KeyboardButton(text=f'{KEYBOARD.get("B_BUTTON")} Конечная точка - моё местоположение', request_location=True)
+    button = types.KeyboardButton(text=f'{KEYBOARD.get("B_BUTTON")} Конечная точка - моё местоположение',
+                                  request_location=True)
     keyboard.add(button)
     keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard

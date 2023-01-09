@@ -1021,8 +1021,8 @@ class CustomerCreateTaskComp:
                                    "Введите адрес в таком формате:\n"
                                    "Город улица дом\n"
                                    "Пример:\n"
-                                   "Москва Лобачевского 12",
-                                   reply_markup=markup_customer.cancel())
+                                   "<b>Москва Лобачевского 12</b>",
+                                   reply_markup=markup_customer.back())
             await customer_states.CustomerCreateTaskComp.geo_position_from_custom.set()
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTaskComp.category_delivery.set()
@@ -1033,7 +1033,7 @@ class CustomerCreateTaskComp:
 
     @staticmethod
     async def geo_position_from_custom(message: types.Message, state: FSMContext):
-        if message.text != f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await bot.send_message(message.from_user.id,
                                    f'Город подачи: {message.text.split()[0]}\n'
                                    f'Адрес подачи: {message.text.split()[1]} - {message.text.split()[2]}')
@@ -1044,24 +1044,26 @@ class CustomerCreateTaskComp:
                                    reply_markup=markup_customer.inline_approve_geo_from_custom())
             async with state.proxy() as data:
                 data["geo_data_from_comp"] = message.text
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskComp.choose.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать способ ввода адреса\n"
+                                   "С помощью <b>Карт</b> или <b>Ручной метод</b>",
+                                   reply_markup=markup_customer.choose())
 
     @staticmethod
     async def approve_geo_from_custom(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
-                               "Введите адрес конечной точки\n"
-                               "Если у вас Разгрузка/Погрузка, введите тот же адрес",
-                               reply_markup=markup_customer.cancel())
+                               "<b>Точка B</b>\n"
+                               "Введите координаты конечной точки",
+                               reply_markup=markup_customer.back())
         await customer_states.CustomerCreateTaskComp.geo_position_to_custom.set()
 
     @staticmethod
     async def geo_position_to_custom(message: types.Message, state: FSMContext):
-        if message.text != f"{KEYBOARD.get('CROSS_MARK')} Отмена":
+        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await bot.send_message(message.from_user.id,
                                    f'Город подачи: {message.text.split()[0]}\n'
                                    f'Адрес подачи: {message.text.split()[1]} - {message.text.split()[2]}')
@@ -1072,18 +1074,21 @@ class CustomerCreateTaskComp:
                                    reply_markup=markup_customer.inline_approve_geo_to_custom())
             async with state.proxy() as data:
                 data["geo_data_to_comp"] = message.text
-        if message.text == f"{KEYBOARD.get('CROSS_MARK')} Отмена":
-            await customer_states.CustomerStart.start.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskComp.geo_position_from_custom.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
-                                   reply_markup=markup_customer.back_main_menu())
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете ввести вручную <b>Точку А</b>",
+                                   reply_markup=markup_customer.back())
 
     @staticmethod
-    async def approve_geo_to_custom(callback: types.CallbackQuery):
+    async def approve_geo_to_custom(callback: types.CallbackQuery, state: FSMContext):
+        async with state.proxy() as data:
+            data["method"] = 'custom'
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
                                "Отлично! Введите название заказа",
-                               reply_markup=markup_customer.cancel())
+                               reply_markup=markup_customer.back())
         await customer_states.CustomerCreateTaskComp.title.set()
 
     @staticmethod
@@ -1167,7 +1172,9 @@ class CustomerCreateTaskComp:
                                    reply_markup=markup_customer.open_site())
 
     @staticmethod
-    async def approve_geo_to_comp(callback: types.CallbackQuery):
+    async def approve_geo_to_comp(callback: types.CallbackQuery, state: FSMContext):
+        async with state.proxy() as data:
+            data["method"] = 'maps'
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
                                "Отлично! Введите название заказа",
@@ -1177,11 +1184,19 @@ class CustomerCreateTaskComp:
     @staticmethod
     async def title_comp(message: types.Message, state: FSMContext):
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            await customer_states.CustomerCreateTaskComp.geo_position_to.set()
-            await bot.send_message(message.from_user.id,
-                                   "Вернулись на шаг назад\n"
-                                   "Здесь вы сможете ввести <b>Точку B</b>",
-                                   reply_markup=markup_customer.open_site())
+            async with state.proxy() as data:
+                if data.get("method") == "custom":
+                    await customer_states.CustomerCreateTaskComp.geo_position_to_custom.set()
+                    await bot.send_message(message.from_user.id,
+                                           "Вернулись на шаг назад\n"
+                                           "Здесь вы сможете ввести вручную <b>Точку B</b>",
+                                           reply_markup=markup_customer.back())
+                if data.get("method") == "maps":
+                    await customer_states.CustomerCreateTaskComp.geo_position_to.set()
+                    await bot.send_message(message.from_user.id,
+                                           "Вернулись на шаг назад\n"
+                                           "Здесь вы сможете ввести <b>Точку B</b>",
+                                           reply_markup=markup_customer.open_site())
         else:
             if len(message.text) > 100:
                 await bot.send_message(message.from_user.id,
@@ -1484,7 +1499,7 @@ class CustomerCreateTaskComp:
                                              state=customer_states.CustomerCreateTaskComp.geo_position_from_custom)
         disp.register_message_handler(CustomerCreateTaskComp.geo_position_to_custom,
                                       state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
-        disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_comp,
+        disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_custom,
                                              text="approve_geo_to_custom",
                                              state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
 
