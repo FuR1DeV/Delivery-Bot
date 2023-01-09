@@ -46,6 +46,17 @@ class CustomerCreateTaskComp(StatesGroup):
     video: State = State()
 
 
+class CustomerCreateTaskLoading(StatesGroup):
+    geo_position: State = State()
+    people: State = State()
+    description: State = State()
+    price: State = State()
+    expired_data: State = State()
+    photo_or_video: State = State()
+    photo: State = State()
+    video: State = State()
+
+
 class CustomerProfile(StatesGroup):
     my_profile: State = State()
     balance: State = State()

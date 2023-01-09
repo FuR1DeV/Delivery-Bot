@@ -551,12 +551,12 @@ class CustomerCreateTask:
     async def create_task(message: types.Message):
         if "С телефона" in message.text:
             await bot.send_message(message.from_user.id,
-                                   "Выберите категорию доставки",
+                                   "Выберите категорию",
                                    reply_markup=markup_customer.category_delivery())
             await customer_states.CustomerCreateTask.next()
         if "С компьютера" in message.text:
             await bot.send_message(message.from_user.id,
-                                   "Выберите категорию доставки",
+                                   "Выберите категорию",
                                    reply_markup=markup_customer.category_delivery())
             await customer_states.CustomerCreateTaskComp.category_delivery.set()
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
@@ -578,15 +578,27 @@ class CustomerCreateTask:
                                    f"Отлично! Вы выбрали категорию {message.text}")
             async with state.proxy() as data:
                 data["category_delivery"] = message.text.split()[1]
-            await bot.send_message(message.from_user.id,
-                                   "<b>Точка А</b>\n"
-                                   "Откуда забрать посылку ?\n"
-                                   "Вы можете отправить своё местоположение\n"
-                                   "Или отправить любое другое местоположение отправив геопозицию\n"
-                                   "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
-                                   "На карте вы можете отправить точку откуда забрать посылку",
-                                   reply_markup=markup_customer.send_my_geo())
-            await customer_states.CustomerCreateTask.next()
+            if message.text == f"{KEYBOARD.get('ARROWS_BUTTON')} Погрузка/Разгрузка":
+                await bot.send_message(message.from_user.id,
+                                       "<b>Куда выезжать ?</b>\n"
+                                       "Вы можете отправить своё местоположение\n"
+                                       "Или отправить любое другое местоположение отправив геопозицию\n"
+                                       "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
+                                       "На карте вы можете отправить точку откуда забрать посылку",
+                                       reply_markup=markup_customer.send_my_geo()
+                                       )
+                CustomerCreateTaskLoading.register_customer_create_task(dp)
+                await customer_states.CustomerCreateTaskLoading.geo_position.set()
+            else:
+                await bot.send_message(message.from_user.id,
+                                       "<b>Точка А</b>\n"
+                                       "Откуда забрать посылку ?\n"
+                                       "Вы можете отправить своё местоположение\n"
+                                       "Или отправить любое другое местоположение отправив геопозицию\n"
+                                       "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
+                                       "На карте вы можете отправить точку откуда забрать посылку",
+                                       reply_markup=markup_customer.send_my_geo())
+                await customer_states.CustomerCreateTask.next()
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTask.create.set()
             await bot.send_message(message.from_user.id,
@@ -784,9 +796,10 @@ class CustomerCreateTask:
                                    reply_markup=markup_customer.performer_category())
         if message.text.isdigit():
             if 1 <= int(message.text) <= 12:
-                await bot.send_message(message.from_user.id,
-                                       f"Ваш заказ действует <b>{message.text} часа</b>")
                 date = datetime.now() + timedelta(hours=int(message.text))
+                await bot.send_message(message.from_user.id,
+                                       f"Ваш заказ действует <b>{message.text} часа</b>\n"
+                                       f"До {date.strftime('%d %B %Y, %H:%M')}")
                 async with state.proxy() as data:
                     data['order_expired'] = date
                 await bot.send_message(message.from_user.id,
@@ -810,7 +823,7 @@ class CustomerCreateTask:
             await customer_states.CustomerCreateTask.expired_data.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись на шаг назад\n"
-                                   "Здесь вы сможете выбрать определить <b>срок истечения вашего Заказа</b>",
+                                   "Здесь вы сможете определить <b>срок истечения вашего Заказа</b>",
                                    reply_markup=markup_customer.back())
         if message.text.isdigit() and int(message.text) < 15001:
             await bot.send_message(message.from_user.id,
@@ -1299,9 +1312,10 @@ class CustomerCreateTaskComp:
                                    reply_markup=markup_customer.performer_category())
         if message.text.isdigit():
             if 1 <= int(message.text) <= 12:
-                await bot.send_message(message.from_user.id,
-                                       f"Ваш заказ действует <b>{message.text} часа</b>")
                 date = datetime.now() + timedelta(hours=int(message.text))
+                await bot.send_message(message.from_user.id,
+                                       f"Ваш заказ действует <b>{message.text} часа</b>\n"
+                                       f"До {date.strftime('%d %B %Y, %H:%M')}")
                 async with state.proxy() as data:
                     data['order_expired'] = date
                 await bot.send_message(message.from_user.id,
@@ -1502,6 +1516,266 @@ class CustomerCreateTaskComp:
         disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_custom,
                                              text="approve_geo_to_custom",
                                              state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
+
+
+class CustomerCreateTaskLoading:
+
+    @staticmethod
+    async def geo_position_from(message: types.Message, state: FSMContext):
+        try:
+            n = Nominatim(user_agent='User')
+            loc = f"{message.location.latitude}, {message.location.longitude}"
+            address = n.reverse(loc)
+            city = address.raw.get("address").get("city")
+            if city is None:
+                city = address.raw.get("address").get("town")
+            await bot.send_message(message.from_user.id,
+                                   f'Город: {city}\n'
+                                   f'Адрес: {address.raw.get("address").get("road")}, '
+                                   f'{address.raw.get("address").get("house_number")}\n')
+            await bot.send_message(message.from_user.id,
+                                   "Проверьте пожалуйста координаты, если вы ошиблись "
+                                   "вы можете еще раз отправить геопозицию. "
+                                   "Если же все в порядке нажмите Все верно",
+                                   reply_markup=markup_customer.inline_approve_geo_from_loading())
+            async with state.proxy() as data:
+                data["geo_data_from"] = f'{city}, ' \
+                                        f'{address.raw.get("address").get("road")}, ' \
+                                        f'{address.raw.get("address").get("house_number")}'
+        except AttributeError:
+            pass
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTask.category_delivery.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы можете выбрать <b>категорию Заказа</b>",
+                                   reply_markup=markup_customer.category_delivery())
+
+    @staticmethod
+    async def approve_geo_from(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.from_user.id,
+                               "Укажите количество требуемых грузчиков",
+                               reply_markup=markup_customer.back())
+        await customer_states.CustomerCreateTaskLoading.people.set()
+
+    @staticmethod
+    async def count_man_loading(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskLoading.geo_position.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы можете указать адрес <b>Куда выезжать грузчикам</b>",
+                                   reply_markup=markup_customer.send_my_geo())
+        if message.text.isdigit() and int(message.text) <= 10:
+            async with state.proxy() as data:
+                data["people"] = int(message.text)
+            await bot.send_message(message.from_user.id,
+                                   "Что нужно делать ?\n"
+                                   "Введите описание работ\n",
+                                   reply_markup=markup_customer.back())
+            await customer_states.CustomerCreateTaskLoading.next()
+        elif message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Не больше 10\n"
+                                   "Надо ввести целое число")
+
+    @staticmethod
+    async def description(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskLoading.people.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете ввести <b>количество Грузчиков</b>",
+                                   reply_markup=markup_customer.back())
+        else:
+            if len(message.text) > 255:
+                await bot.send_message(message.from_user.id,
+                                       "Вы ввели слишком длинное описание!"
+                                       "Ограничение в названии заказа 255 символов!",
+                                       reply_markup=markup_customer.back())
+            else:
+                async with state.proxy() as data:
+                    data["description"] = message.text
+                await customer_states.CustomerCreateTaskLoading.next()
+                await bot.send_message(message.from_user.id,
+                                       "Цена вводится за <b>1 час</b> работы\n"
+                                       "Предложите цену исполнителю",
+                                       reply_markup=markup_customer.back())
+
+    @staticmethod
+    async def price(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskLoading.description.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете ввести <b>что надо сделать</b>",
+                                   reply_markup=markup_customer.back())
+        if message.text.isdigit():
+            async with state.proxy() as data:
+                data["price"] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "<b>Сколько часов максимум актуален ваш заказ ?</b>",
+                                   reply_markup=markup_customer.expired_data())
+            await customer_states.CustomerCreateTaskLoading.next()
+        elif message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Надо ввести целое число")
+
+    @staticmethod
+    async def expired_order(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskLoading.price.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете ввести <b>Цену за 1 час</b>",
+                                   reply_markup=markup_customer.back())
+        if message.text.isdigit():
+            if 1 <= int(message.text) <= 12:
+                date = datetime.now() + timedelta(hours=int(message.text))
+                await bot.send_message(message.from_user.id,
+                                       f"Ваш заказ действует <b>{message.text} часа</b>\n"
+                                       f"До {date.strftime('%d %B %Y, %H:%M')}")
+                async with state.proxy() as data:
+                    data['order_expired'] = date
+                await bot.send_message(message.from_user.id,
+                                       "Загрузите фото или видео",
+                                       reply_markup=markup_customer.photo_or_video_create_task())
+                await customer_states.CustomerCreateTaskLoading.next()
+            else:
+                await bot.send_message(message.from_user.id,
+                                       f"Введите от 1 до 12 часов")
+        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад" \
+                and not message.text.isdigit():
+            await bot.send_message(message.from_user.id,
+                                   "Нужно ввести цифру\n"
+                                   "Введите сколько часов действует ваш заказ")
+
+    @staticmethod
+    async def photo_video(message: types.Message, state: FSMContext):
+        order_id = f"{datetime.now().strftime('%m_%d')}_{randint(1, 99999)}"
+        async with state.proxy() as data:
+            data["order_id"] = order_id
+        if message.text == "Без фото или видео":
+            async with state.proxy() as data:
+                await customers_set.customer_add_order_loading(message.from_user.id,
+                                                               data.get("geo_data_from"),
+                                                               data.get("description"),
+                                                               int(data.get("price")),
+                                                               "No Photo",
+                                                               "No Video",
+                                                               order_id,
+                                                               datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
+                                                               data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'))
+            await general_set.add_review(order_id)
+            await state.finish()
+            await customer_states.CustomerStart.customer_menu.set()
+            await bot.send_message(message.from_user.id,
+                                   "<b>Отклик без фото или видео отправлен.</b>\n"
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                   reply_markup=markup_customer.main_menu())
+        if message.text == "Загрузить Фото":
+            await customer_states.CustomerCreateTaskLoading.photo.set()
+            await bot.send_message(message.from_user.id,
+                                   f"{message.from_user.first_name} Загрузите фото",
+                                   reply_markup=markup_customer.back())
+        if message.text == "Загрузить Видео":
+            await customer_states.CustomerCreateTaskLoading.video.set()
+            await bot.send_message(message.from_user.id,
+                                   f"{message.from_user.first_name} Загрузите видео",
+                                   reply_markup=markup_customer.back())
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskLoading.expired_data.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете определить <b>срок истечения вашего Заказа</b>",
+                                   reply_markup=markup_customer.back())
+
+    @staticmethod
+    async def photo(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskLoading.photo_or_video.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать загрузку с Фото или Видео\n"
+                                   "Или можно Без Фото и Видео",
+                                   reply_markup=markup_customer.photo_or_video_create_task())
+        else:
+            try:
+                async with state.proxy() as data:
+                    data["photo"] = message.photo[2].file_id
+                await customers_set.customer_add_order_loading(message.from_user.id,
+                                                               data.get("geo_data_from"),
+                                                               data.get("description"),
+                                                               int(data.get("price")),
+                                                               data.get("photo"),
+                                                               "No Video",
+                                                               data.get("order_id"),
+                                                               datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
+                                                               data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'))
+                await general_set.add_review(data.get("order_id"))
+                await state.finish()
+                await customer_states.CustomerStart.customer_menu.set()
+                await bot.send_message(message.from_user.id,
+                                       "<b>Отклик с фото отправлен.</b>\n"
+                                       "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                       reply_markup=markup_customer.main_menu())
+            except IndexError:
+                pass
+
+    @staticmethod
+    async def video(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskLoading.photo_or_video.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать загрузку с Фото или Видео\n"
+                                   "Или можно Без Фото и Видео",
+                                   reply_markup=markup_customer.photo_or_video_create_task())
+        else:
+            async with state.proxy() as data:
+                data["video"] = message.video.file_id
+            await customers_set.customer_add_order_loading(message.from_user.id,
+                                                           data.get("geo_data_from"),
+                                                           data.get("description"),
+                                                           int(data.get("price")),
+                                                           "No Photo",
+                                                           data.get("video"),
+                                                           data.get("order_id"),
+                                                           datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
+                                                           data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'))
+            await general_set.add_review(data.get("order_id"))
+            await state.finish()
+            await customer_states.CustomerStart.customer_menu.set()
+            await bot.send_message(message.from_user.id,
+                                   "<b>Отклик с видео отправлен.</b>\n"
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                   reply_markup=markup_customer.main_menu())
+
+    @staticmethod
+    def register_customer_create_task(disp: Dispatcher):
+        disp.register_message_handler(CustomerCreateTaskLoading.geo_position_from,
+                                      content_types=['location', 'text'],
+                                      state=customer_states.CustomerCreateTaskLoading.geo_position)
+        disp.register_callback_query_handler(CustomerCreateTaskLoading.approve_geo_from,
+                                             text="approve_geo_from_loading",
+                                             state=customer_states.CustomerCreateTaskLoading.geo_position)
+        disp.register_message_handler(CustomerCreateTaskLoading.count_man_loading,
+                                      state=customer_states.CustomerCreateTaskLoading.people)
+        disp.register_message_handler(CustomerCreateTaskLoading.description,
+                                      state=customer_states.CustomerCreateTaskLoading.description)
+        disp.register_message_handler(CustomerCreateTaskLoading.price,
+                                      state=customer_states.CustomerCreateTaskLoading.price)
+        disp.register_message_handler(CustomerCreateTaskLoading.expired_order,
+                                      state=customer_states.CustomerCreateTaskLoading.expired_data)
+        disp.register_message_handler(CustomerCreateTaskLoading.photo_video,
+                                      state=customer_states.CustomerCreateTaskLoading.photo_or_video)
+        disp.register_message_handler(CustomerCreateTaskLoading.photo,
+                                      content_types=['photo', 'text'],
+                                      state=customer_states.CustomerCreateTaskLoading.photo)
+        disp.register_message_handler(CustomerCreateTaskLoading.video,
+                                      content_types=['video', 'text'],
+                                      state=customer_states.CustomerCreateTaskLoading.video)
 
 
 class CustomerDetailsTasks:

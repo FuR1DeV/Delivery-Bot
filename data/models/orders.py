@@ -30,6 +30,27 @@ class Orders(BaseModel):
     query: sql.select
 
 
+class OrdersLoading(BaseModel):
+    __tablename__ = "orders_loading"
+    id = Column(Integer, primary_key=True, nullable=False)
+    user_id = Column(BigInteger, nullable=False)
+    geo_position = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    price = Column(DECIMAL, nullable=False)
+    image = Column(String)
+    video = Column(String)
+    in_work = Column(BigInteger, server_default="0")
+    completed = Column(Integer, server_default="0")
+    order_id = Column(String, nullable=False)
+    order_create = Column(String, nullable=False)
+    order_get = Column(String)
+    order_cancel = Column(String)
+    order_end = Column(String)
+    order_expired = Column(String)
+    order_rating = Column(Integer, server_default="0")
+    query: sql.select
+
+
 class OrdersStatus(BaseModel):
     __tablename__ = "orders_status"
     id = Column(Integer, primary_key=True, nullable=False)

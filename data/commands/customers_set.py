@@ -1,7 +1,7 @@
 import logging
 
 from data.models.customers import Customers
-from data.models.orders import Orders, OrdersStatus, Reviews
+from data.models.orders import Orders, OrdersStatus, Reviews, OrdersLoading
 from data.commands import customers_get, performers_get
 
 
@@ -25,6 +25,17 @@ async def customer_add_order(user_id, geo_position_from, geo_position_to, title,
                    price=price, description=description, image=image, video=video, order_id=order_id,
                    order_create=order_create, category_delivery=category_delivery,
                    performer_category=performer_category, order_expired=order_expired, order_worth=order_worth)
+    customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
+    create = customer.create_orders + 1
+    await customer.update(create_orders=create).apply()
+    await order.create()
+
+
+async def customer_add_order_loading(user_id, geo_position, description, price, image, video, order_id,
+                                     order_create, order_expired):
+    logger.info(f'Заказчик {user_id} добавляет заказ {order_id}')
+    order = OrdersLoading(user_id=user_id, geo_position=geo_position, description=description, price=price,
+                          image=image, video=video, order_id=order_id, order_create=order_create, order_expired=order_expired)
     customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
     create = customer.create_orders + 1
     await customer.update(create_orders=create).apply()
