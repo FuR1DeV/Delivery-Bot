@@ -145,7 +145,7 @@ def open_site():
     yandex = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Yandex',
                                   web_app=WebAppInfo(url="https://www.yandex.ru/maps"))
     keyboard.row(google, yandex)
-    keyboard.add(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
@@ -153,7 +153,7 @@ def choose():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('WORLD_MAP')} Ввести координаты с карт",
                  f"{KEYBOARD.get('WRITING_HAND')} Ввести адрес вручную")
-    keyboard.row(f"{KEYBOARD.get('CROSS_MARK')} Отмена")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
