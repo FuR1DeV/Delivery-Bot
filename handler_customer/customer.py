@@ -1560,6 +1560,10 @@ class CustomerCreateTaskLoading:
         await customer_states.CustomerCreateTaskLoading.people.set()
 
     @staticmethod
+    async def geo_position_from_comp(message: types.Message, state: FSMContext):
+        pass
+
+    @staticmethod
     async def count_man_loading(message: types.Message, state: FSMContext):
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTaskLoading.geo_position.set()
