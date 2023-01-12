@@ -799,7 +799,9 @@ class CustomerCreateTask:
                 date = datetime.now() + timedelta(hours=int(message.text))
                 await bot.send_message(message.from_user.id,
                                        f"Ваш заказ действует <b>{message.text} часа</b>\n"
-                                       f"До {date.strftime('%d %B %Y, %H:%M')}")
+                                       f"До {date.strftime('%d %B %Y, %H:%M')}"
+                                       f"Если по истечении этого времени никто ваш заказ не возьмет\n"
+                                       f"Заказ исчезнет автоматически")
                 async with state.proxy() as data:
                     data['order_expired'] = date
                 await bot.send_message(message.from_user.id,
@@ -1022,12 +1024,19 @@ class CustomerCreateTaskComp:
                                    reply_markup=markup_customer.approve())
 
     @staticmethod
-    async def choose(message: types.Message):
+    async def choose(message: types.Message, state: FSMContext):
         if "Ввести координаты с карт" in message.text:
-            await bot.send_message(message.from_user.id,
-                                   "<b>Точка A</b>"
-                                   "Введите координаты откуда забрать",
-                                   reply_markup=markup_customer.open_site())
+            async with state.proxy() as data:
+                if data.get("category_delivery") == "Погрузка/Разгрузка":
+                    await bot.send_message(message.from_user.id,
+                                           "<b>Куда выезжать ?</b>\n"
+                                           "Введите координаты",
+                                           reply_markup=markup_customer.open_site())
+                else:
+                    await bot.send_message(message.from_user.id,
+                                           "<b>Точка A</b>\n"
+                                           "Введите координаты откуда забрать",
+                                           reply_markup=markup_customer.open_site())
             await customer_states.CustomerCreateTaskComp.geo_position_from.set()
         if "Ввести адрес вручную" in message.text:
             await bot.send_message(message.from_user.id,
@@ -1155,13 +1164,22 @@ class CustomerCreateTaskComp:
                                    reply_markup=markup_customer.choose())
 
     @staticmethod
-    async def approve_geo_from_comp(callback: types.CallbackQuery):
-        await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(callback.from_user.id,
-                               "<b>Точка B</b>\n"
-                               "Введите координаты конечной точки",
-                               reply_markup=markup_customer.open_site())
-        await customer_states.CustomerCreateTaskComp.geo_position_to.set()
+    async def approve_geo_from_comp(callback: types.CallbackQuery, state: FSMContext):
+        async with state.proxy() as data:
+            if data.get("category_delivery") == "Погрузка/Разгрузка":
+                await bot.delete_message(callback.from_user.id, callback.message.message_id)
+                await bot.send_message(callback.from_user.id,
+                                       "Укажите количество требуемых грузчиков",
+                                       reply_markup=markup_customer.back())
+                CustomerCreateTaskLoading.register_customer_create_task(dp)
+                await customer_states.CustomerCreateTaskLoading.people.set()
+            else:
+                await bot.delete_message(callback.from_user.id, callback.message.message_id)
+                await bot.send_message(callback.from_user.id,
+                                       "<b>Точка B</b>\n"
+                                       "Введите координаты конечной точки",
+                                       reply_markup=markup_customer.open_site())
+                await customer_states.CustomerCreateTaskComp.geo_position_to.set()
 
     @staticmethod
     async def geo_position_to_comp(message: types.Message, state: FSMContext):
@@ -1329,7 +1347,9 @@ class CustomerCreateTaskComp:
                 date = datetime.now() + timedelta(hours=int(message.text))
                 await bot.send_message(message.from_user.id,
                                        f"Ваш заказ действует <b>{message.text} часа</b>\n"
-                                       f"До {date.strftime('%d %B %Y, %H:%M')}")
+                                       f"До {date.strftime('%d %B %Y, %H:%M')}"
+                                       f"Если по истечении этого времени никто ваш заказ не возьмет\n"
+                                       f"Заказ исчезнет автоматически")
                 async with state.proxy() as data:
                     data['order_expired'] = date
                 await bot.send_message(message.from_user.id,
@@ -1649,7 +1669,9 @@ class CustomerCreateTaskLoading:
                 date = datetime.now() + timedelta(hours=int(message.text))
                 await bot.send_message(message.from_user.id,
                                        f"Ваш заказ действует <b>{message.text} часа</b>\n"
-                                       f"До {date.strftime('%d %B %Y, %H:%M')}")
+                                       f"До {date.strftime('%d %B %Y, %H:%M')}"
+                                       f"Если по истечении этого времени никто ваш заказ не возьмет\n"
+                                       f"Заказ исчезнет автоматически")
                 async with state.proxy() as data:
                     data['order_expired'] = date
                 await bot.send_message(message.from_user.id,
