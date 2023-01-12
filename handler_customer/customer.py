@@ -1071,13 +1071,22 @@ class CustomerCreateTaskComp:
                                    reply_markup=markup_customer.choose())
 
     @staticmethod
-    async def approve_geo_from_custom(callback: types.CallbackQuery):
-        await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(callback.from_user.id,
-                               "<b>Точка B</b>\n"
-                               "Введите координаты конечной точки",
-                               reply_markup=markup_customer.back())
-        await customer_states.CustomerCreateTaskComp.geo_position_to_custom.set()
+    async def approve_geo_from_custom(callback: types.CallbackQuery, state: FSMContext):
+        async with state.proxy() as data:
+            if data.get("category_delivery") == "Погрузка/Разгрузка":
+                await bot.delete_message(callback.from_user.id, callback.message.message_id)
+                await bot.send_message(callback.from_user.id,
+                                       "Укажите количество требуемых грузчиков",
+                                       reply_markup=markup_customer.back())
+                CustomerCreateTaskLoading.register_customer_create_task(dp)
+                await customer_states.CustomerCreateTaskLoading.people.set()
+            else:
+                await bot.delete_message(callback.from_user.id, callback.message.message_id)
+                await bot.send_message(callback.from_user.id,
+                                       "<b>Точка B</b>\n"
+                                       "Введите координаты конечной точки",
+                                       reply_markup=markup_customer.back())
+                await customer_states.CustomerCreateTaskComp.geo_position_to_custom.set()
 
     @staticmethod
     async def geo_position_to_custom(message: types.Message, state: FSMContext):
@@ -1565,10 +1574,6 @@ class CustomerCreateTaskLoading:
         await customer_states.CustomerCreateTaskLoading.people.set()
 
     @staticmethod
-    async def geo_position_from_comp(message: types.Message, state: FSMContext):
-        pass
-
-    @staticmethod
     async def count_man_loading(message: types.Message, state: FSMContext):
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTaskLoading.geo_position.set()
@@ -1665,6 +1670,8 @@ class CustomerCreateTaskLoading:
         order_id = f"{datetime.now().strftime('%m_%d')}_{randint(1, 99999)}"
         async with state.proxy() as data:
             data["order_id"] = order_id
+            if data.get("geo_data_from") is None:
+                data["geo_data_from"] = data.get("geo_data_from_comp")
         if message.text == "Без фото или видео":
             async with state.proxy() as data:
                 await customers_set.customer_add_order_loading(message.from_user.id,
@@ -1713,6 +1720,8 @@ class CustomerCreateTaskLoading:
             try:
                 async with state.proxy() as data:
                     data["photo"] = message.photo[2].file_id
+                    if data.get("geo_data_from") is None:
+                        data["geo_data_from"] = data.get("geo_data_from_comp")
                 await customers_set.customer_add_order_loading(message.from_user.id,
                                                                data.get("geo_data_from"),
                                                                data.get("description"),
@@ -1744,6 +1753,8 @@ class CustomerCreateTaskLoading:
         else:
             async with state.proxy() as data:
                 data["video"] = message.video.file_id
+                if data.get("geo_data_from") is None:
+                    data["geo_data_from"] = data.get("geo_data_from_comp")
             await customers_set.customer_add_order_loading(message.from_user.id,
                                                            data.get("geo_data_from"),
                                                            data.get("description"),
