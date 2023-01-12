@@ -1100,16 +1100,21 @@ class CustomerCreateTaskComp:
     @staticmethod
     async def geo_position_to_custom(message: types.Message, state: FSMContext):
         if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            await bot.send_message(message.from_user.id,
-                                   f'Город подачи: {message.text.split()[0]}\n'
-                                   f'Адрес подачи: {message.text.split()[1]} - {message.text.split()[2]}')
-            await bot.send_message(message.from_user.id,
-                                   "Проверьте пожалуйста введенные данные, если вы ошиблись "
-                                   "вы можете еще раз отправить адрес.\n"
-                                   "Если же все в порядке нажмите Все верно",
-                                   reply_markup=markup_customer.inline_approve_geo_to_custom())
-            async with state.proxy() as data:
-                data["geo_data_to_comp"] = message.text
+            try:
+                await bot.send_message(message.from_user.id,
+                                       f'Город подачи: {message.text.split()[0]}\n'
+                                       f'Адрес подачи: {message.text.split()[1]} - {message.text.split()[2]}')
+                await bot.send_message(message.from_user.id,
+                                       "Проверьте пожалуйста введенные данные, если вы ошиблись "
+                                       "вы можете еще раз отправить адрес.\n"
+                                       "Если же все в порядке нажмите Все верно",
+                                       reply_markup=markup_customer.inline_approve_geo_to_custom())
+                async with state.proxy() as data:
+                    data["geo_data_to_comp"] = message.text
+            except IndexError:
+                await bot.send_message(message.from_user.id,
+                                       "Надо ввести данные в формате\n"
+                                       "<b>Город Улица Дом</b>")
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTaskComp.geo_position_from_custom.set()
             await bot.send_message(message.from_user.id,
