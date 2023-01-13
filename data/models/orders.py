@@ -48,6 +48,7 @@ class OrdersLoading(BaseModel):
     order_end = Column(String)
     order_expired = Column(String)
     order_rating = Column(Integer, server_default="0")
+    count_person = Column(Integer, nullable=False)
     query: sql.select
 
 

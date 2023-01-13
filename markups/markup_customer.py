@@ -78,6 +78,14 @@ def photo_or_video_create_task():
     return keyboard
 
 
+def customer_type_orders():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки {KEYBOARD.get('B_BUTTON')}")
+    keyboard.add(f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчики {KEYBOARD.get('ARROWS_BUTTON')}")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    return keyboard
+
+
 def photo_or_video_help():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add("Загрузить Фото")

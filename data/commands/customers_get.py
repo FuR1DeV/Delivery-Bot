@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import and_
 
 from data.models.customers import Customers
-from data.models.orders import Orders, OrdersStatus
+from data.models.orders import Orders, OrdersStatus, OrdersLoading
 
 logger = logging.getLogger("bot.data.commands.customer_get_db")
 
@@ -26,6 +26,14 @@ async def customer_all_orders(user_id):
                                            Orders.completed == 0,
                                            Orders.order_cancel == None)).gino.all()
     return orders
+
+
+async def customer_all_orders_loading(user_id):
+    """Заказчик выгружает список всех своих заказов погрузки/разгрузки"""
+    orders_loading = await OrdersLoading.query.where(and_(OrdersLoading.user_id == user_id,
+                                                          OrdersLoading.completed == 0,
+                                                          OrdersLoading.order_cancel == None)).gino.all()
+    return orders_loading
 
 
 async def customer_count_orders(user_id):
@@ -68,7 +76,7 @@ async def customer_get_finished_orders_year(user_id, year):
     """Заказчик выгружает список всех своих завершенных заказов"""
     """Выбирает год"""
     result = await Orders.query.where(and_(Orders.user_id == user_id,
-                                      Orders.order_end.like(f"%{year}%"))).gino.all()
+                                           Orders.order_end.like(f"%{year}%"))).gino.all()
     return result
 
 

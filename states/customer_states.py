@@ -9,6 +9,7 @@ class CustomerStart(StatesGroup):
     start: State = State()
     customer_menu: State = State()
     proposal: State = State()
+    orders: State = State()
 
 
 class CustomerCreateTask(StatesGroup):

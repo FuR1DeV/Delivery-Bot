@@ -93,16 +93,51 @@ class CustomerMain:
                                    "Вы можете создать новый заказ с Компьютера или с Телефона",
                                    reply_markup=markup_customer.approve())
         if "Мои заказы" in message.text:
-            res = await customers_get.customer_all_orders(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   "Выберите тип заказа",
+                                   reply_markup=markup_customer.customer_type_orders())
+            await customer_states.CustomerStart.orders.set()
+        if "Завершенные заказы" in message.text:
+            res = await customers_get.customer_all_completed_orders(message.from_user.id)
+            if res:
+                finished_orders = InlineKeyboardMarkup()
+                year = []
+                for i in res:
+                    year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
+                res_years = Counter(year)
+                for k, v in res_years.items():
+                    finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
+                                                                callback_data=f"year_finish_{k}"))
+                await bot.send_message(message.from_user.id,
+                                       "<b>Выберите год</b>\n"
+                                       "В скобках указано количество завершенных заказов",
+                                       reply_markup=finished_orders)
+                await customer_states.CustomerStart.customer_menu.set()
+            else:
+                await customer_states.CustomerStart.customer_menu.set()
+                await bot.send_message(message.from_user.id,
+                                       "У вас еще нет завершенных заказов!")
+        if "Помощь" in message.text:
+            await customer_states.CustomerHelp.help.set()
+            await bot.send_message(message.from_user.id,
+                                   "Опишите вашу проблему, можете прикрепить фото или видео\n"
+                                   "Когда закончите сможете вернуться в главное меню",
+                                   reply_markup=markup_customer.photo_or_video_help())
+            CustomerHelp.register_customer_help(dp)
+
+    @staticmethod
+    async def orders(message: types.Message):
+        if "Заказы Доставки" in message.text:
+            orders = await customers_get.customer_all_orders(message.from_user.id)
             category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
                         f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
                         f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
                         f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
                         f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
                         f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
-            if res:
+            if orders:
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                for i in res:
+                for i in orders:
                     order_get = "Пока не взят"
                     icon_category = None
                     icon = None
@@ -164,7 +199,7 @@ class CustomerMain:
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
                                            disable_web_page_preview=True)
                     keyboard.add(f"{icon} {i.order_id} {icon_category}")
-                keyboard.add("Вернуться в главное меню")
+                keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
                 refresh = InlineKeyboardMarkup()
                 r = InlineKeyboardButton(text="Обновить", callback_data="refresh")
                 refresh.insert(r)
@@ -178,50 +213,77 @@ class CustomerMain:
                 CustomerDetailsTasks.register_customer_details_tasks(dp)
             else:
                 await bot.send_message(message.from_user.id,
-                                       "У вас нет созданных заказов",
-                                       reply_markup=markup_customer.main_menu())
-                await customer_states.CustomerStart.customer_menu.set()
-        if "Завершенные заказы" in message.text:
-            res = await customers_get.customer_all_completed_orders(message.from_user.id)
-            if res:
-                finished_orders = InlineKeyboardMarkup()
-                year = []
-                for i in res:
-                    year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
-                res_years = Counter(year)
-                for k, v in res_years.items():
-                    finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
-                                                                callback_data=f"year_finish_{k}"))
+                                       "У вас нет созданных заказов для Доставки")
+        if "Заказы Грузчики" in message.text:
+            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            if orders_loading:
+                keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                for i in orders_loading:
+                    order_get = "Пока не взят"
+                    if i.order_get is not None:
+                        order_get = i.order_get
+                    if i.image != "No Photo":
+                        await bot.send_photo(message.from_user.id, i.image)
+                    if i.video != "No Video":
+                        await bot.send_video(message.from_user.id, i.video)
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"<b>Детали заказа для Грузчиков</b>\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Сколько Грузчиков - <b>{i.count_person}</b>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{i.description}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена за 1 час - <b>{i.price}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID заказа - <b>{i.order_id}</b>\n"
+                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                           f"Заказ создан: <b>{i.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                           f"Заказ взят: <b>{order_get}</b>\n"
+                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                           f"Действует до: <b>{i.order_expired}</b>\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} "
+                                           f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
+                    keyboard.add(f"{i.order_id}")
+                keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+                refresh = InlineKeyboardMarkup()
+                r = InlineKeyboardButton(text="Обновить", callback_data="refresh_loading")
+                refresh.insert(r)
                 await bot.send_message(message.from_user.id,
-                                       "<b>Выберите год</b>\n"
-                                       "В скобках указано количество завершенных заказов",
-                                       reply_markup=finished_orders)
-                await customer_states.CustomerStart.customer_menu.set()
+                                       "Нажмите обновить для обновление рейтинга",
+                                       reply_markup=refresh)
+                await bot.send_message(message.from_user.id,
+                                       "Выберите ID задачи чтобы войти в детали заказа",
+                                       reply_markup=keyboard)
+                await customer_states.CustomerDetailsTasks.my_tasks.set()
             else:
-                await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "У вас еще нет завершенных заказов!")
-        if "Помощь" in message.text:
-            await customer_states.CustomerHelp.help.set()
+                                       "У вас нет созданных заказов для Грузчиков")
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
             await bot.send_message(message.from_user.id,
-                                   "Опишите вашу проблему, можете прикрепить фото или видео\n"
-                                   "Когда закончите сможете вернуться в главное меню",
-                                   reply_markup=markup_customer.photo_or_video_help())
-            CustomerHelp.register_customer_help(dp)
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_customer.main_menu())
+            await customer_states.CustomerStart.customer_menu.set()
 
     @staticmethod
     async def refresh(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        res = await customers_get.customer_all_orders(callback.from_user.id)
+        orders = await customers_get.customer_all_orders(callback.from_user.id)
         category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
                     f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
                     f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
                     f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
                     f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
                     f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
-        if res:
+        if orders:
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            for i in res:
+            for i in orders:
                 order_get = "Пока не взят"
                 icon_category = None
                 icon = None
@@ -295,6 +357,57 @@ class CustomerMain:
                                    reply_markup=keyboard)
             await customer_states.CustomerDetailsTasks.my_tasks.set()
             CustomerDetailsTasks.register_customer_details_tasks(dp)
+
+    @staticmethod
+    async def refresh_loading(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        orders_loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
+        if orders_loading:
+            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            for i in orders_loading:
+                order_get = "Пока не взят"
+                if i.order_get is not None:
+                    order_get = i.order_get
+                if i.image != "No Photo":
+                    await bot.send_photo(callback.from_user.id, i.image)
+                if i.video != "No Video":
+                    await bot.send_video(callback.from_user.id, i.video)
+                await bot.send_message(callback.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"<b>Детали заказа для Грузчиков</b>\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Сколько Грузчиков - <b>{i.count_person}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{i.description}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена за 1 час - <b>{i.price}</b>\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"ID заказа - <b>{i.order_id}</b>\n"
+                                       f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                       f"Заказ создан: <b>{i.order_create}</b>\n"
+                                       f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                       f"Заказ взят: <b>{order_get}</b>\n"
+                                       f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                       f"Действует до: <b>{i.order_expired}</b>\n"
+                                       f"{config.KEYBOARD.get('BAR_CHART')} "
+                                       f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                       disable_web_page_preview=True)
+                keyboard.add(f"{i.order_id}")
+            keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+            refresh = InlineKeyboardMarkup()
+            r = InlineKeyboardButton(text="Обновить", callback_data="refresh_loading")
+            refresh.insert(r)
+            await bot.send_message(callback.from_user.id,
+                                   "Нажмите обновить для обновление рейтинга",
+                                   reply_markup=refresh)
+            await bot.send_message(callback.from_user.id,
+                                   "Выберите ID задачи чтобы войти в детали заказа",
+                                   reply_markup=keyboard)
+            await customer_states.CustomerDetailsTasks.my_tasks.set()
 
     @staticmethod
     async def choose_month(callback: types.CallbackQuery, state: FSMContext):
@@ -513,6 +626,10 @@ class CustomerMain:
                                              state=["*"], text='refresh')
         disp.register_callback_query_handler(CustomerMain.approve_info_arrived,
                                              state=["*"], text_contains='arrive_approve_')
+        disp.register_message_handler(CustomerMain.orders,
+                                      state=customer_states.CustomerStart.orders)
+        disp.register_callback_query_handler(CustomerMain.refresh_loading,
+                                             state=["*"], text="refresh_loading")
 
 
 class CustomerProfile:
@@ -799,7 +916,7 @@ class CustomerCreateTask:
                 date = datetime.now() + timedelta(hours=int(message.text))
                 await bot.send_message(message.from_user.id,
                                        f"Ваш заказ действует <b>{message.text} часа</b>\n"
-                                       f"До {date.strftime('%d %B %Y, %H:%M')}"
+                                       f"До {date.strftime('%d %B %Y, %H:%M')}\n"
                                        f"Если по истечении этого времени никто ваш заказ не возьмет\n"
                                        f"Заказ исчезнет автоматически")
                 async with state.proxy() as data:
@@ -1352,7 +1469,7 @@ class CustomerCreateTaskComp:
                 date = datetime.now() + timedelta(hours=int(message.text))
                 await bot.send_message(message.from_user.id,
                                        f"Ваш заказ действует <b>{message.text} часа</b>\n"
-                                       f"До {date.strftime('%d %B %Y, %H:%M')}"
+                                       f"До {date.strftime('%d %B %Y, %H:%M')}\n"
                                        f"Если по истечении этого времени никто ваш заказ не возьмет\n"
                                        f"Заказ исчезнет автоматически")
                 async with state.proxy() as data:
@@ -1674,7 +1791,7 @@ class CustomerCreateTaskLoading:
                 date = datetime.now() + timedelta(hours=int(message.text))
                 await bot.send_message(message.from_user.id,
                                        f"Ваш заказ действует <b>{message.text} часа</b>\n"
-                                       f"До {date.strftime('%d %B %Y, %H:%M')}"
+                                       f"До {date.strftime('%d %B %Y, %H:%M')}\n"
                                        f"Если по истечении этого времени никто ваш заказ не возьмет\n"
                                        f"Заказ исчезнет автоматически")
                 async with state.proxy() as data:
@@ -1709,7 +1826,8 @@ class CustomerCreateTaskLoading:
                                                                "No Video",
                                                                order_id,
                                                                datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
-                                                               data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'))
+                                                               data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
+                                                               data.get("people"))
             await general_set.add_review(order_id)
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()
@@ -1757,7 +1875,8 @@ class CustomerCreateTaskLoading:
                                                                "No Video",
                                                                data.get("order_id"),
                                                                datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
-                                                               data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'))
+                                                               data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
+                                                               data.get("people"))
                 await general_set.add_review(data.get("order_id"))
                 await state.finish()
                 await customer_states.CustomerStart.customer_menu.set()
@@ -1790,7 +1909,8 @@ class CustomerCreateTaskLoading:
                                                            data.get("video"),
                                                            data.get("order_id"),
                                                            datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
-                                                           data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'))
+                                                           data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
+                                                           data.get("people"))
             await general_set.add_review(data.get("order_id"))
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()

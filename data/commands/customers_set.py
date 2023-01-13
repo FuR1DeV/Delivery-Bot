@@ -32,10 +32,11 @@ async def customer_add_order(user_id, geo_position_from, geo_position_to, title,
 
 
 async def customer_add_order_loading(user_id, geo_position, description, price, image, video, order_id,
-                                     order_create, order_expired):
+                                     order_create, order_expired, people):
     logger.info(f'Заказчик {user_id} добавляет заказ {order_id}')
     order = OrdersLoading(user_id=user_id, geo_position=geo_position, description=description, price=price,
-                          image=image, video=video, order_id=order_id, order_create=order_create, order_expired=order_expired)
+                          image=image, video=video, order_id=order_id, order_create=order_create,
+                          order_expired=order_expired, count_person=people)
     customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
     create = customer.create_orders + 1
     await customer.update(create_orders=create).apply()
