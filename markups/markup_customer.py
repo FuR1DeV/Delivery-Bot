@@ -218,6 +218,20 @@ def inline_approve_geo_from_comp():
     return approve_geo
 
 
+def inline_approve_geo_position_site():
+    approve_geo = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text="Все верно", callback_data="change_geo_position_site")
+    approve_geo.insert(yes)
+    return approve_geo
+
+
+def inline_approve_geo_position_custom():
+    approve_geo = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text="Все верно", callback_data="change_geo_position_custom")
+    approve_geo.insert(yes)
+    return approve_geo
+
+
 def inline_approve_geo_from_custom():
     approve_geo = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from_custom")

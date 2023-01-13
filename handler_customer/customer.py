@@ -2226,8 +2226,7 @@ class CustomerDetailsTasksChange:
         async with state.proxy() as data:
             order_id = data.get("order_id")
             order_tuple = await customers_get.customer_view_order(order_id)
-            order = order_tuple[0]
-            data["order_type"] = order_tuple[1]
+            order, data["order_type"] = order_tuple[0], order_tuple[1]
         if "Название" in message.text:
             async with state.proxy() as data:
                 data["change"] = "title"
@@ -2287,6 +2286,13 @@ class CustomerDetailsTasksChange:
                                    f"Введите чтобы поменять количество грузчиков",
                                    reply_markup=markup_customer.back())
             await customer_states.CustomerChangeOrder.change_person.set()
+        if "Место работы" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   f'Сейчас выезжают Грузчики на адрес - <b>{order.geo_position}</b>')
+            await bot.send_message(message.from_user.id,
+                                   f'Выберите способ смены Место работы',
+                                   reply_markup=markup_customer.choose())
+            await customer_states.CustomerChangeOrder.change_geo.set()
 
     @staticmethod
     async def change(message: types.Message, state: FSMContext):
@@ -2464,6 +2470,113 @@ class CustomerDetailsTasksChange:
         await customer_states.CustomerChangeOrder.enter.set()
 
     @staticmethod
+    async def change_geo(message: types.Message):
+        if "Ввести координаты с карт" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   "<b>Куда выезжать ?</b>\n"
+                                   "Введите координаты",
+                                   reply_markup=markup_customer.open_site())
+            await customer_states.CustomerChangeOrder.change_geo_site.set()
+        if "Ввести адрес вручную" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   "Введите адрес в таком формате:\n"
+                                   "Город улица дом\n"
+                                   "Пример:\n"
+                                   "<b>Москва Лобачевского 12</b>",
+                                   reply_markup=markup_customer.back())
+            await customer_states.CustomerChangeOrder.change_geo_custom.set()
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Что будем менять ?",
+                                   reply_markup=markup_customer.details_task_change_loading())
+            await customer_states.CustomerChangeOrder.enter.set()
+
+    @staticmethod
+    async def change_geo_site(message: types.Message, state: FSMContext):
+        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            try:
+                n = Nominatim(user_agent='User')
+                loc = f"{message.text}"
+                address = n.reverse(loc)
+                city = address.raw.get("address").get("city")
+                if city is None:
+                    city = address.raw.get("address").get("town")
+                await bot.send_message(message.from_user.id,
+                                       f'Город подачи: {city}\n'
+                                       f'Адрес подачи: {address.raw.get("address").get("road")}, '
+                                       f'{address.raw.get("address").get("house_number")}\n')
+                await bot.send_message(message.from_user.id,
+                                       "Проверьте пожалуйста координаты, если вы ошиблись "
+                                       "вы можете еще раз отправить геопозицию. "
+                                       "Если же все в порядке нажмите Все верно",
+                                       reply_markup=markup_customer.inline_approve_geo_position_site())
+                async with state.proxy() as data:
+                    data["change_geo_position_site"] = f'{city}, ' \
+                                                 f'{address.raw.get("address").get("road")}, ' \
+                                                 f'{address.raw.get("address").get("house_number")}'
+            except (AttributeError, ValueError):
+                await bot.send_message(message.from_user.id,
+                                       "Вам нужно ввести координаты в таком формате:\n"
+                                       "<b>Пример:</b>\n"
+                                       "41.06268142529587, 28.99228891099907")
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать способ ввода",
+                                   reply_markup=markup_customer.choose())
+            await customer_states.CustomerChangeOrder.change_geo.set()
+
+    @staticmethod
+    async def change_geo_site_approve(callback: types.CallbackQuery, state: FSMContext):
+        async with state.proxy() as data:
+            result = data.get("change_geo_position_site")
+            order_id = data.get("order_id")
+        await customers_set.customer_change_order(order_id, "geo_position", result)
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.from_user.id,
+                               "Вы успешно поменяли Место работы",
+                               reply_markup=markup_customer.details_task_change_loading())
+        await customer_states.CustomerChangeOrder.enter.set()
+
+    @staticmethod
+    async def change_geo_custom(message: types.Message, state: FSMContext):
+        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            try:
+                await bot.send_message(message.from_user.id,
+                                       f'Город подачи: {message.text.split()[0]}\n'
+                                       f'Адрес подачи: {message.text.split()[1]} - {message.text.split()[2]}')
+                await bot.send_message(message.from_user.id,
+                                       "Проверьте пожалуйста введенные данные, если вы ошиблись "
+                                       "вы можете еще раз отправить адрес.\n"
+                                       "Если же все в порядке нажмите Все верно",
+                                       reply_markup=markup_customer.inline_approve_geo_position_custom())
+                async with state.proxy() as data:
+                    data["change_geo_position_custom"] = message.text
+            except IndexError:
+                await bot.send_message(message.from_user.id,
+                                       "Надо ввести данные в формате\n"
+                                       "<b>Город Улица Дом</b>")
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerChangeOrder.change_geo.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете выбрать способ ввода адреса\n"
+                                   "С помощью <b>Карт</b> или <b>Ручной метод</b>",
+                                   reply_markup=markup_customer.choose())
+
+    @staticmethod
+    async def change_geo_custom_approve(callback: types.CallbackQuery, state: FSMContext):
+        async with state.proxy() as data:
+            result = data.get("change_geo_position_custom")
+            order_id = data.get("order_id")
+        await customers_set.customer_change_order(order_id, "geo_position", result)
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.from_user.id,
+                               "Вы успешно поменяли Место работы",
+                               reply_markup=markup_customer.details_task_change_loading())
+        await customer_states.CustomerChangeOrder.enter.set()
+
+    @staticmethod
     def register_customer_details_tasks_change(disp: Dispatcher):
         disp.register_callback_query_handler(CustomerDetailsTasksChange.change_task_enter,
                                              text='change',
@@ -2488,6 +2601,18 @@ class CustomerDetailsTasksChange:
                                              state=customer_states.CustomerChangeOrder.change_geo_to)
         disp.register_message_handler(CustomerDetailsTasksChange.change_person,
                                       state=customer_states.CustomerChangeOrder.change_person)
+        disp.register_message_handler(CustomerDetailsTasksChange.change_geo,
+                                      state=customer_states.CustomerChangeOrder.change_geo)
+        disp.register_message_handler(CustomerDetailsTasksChange.change_geo_site,
+                                      state=customer_states.CustomerChangeOrder.change_geo_site)
+        disp.register_callback_query_handler(CustomerDetailsTasksChange.change_geo_site_approve,
+                                             state=customer_states.CustomerChangeOrder.change_geo_site,
+                                             text="change_geo_position_site")
+        disp.register_message_handler(CustomerDetailsTasksChange.change_geo_custom,
+                                      state=customer_states.CustomerChangeOrder.change_geo_custom)
+        disp.register_callback_query_handler(CustomerDetailsTasksChange.change_geo_custom_approve,
+                                             state=customer_states.CustomerChangeOrder.change_geo_custom,
+                                             text="change_geo_position_custom")
 
 
 class CustomerDetailsTasksStatus:
