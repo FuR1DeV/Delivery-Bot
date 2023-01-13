@@ -250,7 +250,7 @@ class CustomerMain:
                                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
                                            disable_web_page_preview=True)
-                    keyboard.add(f"{i.order_id}")
+                    keyboard.add(f"{KEYBOARD.get('ARROWS_BUTTON')} {i.order_id} {KEYBOARD.get('ARROWS_BUTTON')}")
                 keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
                 refresh = InlineKeyboardMarkup()
                 r = InlineKeyboardButton(text="Обновить", callback_data="refresh_loading")
@@ -262,6 +262,7 @@ class CustomerMain:
                                        "Выберите ID задачи чтобы войти в детали заказа",
                                        reply_markup=keyboard)
                 await customer_states.CustomerDetailsTasks.my_tasks.set()
+                CustomerDetailsTasks.register_customer_details_tasks(dp)
             else:
                 await bot.send_message(message.from_user.id,
                                        "У вас нет созданных заказов для Грузчиков")
@@ -345,7 +346,7 @@ class CustomerMain:
                                        f"{config.KEYBOARD.get('DASH') * 14}\n",
                                        disable_web_page_preview=True)
                 keyboard.add(f"{icon} {i.order_id} {icon_category}")
-            keyboard.add("Вернуться в главное меню")
+            keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
             refresh = InlineKeyboardMarkup()
             r = InlineKeyboardButton(text="Обновить", callback_data="refresh")
             refresh.insert(r)
@@ -396,7 +397,7 @@ class CustomerMain:
                                        f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n",
                                        disable_web_page_preview=True)
-                keyboard.add(f"{i.order_id}")
+                keyboard.add(f"{KEYBOARD.get('ARROWS_BUTTON')} {i.order_id} {KEYBOARD.get('ARROWS_BUTTON')}")
             keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
             refresh = InlineKeyboardMarkup()
             r = InlineKeyboardButton(text="Обновить", callback_data="refresh_loading")
@@ -1948,25 +1949,32 @@ class CustomerCreateTaskLoading:
 class CustomerDetailsTasks:
     @staticmethod
     async def customer_details(message: types.Message, state: FSMContext):
-        if "Вернуться в главное меню" in message.text:
-            await customer_states.CustomerStart.customer_menu.set()
+        if "Назад" in message.text:
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню",
-                                   reply_markup=markup_customer.main_menu())
+                                   "Вы вернулись на шаг назад",
+                                   reply_markup=markup_customer.customer_type_orders())
+            await customer_states.CustomerStart.orders.set()
         else:
-            res = await customers_get.customer_all_orders(message.from_user.id)
+            orders = None
             in_work = None
             try:
+                """Когда пользователь нажимает кнопку заказа (order_id) здесь мы сохраняем order_id в памяти
+                а потом проверяем взял ли этот заказ Исполнитель"""
                 async with state.proxy() as data:
                     msg = message.text.split()[1]
                     data["order_id"] = msg
-                in_work = await customers_get.customer_in_work_order(data.get("order_id"))
+                try:
+                    in_work = await customers_get.customer_in_work_order(msg)
+                    orders = await customers_get.customer_all_orders(message.from_user.id)
+                except AttributeError:
+                    in_work = await customers_get.customer_in_work_order_loading(msg)
+                    orders = await customers_get.customer_all_orders_loading(message.from_user.id)
                 async with state.proxy() as data:
                     data["user_id"] = in_work
             except IndexError:
                 pass
             if in_work:
-                for i in res:
+                for i in orders:
                     if i.order_id == msg:
                         await customer_states.CustomerDetailsTasks.enter_task.set()
                         await bot.send_message(message.from_user.id,
@@ -1976,7 +1984,7 @@ class CustomerDetailsTasks:
                 await bot.send_message(message.from_user.id,
                                        "Откройте клавиатуру и нажмите на ID вашего заказа")
             else:
-                for i in res:
+                for i in orders:
                     if i.order_id == msg:
                         await customer_states.CustomerDetailsTasks.not_at_work.set()
                         await bot.send_message(message.from_user.id,
@@ -2092,35 +2100,61 @@ class CustomerDetailsTasks:
     @staticmethod
     async def detail_task_not_at_work(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
-            res = await general_get.order_select(data.get("order_id"))
+            orders = await general_get.order_select(data.get("order_id"))
+            orders_loading = await general_get.order_select_loading(data.get("order_id"))
         if "Отменить заказ" in message.text:
-            if res.in_work == 0:
-                await bot.send_message(message.from_user.id,
-                                       "Вы хотите отменить заказ ?",
-                                       reply_markup=markup_customer.inline_cancel_task())
-            else:
-                await customer_states.CustomerStart.customer_menu.set()
-                await bot.send_message(message.from_user.id,
-                                       "Ваш заказ уже взяли!",
-                                       reply_markup=markup_customer.main_menu())
+            if orders:
+                if orders.in_work == 0:
+                    await bot.send_message(message.from_user.id,
+                                           "Вы хотите отменить заказ ?",
+                                           reply_markup=markup_customer.inline_cancel_task())
+                else:
+                    await customer_states.CustomerStart.customer_menu.set()
+                    await bot.send_message(message.from_user.id,
+                                           "Ваш заказ уже взяли!",
+                                           reply_markup=markup_customer.main_menu())
+            if orders_loading:
+                if orders_loading.in_work == 0:
+                    await bot.send_message(message.from_user.id,
+                                           "Вы хотите отменить заказ ?",
+                                           reply_markup=markup_customer.inline_cancel_task())
+                else:
+                    await customer_states.CustomerStart.customer_menu.set()
+                    await bot.send_message(message.from_user.id,
+                                           "Ваш заказ уже взяли!",
+                                           reply_markup=markup_customer.main_menu())
         if "Редактировать заказ" in message.text:
-            if res.in_work == 0:
-                CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
-                await bot.send_message(message.from_user.id,
-                                       "Вы хотите редактировать заказ ?\n"
-                                       "<b>Ваш заказ будет заблокирован до тех "
-                                       "пор пока вы не закончите редактировать заказ!</b>",
-                                       reply_markup=markup_customer.inline_change_task())
-            else:
-                await customer_states.CustomerStart.customer_menu.set()
-                await bot.send_message(message.from_user.id,
-                                       "Ваш заказ уже взяли!",
-                                       reply_markup=markup_customer.main_menu())
-        if "Вернуться в главное меню" in message.text:
-            await customer_states.CustomerStart.customer_menu.set()
+            if orders:
+                if orders.in_work == 0:
+                    CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
+                    await bot.send_message(message.from_user.id,
+                                           "Вы хотите редактировать заказ ?\n"
+                                           "<b>Ваш заказ будет заблокирован до тех "
+                                           "пор пока вы не закончите редактировать заказ!</b>",
+                                           reply_markup=markup_customer.inline_change_task())
+                else:
+                    await customer_states.CustomerStart.customer_menu.set()
+                    await bot.send_message(message.from_user.id,
+                                           "Ваш заказ уже взяли!",
+                                           reply_markup=markup_customer.main_menu())
+            if orders_loading:
+                if orders_loading.in_work == 0:
+                    CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
+                    await bot.send_message(message.from_user.id,
+                                           "Вы хотите редактировать заказ ?\n"
+                                           "<b>Ваш заказ будет заблокирован до тех "
+                                           "пор пока вы не закончите редактировать заказ!</b>",
+                                           reply_markup=markup_customer.inline_change_task())
+                else:
+                    await customer_states.CustomerStart.customer_menu.set()
+                    await bot.send_message(message.from_user.id,
+                                           "Ваш заказ уже взяли!",
+                                           reply_markup=markup_customer.main_menu())
+        if "Назад" in message.text:
+            await customer_states.CustomerStart.orders.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню",
-                                   reply_markup=markup_customer.main_menu())
+                                   reply_markup=markup_customer.customer_type_orders())
 
     @staticmethod
     async def cancel_order_not_at_work(callback: types.CallbackQuery, state: FSMContext):
@@ -2173,18 +2207,27 @@ class CustomerDetailsTasksChange:
     async def change_task_enter(callback: types.CallbackQuery, state: FSMContext):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         async with state.proxy() as data:
-            await customers_set.customer_set_block_order(data.get("order_id"), 1)
-        await bot.send_message(callback.from_user.id,
-                               "<b>Ваш заказ временно заблокирован!</b>\n"
-                               "Что будем менять ?",
-                               reply_markup=markup_customer.details_task_change())
-        await customer_states.CustomerChangeOrder.enter.set()
+            res = await customers_set.customer_set_block_order(data.get("order_id"), 1)
+        if res == "order":
+            await bot.send_message(callback.from_user.id,
+                                   "<b>Ваш заказ временно заблокирован!</b>\n"
+                                   "Что будем менять ?",
+                                   reply_markup=markup_customer.details_task_change())
+            await customer_states.CustomerChangeOrder.enter.set()
+        if res == "order_loading":
+            await bot.send_message(callback.from_user.id,
+                                   "<b>Ваш заказ временно заблокирован!</b>\n"
+                                   "Что будем менять ?",
+                                   reply_markup=markup_customer.details_task_change_loading())
+            await customer_states.CustomerChangeOrder.enter.set()
 
     @staticmethod
     async def change_task_main(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             order_id = data.get("order_id")
-            order = await customers_get.customer_view_order(order_id)
+            order_tuple = await customers_get.customer_view_order(order_id)
+            order = order_tuple[0]
+            data["order_type"] = order_tuple[1]
         if "Название" in message.text:
             async with state.proxy() as data:
                 data["change"] = "title"
@@ -2236,25 +2279,46 @@ class CustomerDetailsTasksChange:
             await bot.send_message(message.from_user.id,
                                    "<b>Ваш заказ снова доступен!</b>",
                                    reply_markup=markup_customer.details_task_not_at_work())
+        if "Количество грузчиков" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   f'Количество грузчиков сейчас <b>{order.count_person}</b>',
+                                   reply_markup=markup_customer.markup_clean)
+            await bot.send_message(message.from_user.id,
+                                   f"Введите чтобы поменять количество грузчиков",
+                                   reply_markup=markup_customer.back())
+            await customer_states.CustomerChangeOrder.change_person.set()
 
     @staticmethod
     async def change(message: types.Message, state: FSMContext):
+        async with state.proxy() as data:
+            order_id = data.get("order_id")
+            change_ = data.get("change")
+            len_ = data.get("len")
+            order_type = data.get("order_type")
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            await bot.send_message(message.from_user.id,
-                                   "Что будем менять ?",
-                                   reply_markup=markup_customer.details_task_change())
-            await customer_states.CustomerChangeOrder.enter.set()
-        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            async with state.proxy() as data:
-                order_id = data.get("order_id")
-                change_ = data.get("change")
-                len_ = data.get("len")
-            if len(message.text) < len_ and message.text != "Назад":
-                await customers_set.customer_change_order(order_id, change_, message.text)
+            if order_type == "order":
                 await bot.send_message(message.from_user.id,
-                                       f"Отлично! Мы поменяли {change_} заказа!",
+                                       "Что будем менять ?",
                                        reply_markup=markup_customer.details_task_change())
                 await customer_states.CustomerChangeOrder.enter.set()
+            if order_type == "order_loading":
+                await bot.send_message(message.from_user.id,
+                                       "Что будем менять ?",
+                                       reply_markup=markup_customer.details_task_change_loading())
+                await customer_states.CustomerChangeOrder.enter.set()
+        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customers_set.customer_change_order(order_id, change_, message.text)
+            if len(message.text) < len_ and message.text != "Назад":
+                if order_type == "order":
+                    await bot.send_message(message.from_user.id,
+                                           f"Отлично! Мы поменяли {change_} заказа!",
+                                           reply_markup=markup_customer.details_task_change())
+                    await customer_states.CustomerChangeOrder.enter.set()
+                if order_type == "order_loading":
+                    await bot.send_message(message.from_user.id,
+                                           f"Отлично! Мы поменяли {change_} заказа!",
+                                           reply_markup=markup_customer.details_task_change_loading())
+                    await customer_states.CustomerChangeOrder.enter.set()
             if len(message.text) > len_:
                 await bot.send_message(message.from_user.id, "Слишком длинное предложение\n"
                                                              "Ограничение на название заказа - 100 символов\n"
@@ -2264,11 +2328,43 @@ class CustomerDetailsTasksChange:
     async def change_money(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             order_id = data.get("order_id")
+            order_type = data.get("order_type")
         if message.text.isdigit():
             await customers_set.customer_change_order(order_id, "price", message.text)
+            if order_type == "order":
+                await bot.send_message(message.from_user.id,
+                                       "Отлично! Мы поменяли цену заказа!",
+                                       reply_markup=markup_customer.details_task_change())
+                await customer_states.CustomerChangeOrder.enter.set()
+            if order_type == "order_loading":
+                await bot.send_message(message.from_user.id,
+                                       "Отлично! Мы поменяли цену заказа!",
+                                       reply_markup=markup_customer.details_task_change_loading())
+                await customer_states.CustomerChangeOrder.enter.set()
+        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад" and not message.text.isdigit():
             await bot.send_message(message.from_user.id,
-                                   "Отлично! Мы поменяли цену заказа!",
-                                   reply_markup=markup_customer.details_task_change())
+                                   "Надо ввести цифру!")
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            if order_type == "order":
+                await customer_states.CustomerChangeOrder.enter.set()
+                await bot.send_message(message.from_user.id,
+                                       "Что будем менять ?",
+                                       reply_markup=markup_customer.details_task_change())
+            if order_type == "order_loading":
+                await customer_states.CustomerChangeOrder.enter.set()
+                await bot.send_message(message.from_user.id,
+                                       "Что будем менять ?",
+                                       reply_markup=markup_customer.details_task_change_loading())
+
+    @staticmethod
+    async def change_person(message: types.Message, state: FSMContext):
+        async with state.proxy() as data:
+            order_id = data.get("order_id")
+        if message.text.isdigit():
+            await customers_set.customer_change_order(order_id, "count_person", message.text)
+            await bot.send_message(message.from_user.id,
+                                   "Отлично! Мы поменяли количество грузчиков!",
+                                   reply_markup=markup_customer.details_task_change_loading())
             await customer_states.CustomerChangeOrder.enter.set()
         if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад" and not message.text.isdigit():
             await bot.send_message(message.from_user.id,
@@ -2277,7 +2373,7 @@ class CustomerDetailsTasksChange:
             await customer_states.CustomerChangeOrder.enter.set()
             await bot.send_message(message.from_user.id,
                                    "Что будем менять ?",
-                                   reply_markup=markup_customer.details_task_change())
+                                   reply_markup=markup_customer.details_task_change_loading())
 
     @staticmethod
     async def change_geo_position_from(message: types.Message, state: FSMContext):
@@ -2390,6 +2486,8 @@ class CustomerDetailsTasksChange:
         disp.register_callback_query_handler(CustomerDetailsTasksChange.approve_change_geo_to,
                                              text="approve_geo_to",
                                              state=customer_states.CustomerChangeOrder.change_geo_to)
+        disp.register_message_handler(CustomerDetailsTasksChange.change_person,
+                                      state=customer_states.CustomerChangeOrder.change_person)
 
 
 class CustomerDetailsTasksStatus:

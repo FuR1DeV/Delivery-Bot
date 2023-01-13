@@ -115,7 +115,7 @@ def details_task_not_at_work():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('CROSS_MARK')} Отменить заказ",
                  f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ")
-    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
@@ -329,6 +329,16 @@ def details_task_change():
     keyboard.row(f"{KEYBOARD.get('A_BUTTON')} Откуда забрать",
                  f"{KEYBOARD.get('B_BUTTON')} Куда доставить")
     keyboard.row(f"{KEYBOARD.get('DOLLAR')} Цену")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Разблокировать заказ / Назад")
+    return keyboard
+
+
+def details_task_change_loading():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row(f"{KEYBOARD.get('INFORMATION')} Описание",
+                 f"{KEYBOARD.get('A_BUTTON')} Место работы")
+    keyboard.row(f"{KEYBOARD.get('DOLLAR')} Цену",
+                 f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Количество грузчиков")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Разблокировать заказ / Назад")
     return keyboard
 

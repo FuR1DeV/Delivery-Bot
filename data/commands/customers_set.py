@@ -52,9 +52,14 @@ async def update_customer_money(user_id, money):
 async def customer_cancel_order(order_id, order_cancel):
     """Заказчик отменяет заказ"""
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
-    order_status = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
-    await order.update(order_cancel=order_cancel, completed=None).apply()
-    await order_status.delete()
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    if order:
+        order_status = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
+        await order.update(order_cancel=order_cancel, completed=None).apply()
+        if order_status:
+            await order_status.delete()
+    if order_loading:
+        await order_loading.update(order_cancel=order_cancel, completed=None).apply()
 
 
 async def customer_set_order_status(order_id):
@@ -84,23 +89,34 @@ async def customer_set_review_to_performer_in_review_db(order_id, customer_revie
 
 async def customer_set_block_order(order_id, block: int):
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
-    await order.update(block=block).apply()
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    if order:
+        await order.update(block=block).apply()
+        return "order"
+    if order_loading:
+        await order_loading.update(block=block).apply()
+        return "order_loading"
 
 
 async def customer_change_order(order_id, change, result):
     logger.info(f'Заказчик редактирует {change}, заказ - {order_id}')
+    order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
     if change == "title":
-        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
         await order.update(title=result).apply()
     if change == "description":
-        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
-        await order.update(description=result).apply()
+        if order:
+            await order.update(description=result).apply()
+        if order_loading:
+            await order_loading.update(description=result).apply()
     if change == "price":
-        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
-        await order.update(price=result).apply()
+        if order:
+            await order.update(price=result).apply()
+        if order_loading:
+            await order_loading.update(price=result).apply()
+    if change == "count_person":
+        await order_loading.update(count_person=int(result)).apply()
     if change == "geo_position_from":
-        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
         await order.update(geo_position_from=result).apply()
     if change == "geo_position_to":
-        order = await Orders.query.where(Orders.order_id == order_id).gino.first()
         await order.update(geo_position_to=result).apply()

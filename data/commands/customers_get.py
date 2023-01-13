@@ -17,7 +17,11 @@ async def customer_select(user_id):
 
 async def customer_view_order(order_id):
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
-    return order
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    if order:
+        return order, "order"
+    if order_loading:
+        return order_loading, "order_loading"
 
 
 async def customer_all_orders(user_id):
@@ -53,6 +57,12 @@ async def customer_count_orders(user_id):
 async def customer_in_work_order(order_id):
     """Заказчик проверяет взят ли заказ"""
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    return order.in_work
+
+
+async def customer_in_work_order_loading(order_id):
+    """Заказчик проверяет взят ли заказ грузчиков"""
+    order = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
     return order.in_work
 
 

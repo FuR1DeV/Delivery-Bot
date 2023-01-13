@@ -94,3 +94,4 @@ class CustomerChangeOrder(StatesGroup):
     change_money: State = State()
     change_geo_from: State = State()
     change_geo_to: State = State()
+    change_person: State = State()

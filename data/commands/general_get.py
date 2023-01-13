@@ -2,7 +2,7 @@ import logging
 from data.models.customers import Customers
 from data.models.performers import Performers
 from data.models.admins import Payment, PrivateChat
-from data.models.orders import Orders, OrdersStatus, Commission, Reviews, CommissionPromo
+from data.models.orders import Orders, OrdersStatus, Commission, Reviews, CommissionPromo, OrdersLoading
 
 
 logger = logging.getLogger("bot.data.commands.general_set_db")
@@ -42,6 +42,12 @@ async def all_orders_reviews():
 async def order_select(order_id):
     """Выбор заказа по order_id"""
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    return order
+
+
+async def order_select_loading(order_id):
+    """Выбор заказа погрузки по order_id"""
+    order = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
     return order
 
 
