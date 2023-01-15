@@ -676,6 +676,8 @@ class PerformerTasks:
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню Исполнителя",
                                    reply_markup=markup_performer.main_menu())
+        if "Доставка" in message.text:
+            pass
         if "Подтверждаю" in message.text:
             performer_c = await performers_get.performer_select(message.from_user.id)
             performer_category = performer_c.performer_category
@@ -703,7 +705,7 @@ class PerformerTasks:
                                    "<b>Выберите категорию</b>\n"
                                    "<b>В скобках указано кол-во заказов в данной категории</b>",
                                    reply_markup=finished_categories)
-        if "Отмена" in message.text:
+        if "Назад" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню Исполнителя",
