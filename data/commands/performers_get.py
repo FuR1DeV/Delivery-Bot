@@ -2,7 +2,7 @@ import logging
 
 from sqlalchemy import and_, or_
 
-from data.models.orders import Orders, OrdersRating, OrdersStatus
+from data.models.orders import Orders, OrdersRating, OrdersStatus, OrdersLoading
 from data.models.performers import Performers
 from data.models.admins import PrivateChat
 
@@ -47,6 +47,16 @@ async def performer_checks_all_orders(user_id, performer_category):
     return orders
 
 
+async def performer_checks_all_orders_loading(user_id):
+    """Исполнитель смотрит все заказы Погрузки/Разгрузки"""
+    orders = await OrdersLoading.query.where(and_(OrdersLoading.in_work == 0,
+                                                  OrdersLoading.block == 0,
+                                                  OrdersLoading.order_get == None,
+                                                  OrdersLoading.order_cancel == None,
+                                                  OrdersLoading.user_id != user_id)).gino.all()
+    return orders
+
+
 async def performer_checks_all_orders_with_category(user_id, performer_category, category_delivery):
     """Исполнитель смотрит все заказы с определенной категорией"""
     orders = await Orders.query.where(and_(Orders.in_work == 0,
@@ -63,7 +73,7 @@ async def performer_checks_all_orders_with_category(user_id, performer_category,
 async def performer_check_order_rating(order_id, user_id):
     """Исполнитель смотрит рейтинг заказа"""
     order = await OrdersRating.query.where(and_(OrdersRating.order_id == order_id,
-                                           OrdersRating.user_id == user_id)).gino.first()
+                                                OrdersRating.user_id == user_id)).gino.first()
     if order is None:
         return None
     else:

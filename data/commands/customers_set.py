@@ -36,7 +36,7 @@ async def customer_add_order_loading(user_id, geo_position, description, price, 
     logger.info(f'Заказчик {user_id} добавляет заказ {order_id}')
     order = OrdersLoading(user_id=user_id, geo_position=geo_position, description=description, price=price,
                           image=image, video=video, order_id=order_id, order_create=order_create,
-                          order_expired=order_expired, count_person=people)
+                          order_expired=order_expired, person=people)
     customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
     create = customer.create_orders + 1
     await customer.update(create_orders=create).apply()
@@ -114,8 +114,8 @@ async def customer_change_order(order_id, change, result):
             await order.update(price=result).apply()
         if order_loading:
             await order_loading.update(price=result).apply()
-    if change == "count_person":
-        await order_loading.update(count_person=int(result)).apply()
+    if change == "person":
+        await order_loading.update(person=int(result)).apply()
     if change == "geo_position_from":
         await order.update(geo_position_from=result).apply()
     if change == "geo_position_to":

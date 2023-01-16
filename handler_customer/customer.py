@@ -233,7 +233,7 @@ class CustomerMain:
                                            f"Откуда - <a href='https://yandex.ru/maps/?text="
                                            f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                           f"Сколько Грузчиков - <b>{i.count_person}</b>\n"
+                                           f"Сколько Грузчиков - <b>{i.person}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{i.description}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
@@ -380,7 +380,7 @@ class CustomerMain:
                                        f"Откуда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Сколько Грузчиков - <b>{i.count_person}</b>\n"
+                                       f"Сколько Грузчиков - <b>{i.person}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{i.description}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -2312,7 +2312,7 @@ class CustomerDetailsTasksChange:
                                    reply_markup=markup_customer.details_task_not_at_work())
         if "Количество грузчиков" in message.text:
             await bot.send_message(message.from_user.id,
-                                   f'Количество грузчиков сейчас <b>{order.count_person}</b>',
+                                   f'Количество грузчиков сейчас <b>{order.person}</b>',
                                    reply_markup=markup_customer.markup_clean)
             await bot.send_message(message.from_user.id,
                                    f"Введите чтобы поменять количество грузчиков",
@@ -2401,7 +2401,7 @@ class CustomerDetailsTasksChange:
         async with state.proxy() as data:
             order_id = data.get("order_id")
         if message.text.isdigit():
-            await customers_set.customer_change_order(order_id, "count_person", message.text)
+            await customers_set.customer_change_order(order_id, "person", message.text)
             await bot.send_message(message.from_user.id,
                                    "Отлично! Мы поменяли количество грузчиков!",
                                    reply_markup=markup_customer.details_task_change_loading())
