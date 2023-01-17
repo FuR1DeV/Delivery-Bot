@@ -677,34 +677,37 @@ class PerformerTasks:
                                    "Вы вернулись в главное меню Исполнителя",
                                    reply_markup=markup_performer.main_menu())
         if "Грузчики" in message.text:
-            res = await performers_get.performer_checks_all_orders_loading(message.from_user.id)
+            # res = await performers_get.performer_checks_all_orders_loading(message.from_user.id)
+            # await bot.send_message(message.from_user.id,
+            #                        "Выводим список всех заказов для Грузчиков")
+            # for i in res:
+            #     await bot.send_message(message.from_user.id,
+            #                            f"{config.KEYBOARD.get('DASH') * 14}\n"
+            #                            f"<b>Детали заказа</b>\n"
+            #                            f"{config.KEYBOARD.get('A_BUTTON')} "
+            #                            f"Место работы - <a href='https://yandex.ru/maps/?text="
+            #                            f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
+            #                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+            #                            f"Нужно грузчиков - <b>{i.person}</b>\n"
+            #                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+            #                            f"Уже грузчиков - <b>{i.count_person}</b>\n"
+            #                            f"{config.KEYBOARD.get('CLIPBOARD')} "
+            #                            f"Описание - <b>{i.description}</b>\n"
+            #                            f"{config.KEYBOARD.get('DOLLAR')} "
+            #                            f"Цена - <b>{i.price}</b>\n"
+            #                            f"{config.KEYBOARD.get('ID_BUTTON')} "
+            #                            f"ID заказа - <b>{i.order_id}</b>\n"
+            #                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+            #                            f"Заказ создан: <b>{i.order_create}</b>\n"
+            #                            f"{config.KEYBOARD.get('RED_CIRCLE')} "
+            #                            f"Действует до: <b>{i.order_expired}</b>\n"
+            #                            f"{config.KEYBOARD.get('BAR_CHART')} "
+            #                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+            #                            f"{config.KEYBOARD.get('DASH') * 14}\n",
+            #                            disable_web_page_preview=True,
+            #                            reply_markup=markup_performer.inline_approve_loading(i.order_id))
             await bot.send_message(message.from_user.id,
-                                   "Выводим список всех заказов для Грузчиков")
-            for i in res:
-                await bot.send_message(message.from_user.id,
-                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                       f"<b>Детали заказа</b>\n"
-                                       f"{config.KEYBOARD.get('A_BUTTON')} "
-                                       f"Место работы - <a href='https://yandex.ru/maps/?text="
-                                       f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
-                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Нужно грузчиков - <b>{i.person}</b>\n"
-                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Уже грузчиков - <b>{i.count_person}</b>\n"
-                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                       f"Описание - <b>{i.description}</b>\n"
-                                       f"{config.KEYBOARD.get('DOLLAR')} "
-                                       f"Цена - <b>{i.price}</b>\n"
-                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                       f"ID заказа - <b>{i.order_id}</b>\n"
-                                       f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                       f"Заказ создан: <b>{i.order_create}</b>\n"
-                                       f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                       f"Действует до: <b>{i.order_expired}</b>\n"
-                                       f"{config.KEYBOARD.get('BAR_CHART')} "
-                                       f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-                                       f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                       disable_web_page_preview=True)
+                                   "Пока в разработке")
         if "Доставка" in message.text:
             performer_c = await performers_get.performer_select(message.from_user.id)
             performer_category = performer_c.performer_category
@@ -977,6 +980,24 @@ class PerformerTasks:
                                f"Вы поставили дизлайк заказу <b>{callback.data[6:]}</b>")
 
     @staticmethod
+    async def order_loading_into(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.from_user.id,
+                               "Вы действительно хотите вписаться самому ?",
+                               reply_markup=markup_performer.inline_approve_loading_yes_no(callback.data[16:]))
+
+    @staticmethod
+    async def order_loading_into_yes(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await performers_set.performer_set_order_loading(callback.from_user.id,
+                                                         callback.data[13:],
+                                                         datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+        await performer_states.PerformerStart.performer_menu.set()
+        await bot.send_message(callback.from_user.id,
+                               "Вы вписались!",
+                               reply_markup=markup_performer.main_menu())
+
+    @staticmethod
     def register_performer_tasks(disp: Dispatcher):
         disp.register_message_handler(PerformerTasks.check_all_orders,
                                       state=performer_states.PerformerTasks.check_all_orders)
@@ -1007,6 +1028,12 @@ class PerformerTasks:
         disp.register_callback_query_handler(PerformerTasks.order_rating_minus,
                                              state=performer_states.PerformerTasks.check_all_orders,
                                              text_contains="minus_")
+        disp.register_callback_query_handler(PerformerTasks.order_loading_into,
+                                             state=["*"],
+                                             text_contains="request_loading_")
+        disp.register_callback_query_handler(PerformerTasks.order_loading_into_yes,
+                                             state=["*"],
+                                             text_contains="yes_req_load_")
 
 
 class PerformerDetailsTasks:

@@ -20,6 +20,28 @@ def inline_approve():
     return approve_
 
 
+def inline_approve_loading(order_id):
+    approve_ = InlineKeyboardMarkup()
+    get = InlineKeyboardButton(text='Вписаться самому',
+                               callback_data=f'request_loading_{order_id}')
+    decline = InlineKeyboardButton(text='Вписать несколько',
+                                   callback_data=f'request_many_loading_{order_id}')
+    approve_.insert(get)
+    approve_.insert(decline)
+    return approve_
+
+
+def inline_approve_loading_yes_no(order_id):
+    approve_ = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text='Да',
+                               callback_data=f'yes_req_load_{order_id}')
+    no = InlineKeyboardButton(text='Нет',
+                                   callback_data=f'no_req_load_{order_id}')
+    approve_.insert(yes)
+    approve_.insert(no)
+    return approve_
+
+
 def inline_approve_main():
     approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Соглашаюсь',

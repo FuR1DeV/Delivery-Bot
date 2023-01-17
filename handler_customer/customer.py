@@ -698,15 +698,17 @@ class CustomerCreateTask:
                 data["category_delivery"] = message.text.split()[1]
             if message.text == f"{KEYBOARD.get('ARROWS_BUTTON')} Погрузка/Разгрузка":
                 await bot.send_message(message.from_user.id,
-                                       "<b>Куда выезжать ?</b>\n"
-                                       "Вы можете отправить своё местоположение\n"
-                                       "Или отправить любое другое местоположение отправив геопозицию\n"
-                                       "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
-                                       "На карте вы можете отправить точку откуда забрать посылку",
-                                       reply_markup=markup_customer.send_my_geo()
-                                       )
-                CustomerCreateTaskLoading.register_customer_create_task(dp)
-                await customer_states.CustomerCreateTaskLoading.geo_position.set()
+                                       "Пока в разработке")
+                # await bot.send_message(message.from_user.id,
+                #                        "<b>Куда выезжать ?</b>\n"
+                #                        "Вы можете отправить своё местоположение\n"
+                #                        "Или отправить любое другое местоположение отправив геопозицию\n"
+                #                        "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
+                #                        "На карте вы можете отправить точку откуда забрать посылку",
+                #                        reply_markup=markup_customer.send_my_geo()
+                #                        )
+                # CustomerCreateTaskLoading.register_customer_create_task(dp)
+                # await customer_states.CustomerCreateTaskLoading.geo_position.set()
             else:
                 await bot.send_message(message.from_user.id,
                                        "<b>Точка А</b>\n"
@@ -1129,10 +1131,24 @@ class CustomerCreateTaskComp:
                                    f"Отлично! Вы выбрали категорию {message.text}")
             async with state.proxy() as data:
                 data["category_delivery"] = message.text.split()[1]
-            await bot.send_message(message.from_user.id,
-                                   "Выберите способ",
-                                   reply_markup=markup_customer.choose())
-            await customer_states.CustomerCreateTaskComp.next()
+            if message.text == f"{KEYBOARD.get('ARROWS_BUTTON')} Погрузка/Разгрузка":
+                await bot.send_message(message.from_user.id,
+                                       "Пока в разработке")
+                # await bot.send_message(message.from_user.id,
+                #                        "<b>Куда выезжать ?</b>\n"
+                #                        "Вы можете отправить своё местоположение\n"
+                #                        "Или отправить любое другое местоположение отправив геопозицию\n"
+                #                        "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
+                #                        "На карте вы можете отправить точку откуда забрать посылку",
+                #                        reply_markup=markup_customer.send_my_geo()
+                #                        )
+                # CustomerCreateTaskLoading.register_customer_create_task(dp)
+                # await customer_states.CustomerCreateTaskLoading.geo_position.set()
+            else:
+                await bot.send_message(message.from_user.id,
+                                       "Выберите способ",
+                                       reply_markup=markup_customer.choose())
+                await customer_states.CustomerCreateTaskComp.next()
         if message.text in f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTask.create.set()
             await bot.send_message(message.from_user.id,

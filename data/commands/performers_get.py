@@ -49,9 +49,7 @@ async def performer_checks_all_orders(user_id, performer_category):
 
 async def performer_checks_all_orders_loading(user_id):
     """Исполнитель смотрит все заказы Погрузки/Разгрузки"""
-    orders = await OrdersLoading.query.where(and_(OrdersLoading.in_work == 0,
-                                                  OrdersLoading.block == 0,
-                                                  OrdersLoading.order_get == None,
+    orders = await OrdersLoading.query.where(and_(OrdersLoading.block == 0,
                                                   OrdersLoading.order_cancel == None,
                                                   OrdersLoading.user_id != user_id)).gino.all()
     return orders

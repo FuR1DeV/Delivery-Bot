@@ -1,7 +1,8 @@
 import logging
 from data.models.performers import Performers
-from data.models.orders import OrdersStatus, OrdersRating, Reviews
+from data.models.orders import OrdersStatus, OrdersRating, Reviews, OrdersLoading
 from data.commands import performers_get, customers_get, general_get
+from sqlalchemy.dialects.postgresql import ARRAY
 
 logger = logging.getLogger("bot.data.commands.performer_set_db")
 
@@ -33,6 +34,17 @@ async def performer_set_order(user_id, order_id, order_get):
     await order.update(in_work=user_id, order_get=order_get).apply()
     await performer.update(get_orders=count_orders).apply()
     await orders_status.create()
+
+
+async def performer_set_order_loading(user_id, order_id, order_get):
+    """Исполнитель берет заказ Погрузки/Разгрузки"""
+    order = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    """Добавляется +1 счётчик в get_orders"""
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    count_orders = performer.get_orders + 1
+    count_person = order.count_person + 1
+    await order.update(count_person=count_person, in_work=user_id, order_get=order_get).apply()
+    await performer.update(get_orders=count_orders).apply()
 
 
 async def add_new_price(order_id, new_price):

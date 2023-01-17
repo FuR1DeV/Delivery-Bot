@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, String, DECIMAL, sql, Text
+from sqlalchemy import Column, Integer, BigInteger, String, DECIMAL, sql, Text, ARRAY
 
 from data.db_gino import BaseModel
 
@@ -14,7 +14,7 @@ class Orders(BaseModel):
     description = Column(String, nullable=False)
     image = Column(String)
     video = Column(String)
-    in_work = Column(BigInteger, server_default="0")
+    in_work = Column(ARRAY(BigInteger), default=[])
     completed = Column(Integer, server_default="0")
     order_id = Column(String, nullable=False)
     order_create = Column(String, nullable=False)
