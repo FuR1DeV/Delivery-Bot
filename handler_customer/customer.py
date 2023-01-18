@@ -2010,6 +2010,7 @@ class CustomerDetailsTasks:
         else:
             orders = None
             in_work = None
+            loading = None
             try:
                 """Когда пользователь нажимает кнопку заказа (order_id) здесь мы сохраняем order_id в памяти
                 а потом проверяем взял ли этот заказ Исполнитель"""
@@ -2019,9 +2020,11 @@ class CustomerDetailsTasks:
                 try:
                     in_work = await customers_get.customer_in_work_order(msg)
                     orders = await customers_get.customer_all_orders(message.from_user.id)
+                    loading = 0
                 except AttributeError:
                     in_work = await customers_get.customer_in_work_order_loading(msg)
                     orders = await customers_get.customer_all_orders_loading(message.from_user.id)
+                    loading = 1
                 async with state.proxy() as data:
                     data["user_id"] = in_work
             except IndexError:
@@ -2039,10 +2042,16 @@ class CustomerDetailsTasks:
             else:
                 for i in orders:
                     if i.order_id == msg:
-                        await customer_states.CustomerDetailsTasks.not_at_work.set()
-                        await bot.send_message(message.from_user.id,
-                                               "Ваш Заказ еще не взяли, но его можно отредактировать или отменить",
-                                               reply_markup=markup_customer.details_task_not_at_work())
+                        if loading == 0:
+                            await customer_states.CustomerDetailsTasks.not_at_work.set()
+                            await bot.send_message(message.from_user.id,
+                                                   "Ваш Заказ еще не взяли, но его можно отредактировать или отменить",
+                                                   reply_markup=markup_customer.details_task_not_at_work())
+                        if loading == 1:
+                            await customer_states.CustomerDetailsTasks.loading.set()
+                            await bot.send_message(message.from_user.id,
+                                                   "Вы вошли в заказ с типом Погрузка/Разгрузка",
+                                                   reply_markup=markup_customer.details_task_loading())
 
     @staticmethod
     async def detail_task(message: types.Message, state: FSMContext):
@@ -2154,20 +2163,9 @@ class CustomerDetailsTasks:
     async def detail_task_not_at_work(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             orders = await general_get.order_select(data.get("order_id"))
-            orders_loading = await general_get.order_select_loading(data.get("order_id"))
         if "Отменить заказ" in message.text:
             if orders:
                 if orders.in_work == 0:
-                    await bot.send_message(message.from_user.id,
-                                           "Вы хотите отменить заказ ?",
-                                           reply_markup=markup_customer.inline_cancel_task())
-                else:
-                    await customer_states.CustomerStart.customer_menu.set()
-                    await bot.send_message(message.from_user.id,
-                                           "Ваш заказ уже взяли!",
-                                           reply_markup=markup_customer.main_menu())
-            if orders_loading:
-                if orders_loading.in_work == 0:
                     await bot.send_message(message.from_user.id,
                                            "Вы хотите отменить заказ ?",
                                            reply_markup=markup_customer.inline_cancel_task())
@@ -2190,6 +2188,21 @@ class CustomerDetailsTasks:
                     await bot.send_message(message.from_user.id,
                                            "Ваш заказ уже взяли!",
                                            reply_markup=markup_customer.main_menu())
+        if "Назад" in message.text:
+            await customer_states.CustomerStart.orders.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в меню выбора типов Заказа",
+                                   reply_markup=markup_customer.customer_type_orders())
+
+    @staticmethod
+    async def details_task_loading(message: types.Message, state: FSMContext):
+        async with state.proxy() as data:
+            orders_loading = await general_get.order_select_loading(data.get("order_id"))
+        if message.text == f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Нашли всех грузчиков":
+            await bot.send_message(message.from_user.id,
+                                   "Вы точно нашли всех грузчиков ?",
+                                   reply_markup=markup_customer.inline_get_all_people_loading())
+        if message.text == f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ":
             if orders_loading:
                 if orders_loading.in_work == 0:
                     CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
@@ -2206,7 +2219,7 @@ class CustomerDetailsTasks:
         if "Назад" in message.text:
             await customer_states.CustomerStart.orders.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню",
+                                   "Вы вернулись в меню выбора типов Заказа",
                                    reply_markup=markup_customer.customer_type_orders())
 
     @staticmethod
@@ -2253,6 +2266,8 @@ class CustomerDetailsTasks:
         disp.register_callback_query_handler(CustomerDetailsTasks.no_change_order_not_at_work,
                                              text='no_change',
                                              state=customer_states.CustomerDetailsTasks.not_at_work)
+        disp.register_message_handler(CustomerDetailsTasks.details_task_loading,
+                                      state=customer_states.CustomerDetailsTasks.loading)
 
 
 class CustomerDetailsTasksChange:
@@ -2330,11 +2345,19 @@ class CustomerDetailsTasksChange:
             await customer_states.CustomerChangeOrder.change_money.set()
         if "Разблокировать заказ / Назад" in message.text:
             async with state.proxy() as data:
-                await customers_set.customer_set_block_order(data.get("order_id"), 0)
-            await customer_states.CustomerDetailsTasks.not_at_work.set()
-            await bot.send_message(message.from_user.id,
-                                   "<b>Ваш заказ снова доступен!</b>",
-                                   reply_markup=markup_customer.details_task_not_at_work())
+                if data.get("order_type") == "order":
+                    await customers_set.customer_set_block_order(data.get("order_id"), 0)
+                    await customer_states.CustomerDetailsTasks.not_at_work.set()
+                    await bot.send_message(message.from_user.id,
+                                           "<b>Ваш заказ снова доступен!</b>",
+                                           reply_markup=markup_customer.details_task_not_at_work())
+                else:
+                    await customers_set.customer_set_block_order(data.get("order_id"), 0)
+                    await customer_states.CustomerDetailsTasks.loading.set()
+                    await bot.send_message(message.from_user.id,
+                                           "<b>Ваш заказ снова доступен!</b>",
+                                           reply_markup=markup_customer.details_task_loading())
+
         if "Количество грузчиков" in message.text:
             await bot.send_message(message.from_user.id,
                                    f'Количество грузчиков сейчас <b>{order.person}</b>',
@@ -2635,7 +2658,7 @@ class CustomerDetailsTasksChange:
     def register_customer_details_tasks_change(disp: Dispatcher):
         disp.register_callback_query_handler(CustomerDetailsTasksChange.change_task_enter,
                                              text='change',
-                                             state=customer_states.CustomerDetailsTasks.not_at_work)
+                                             state=["*"])
         disp.register_message_handler(CustomerDetailsTasksChange.change_task_main,
                                       state=customer_states.CustomerChangeOrder.enter)
         disp.register_message_handler(CustomerDetailsTasksChange.change,

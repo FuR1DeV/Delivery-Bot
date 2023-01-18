@@ -119,6 +119,14 @@ def details_task_not_at_work():
     return keyboard
 
 
+def details_task_loading():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row(f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Нашли всех грузчиков",
+                 f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    return keyboard
+
+
 def details_task_status():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('CROSS_MARK')} Отменить заказ",
@@ -195,6 +203,15 @@ def details_task_status_review():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('UPWARDS_BUTTON')} Войти в детали заказа")
     return keyboard
+
+
+def inline_get_all_people_loading():
+    approve_ = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text="Да", callback_data="yes_all_people_loading")
+    no = InlineKeyboardButton(text="Нет", callback_data="not_all_people_loading")
+    approve_.insert(yes)
+    approve_.insert(no)
+    return approve_
 
 
 def inline_approve_geo_from():

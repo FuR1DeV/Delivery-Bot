@@ -69,6 +69,7 @@ class CustomerDetailsTasks(StatesGroup):
     my_tasks: State = State()
     enter_task: State = State()
     not_at_work: State = State()
+    loading: State = State()
 
 
 class CustomerDetailsTasksStatus(StatesGroup):
