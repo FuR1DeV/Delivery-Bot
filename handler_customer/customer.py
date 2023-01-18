@@ -238,6 +238,8 @@ class CustomerMain:
                                            f"Описание - <b>{i.description}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
                                            f"Цена за 1 час - <b>{i.price}</b>\n"
+                                           f"{config.KEYBOARD.get('STOPWATCH')} "
+                                           f"Начало работ: <b>{i.start_time}</b>\n"
                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
                                            f"ID заказа - <b>{i.order_id}</b>\n"
                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
@@ -698,17 +700,15 @@ class CustomerCreateTask:
                 data["category_delivery"] = message.text.split()[1]
             if message.text == f"{KEYBOARD.get('ARROWS_BUTTON')} Погрузка/Разгрузка":
                 await bot.send_message(message.from_user.id,
-                                       "Пока в разработке")
-                # await bot.send_message(message.from_user.id,
-                #                        "<b>Куда выезжать ?</b>\n"
-                #                        "Вы можете отправить своё местоположение\n"
-                #                        "Или отправить любое другое местоположение отправив геопозицию\n"
-                #                        "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
-                #                        "На карте вы можете отправить точку откуда забрать посылку",
-                #                        reply_markup=markup_customer.send_my_geo()
-                #                        )
-                # CustomerCreateTaskLoading.register_customer_create_task(dp)
-                # await customer_states.CustomerCreateTaskLoading.geo_position.set()
+                                       "<b>Куда выезжать ?</b>\n"
+                                       "Вы можете отправить своё местоположение\n"
+                                       "Или отправить любое другое местоположение отправив геопозицию\n"
+                                       "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
+                                       "На карте вы можете отправить точку откуда забрать посылку",
+                                       reply_markup=markup_customer.send_my_geo()
+                                       )
+                CustomerCreateTaskLoading.register_customer_create_task(dp)
+                await customer_states.CustomerCreateTaskLoading.geo_position.set()
             else:
                 await bot.send_message(message.from_user.id,
                                        "<b>Точка А</b>\n"
@@ -1131,24 +1131,10 @@ class CustomerCreateTaskComp:
                                    f"Отлично! Вы выбрали категорию {message.text}")
             async with state.proxy() as data:
                 data["category_delivery"] = message.text.split()[1]
-            if message.text == f"{KEYBOARD.get('ARROWS_BUTTON')} Погрузка/Разгрузка":
-                await bot.send_message(message.from_user.id,
-                                       "Пока в разработке")
-                # await bot.send_message(message.from_user.id,
-                #                        "<b>Куда выезжать ?</b>\n"
-                #                        "Вы можете отправить своё местоположение\n"
-                #                        "Или отправить любое другое местоположение отправив геопозицию\n"
-                #                        "Нажмите на скрепку и далее найдите раздел Геопозиция\n"
-                #                        "На карте вы можете отправить точку откуда забрать посылку",
-                #                        reply_markup=markup_customer.send_my_geo()
-                #                        )
-                # CustomerCreateTaskLoading.register_customer_create_task(dp)
-                # await customer_states.CustomerCreateTaskLoading.geo_position.set()
-            else:
-                await bot.send_message(message.from_user.id,
-                                       "Выберите способ",
-                                       reply_markup=markup_customer.choose())
-                await customer_states.CustomerCreateTaskComp.next()
+            await bot.send_message(message.from_user.id,
+                                   "Выберите способ",
+                                   reply_markup=markup_customer.choose())
+            await customer_states.CustomerCreateTaskComp.next()
         if message.text in f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTask.create.set()
             await bot.send_message(message.from_user.id,
@@ -1816,20 +1802,39 @@ class CustomerCreateTaskLoading:
             async with state.proxy() as data:
                 data["price"] = message.text
             await bot.send_message(message.from_user.id,
-                                   "<b>Сколько часов максимум актуален ваш заказ ?</b>",
-                                   reply_markup=markup_customer.expired_data())
+                                   "<b>Введите начало работы</b>\n"
+                                   "Пример:\n"
+                                   "<b>'Завтра в 11:00'</b> или "
+                                   "<b>'Сегодня вечером в 19:00'</b>",
+                                   reply_markup=markup_customer.back())
             await customer_states.CustomerCreateTaskLoading.next()
         elif message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await bot.send_message(message.from_user.id,
                                    "Надо ввести целое число")
 
     @staticmethod
-    async def expired_order(message: types.Message, state: FSMContext):
+    async def start_time(message: types.Message, state: FSMContext):
+        if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            async with state.proxy() as data:
+                data["start_time"] = message.text
+            await bot.send_message(message.from_user.id,
+                                   "<b>Сколько часов максимум актуален ваш заказ ?</b>",
+                                   reply_markup=markup_customer.expired_data())
+            await customer_states.CustomerCreateTaskLoading.next()
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTaskLoading.price.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись на шаг назад\n"
                                    "Здесь вы сможете ввести <b>Цену за 1 час</b>",
+                                   reply_markup=markup_customer.back())
+
+    @staticmethod
+    async def expired_order(message: types.Message, state: FSMContext):
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await customer_states.CustomerCreateTaskLoading.start_time.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад\n"
+                                   "Здесь вы сможете ввести <b>Начало работ</b>",
                                    reply_markup=markup_customer.back())
         if message.text.isdigit():
             if 1 <= int(message.text) <= 12:
@@ -1867,13 +1872,13 @@ class CustomerCreateTaskLoading:
                                                                data.get("geo_data_from"),
                                                                data.get("description"),
                                                                int(data.get("price")),
+                                                               data.get("start_time"),
                                                                "No Photo",
                                                                "No Video",
                                                                order_id,
                                                                datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("people"))
-            await general_set.add_review(order_id)
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
@@ -1916,6 +1921,7 @@ class CustomerCreateTaskLoading:
                                                                data.get("geo_data_from"),
                                                                data.get("description"),
                                                                int(data.get("price")),
+                                                               data.get("start_time"),
                                                                data.get("photo"),
                                                                "No Video",
                                                                data.get("order_id"),
@@ -1950,6 +1956,7 @@ class CustomerCreateTaskLoading:
                                                            data.get("geo_data_from"),
                                                            data.get("description"),
                                                            int(data.get("price")),
+                                                           data.get("start_time"),
                                                            "No Photo",
                                                            data.get("video"),
                                                            data.get("order_id"),
@@ -1988,6 +1995,8 @@ class CustomerCreateTaskLoading:
         disp.register_message_handler(CustomerCreateTaskLoading.video,
                                       content_types=['video', 'text'],
                                       state=customer_states.CustomerCreateTaskLoading.video)
+        disp.register_message_handler(CustomerCreateTaskLoading.start_time,
+                                      state=customer_states.CustomerCreateTaskLoading.start_time)
 
 
 class CustomerDetailsTasks:

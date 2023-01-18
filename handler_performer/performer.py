@@ -677,37 +677,39 @@ class PerformerTasks:
                                    "Вы вернулись в главное меню Исполнителя",
                                    reply_markup=markup_performer.main_menu())
         if "Грузчики" in message.text:
-            # res = await performers_get.performer_checks_all_orders_loading(message.from_user.id)
-            # await bot.send_message(message.from_user.id,
-            #                        "Выводим список всех заказов для Грузчиков")
-            # for i in res:
-            #     await bot.send_message(message.from_user.id,
-            #                            f"{config.KEYBOARD.get('DASH') * 14}\n"
-            #                            f"<b>Детали заказа</b>\n"
-            #                            f"{config.KEYBOARD.get('A_BUTTON')} "
-            #                            f"Место работы - <a href='https://yandex.ru/maps/?text="
-            #                            f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
-            #                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-            #                            f"Нужно грузчиков - <b>{i.person}</b>\n"
-            #                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-            #                            f"Уже грузчиков - <b>{i.count_person}</b>\n"
-            #                            f"{config.KEYBOARD.get('CLIPBOARD')} "
-            #                            f"Описание - <b>{i.description}</b>\n"
-            #                            f"{config.KEYBOARD.get('DOLLAR')} "
-            #                            f"Цена - <b>{i.price}</b>\n"
-            #                            f"{config.KEYBOARD.get('ID_BUTTON')} "
-            #                            f"ID заказа - <b>{i.order_id}</b>\n"
-            #                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-            #                            f"Заказ создан: <b>{i.order_create}</b>\n"
-            #                            f"{config.KEYBOARD.get('RED_CIRCLE')} "
-            #                            f"Действует до: <b>{i.order_expired}</b>\n"
-            #                            f"{config.KEYBOARD.get('BAR_CHART')} "
-            #                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
-            #                            f"{config.KEYBOARD.get('DASH') * 14}\n",
-            #                            disable_web_page_preview=True,
-            #                            reply_markup=markup_performer.inline_approve_loading(i.order_id))
-            await bot.send_message(message.from_user.id,
-                                   "Пока в разработке")
+            res = await performers_get.performer_checks_all_orders_loading(message.from_user.id)
+            if res:
+                await bot.send_message(message.from_user.id,
+                                       "Выводим список всех заказов для Грузчиков")
+                for i in res:
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"<b>Детали заказа</b>\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Место работы - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Нужно грузчиков - <b>{i.person}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Уже грузчиков - <b>{i.count_person}</b>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{i.description}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена - <b>{i.price}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID заказа - <b>{i.order_id}</b>\n"
+                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                           f"Заказ создан: <b>{i.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                           f"Действует до: <b>{i.order_expired}</b>\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} "
+                                           f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True,
+                                           reply_markup=markup_performer.inline_approve_loading(i.order_id))
+            else:
+                await bot.send_message(message.from_user.id,
+                                       "Пока заказов для грузчиков нет")
         if "Доставка" in message.text:
             performer_c = await performers_get.performer_select(message.from_user.id)
             performer_category = performer_c.performer_category

@@ -35,6 +35,7 @@ KEYBOARD = {
     'BOUQUET': emojize(':bouquet:'),
     'WRAPPED_GIFT': emojize(':wrapped_gift:'),
     'SHORTCAKE': emojize(':shortcake:'),
+    'STOPWATCH': emojize(':stopwatch:'),
     'PAGE_WITH_WITH_CURL': emojize(':page_with_curl:'),
     'ARROWS_BUTTON': emojize(':counterclockwise_arrows_button:'),
     'HAMMER_AND_PICK': emojize(':hammer_and_pick:'),

@@ -37,6 +37,7 @@ class OrdersLoading(BaseModel):
     geo_position = Column(String, nullable=False)
     description = Column(String, nullable=False)
     price = Column(DECIMAL, nullable=False)
+    start_time = Column(String, nullable=False)
     image = Column(String)
     video = Column(String)
     in_work = Column(BigInteger, server_default="0")

@@ -52,6 +52,7 @@ class CustomerCreateTaskLoading(StatesGroup):
     people: State = State()
     description: State = State()
     price: State = State()
+    start_time: State = State()
     expired_data: State = State()
     photo_or_video: State = State()
     photo: State = State()
