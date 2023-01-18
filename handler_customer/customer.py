@@ -2161,6 +2161,7 @@ class CustomerDetailsTasks:
 
     @staticmethod
     async def detail_task_not_at_work(message: types.Message, state: FSMContext):
+        CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
         async with state.proxy() as data:
             orders = await general_get.order_select(data.get("order_id"))
         if "Отменить заказ" in message.text:
@@ -2177,7 +2178,6 @@ class CustomerDetailsTasks:
         if "Редактировать заказ" in message.text:
             if orders:
                 if orders.in_work == 0:
-                    CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
                     await bot.send_message(message.from_user.id,
                                            "Вы хотите редактировать заказ ?\n"
                                            "<b>Ваш заказ будет заблокирован до тех "
@@ -2196,6 +2196,7 @@ class CustomerDetailsTasks:
 
     @staticmethod
     async def details_task_loading(message: types.Message, state: FSMContext):
+        CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
         async with state.proxy() as data:
             orders_loading = await general_get.order_select_loading(data.get("order_id"))
         if message.text == f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Нашли всех грузчиков":
@@ -2205,7 +2206,6 @@ class CustomerDetailsTasks:
         if message.text == f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ":
             if orders_loading:
                 if orders_loading.in_work == 0:
-                    CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
                     await bot.send_message(message.from_user.id,
                                            "Вы хотите редактировать заказ ?\n"
                                            "<b>Ваш заказ будет заблокирован до тех "
@@ -2357,7 +2357,6 @@ class CustomerDetailsTasksChange:
                     await bot.send_message(message.from_user.id,
                                            "<b>Ваш заказ снова доступен!</b>",
                                            reply_markup=markup_customer.details_task_loading())
-
         if "Количество грузчиков" in message.text:
             await bot.send_message(message.from_user.id,
                                    f'Количество грузчиков сейчас <b>{order.person}</b>',
@@ -2655,6 +2654,21 @@ class CustomerDetailsTasksChange:
         await customer_states.CustomerChangeOrder.enter.set()
 
     @staticmethod
+    async def approve_people_loading(callback: types.CallbackQuery, state: FSMContext):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await bot.send_message(callback.from_user.id,
+                               "Вы нашли всех грузчиков\n"
+                               "Заказ удаляется",
+                               reply_markup=markup_customer.main_menu())
+        await customer_states.CustomerStart.customer_menu.set()
+        async with state.proxy() as data:
+            await customers_set.customer_delete_order_loading(data.get("order_id"))
+
+    @staticmethod
+    async def decline_people_loading(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+
+    @staticmethod
     def register_customer_details_tasks_change(disp: Dispatcher):
         disp.register_callback_query_handler(CustomerDetailsTasksChange.change_task_enter,
                                              text='change',
@@ -2679,6 +2693,12 @@ class CustomerDetailsTasksChange:
         disp.register_callback_query_handler(CustomerDetailsTasksChange.change_geo_custom_approve,
                                              state=customer_states.CustomerChangeOrder.change_geo_custom,
                                              text="change_geo_position_custom")
+        disp.register_callback_query_handler(CustomerDetailsTasksChange.approve_people_loading,
+                                             text="yes_all_people_loading",
+                                             state=["*"])
+        disp.register_callback_query_handler(CustomerDetailsTasksChange.decline_people_loading,
+                                             text="not_all_people_loading",
+                                             state=["*"])
 
 
 class CustomerDetailsTasksStatus:

@@ -122,3 +122,8 @@ async def customer_change_order(order_id, change, result):
         await order.update(geo_position_to=result).apply()
     if change == "geo_position":
         await order_loading.update(geo_position=result).apply()
+
+
+async def customer_delete_order_loading(order_id):
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    await order_loading.delete()
