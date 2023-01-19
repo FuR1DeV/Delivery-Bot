@@ -705,8 +705,7 @@ class PerformerTasks:
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                           disable_web_page_preview=True,
-                                           reply_markup=markup_performer.inline_approve_loading(i.order_id))
+                                           disable_web_page_preview=True)
             else:
                 await bot.send_message(message.from_user.id,
                                        "Пока заказов для грузчиков нет")

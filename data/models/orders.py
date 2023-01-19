@@ -14,7 +14,7 @@ class Orders(BaseModel):
     description = Column(String, nullable=False)
     image = Column(String)
     video = Column(String)
-    in_work = Column(ARRAY(BigInteger), default=[])
+    in_work = Column(BigInteger, server_default="0")
     completed = Column(Integer, server_default="0")
     order_id = Column(String, nullable=False)
     order_create = Column(String, nullable=False)

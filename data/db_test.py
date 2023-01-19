@@ -15,8 +15,9 @@ async def db_test():
     pass
     await db.set_bind(config.POSTGRES_URI)
 
-    customers = await Customers.query.where(Customers.first_name.like("%po%")).gino.all()
-    return print(customers)
+    orders = await Orders.query.where(and_(Orders.user_id == 351490585,
+                                           Orders.completed == 1)).gino.all()
+    return print(orders)
 
 
 loop = asyncio.get_event_loop()
