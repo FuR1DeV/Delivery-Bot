@@ -22,6 +22,12 @@ async def all_performers():
     return performers
 
 
+async def all_performers_auto_send():
+    logger.info(f'Функция выгрузки всех Исполнителей с автоматической отправкой')
+    performers = await Performers.query.where(Performers.auto_send == 1).gino.all()
+    return performers
+
+
 async def all_orders():
     logger.info(f'Функция выгрузки всех Заказов')
     orders = await Orders.query.gino.all()

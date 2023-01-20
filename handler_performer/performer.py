@@ -130,7 +130,7 @@ class PerformerMain:
                 await performer_states.PerformerTasks.check_all_orders.set()
                 await bot.send_message(message.from_user.id,
                                        "Посмотреть доступные задачи ?",
-                                       reply_markup=markup_performer.approve())
+                                       reply_markup=markup_performer.approve(performer.auto_send))
         if "Задачи в работе" in message.text:
             res = await performers_get.performer_view_list_orders(message.from_user.id)
             if res:
@@ -190,7 +190,7 @@ class PerformerMain:
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
                                            disable_web_page_preview=True)
                     keyboard.add(f"{icon} {i.order_id} {icon}")
-                keyboard.add("Вернуться в главное меню")
+                keyboard.add(f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
                 await bot.send_message(message.from_user.id,
                                        f"Всего в работе {len(res)} задач\n"
                                        f"Выберите ID задачи чтобы их просмотреть или завершить",
@@ -741,6 +741,18 @@ class PerformerTasks:
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню Исполнителя",
                                    reply_markup=markup_performer.main_menu())
+        if "Автоотправление сообщений отключено" in message.text:
+            await performers_set.performer_change_auto_send(message.from_user.id)
+            performer = await performers_get.performer_select(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   "Теперь вы получаете автоматически сообщения о новых Заказах",
+                                   reply_markup=markup_performer.approve(performer.auto_send))
+        if "Автоотправление сообщений включено" in message.text:
+            await performers_set.performer_change_auto_send_close(message.from_user.id)
+            performer = await performers_get.performer_select(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   "Теперь вы НЕ получаете автоматически сообщения о новых Заказах",
+                                   reply_markup=markup_performer.approve(performer.auto_send))
 
     @staticmethod
     async def choose_category(callback: types.CallbackQuery, state: FSMContext):
@@ -1045,27 +1057,28 @@ class PerformerDetailsTasks:
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню",
                                    reply_markup=markup_performer.main_menu())
-        try:
-            res = await performers_get.performer_view_list_orders(message.from_user.id)
-            async with state.proxy() as data:
-                try:
-                    msg = message.text.split()[1]
-                    data["order_id"] = msg
-                    data["user_id"] = await performers_get.performer_checks_customer_user_id(msg)
-                except (AttributeError, IndexError):
-                    await bot.send_message(message.from_user.id,
-                                           "Откройте клавиатуру и нажмите на ID вашего заказа")
-            for i in res:
-                try:
-                    if i.order_id == msg:
-                        await performer_states.PerformerDetailsTasks.enter_task.set()
+        else:
+            try:
+                res = await performers_get.performer_view_list_orders(message.from_user.id)
+                async with state.proxy() as data:
+                    try:
+                        msg = message.text.split()[1]
+                        data["order_id"] = msg
+                        data["user_id"] = await performers_get.performer_checks_customer_user_id(msg)
+                    except (AttributeError, IndexError):
                         await bot.send_message(message.from_user.id,
-                                               "Вы вошли в детали этого заказа",
-                                               reply_markup=markup_performer.details_task())
-                except UnboundLocalError:
-                    pass
-        except TypeError:
-            pass
+                                               "Откройте клавиатуру и нажмите на ID вашего заказа")
+                for i in res:
+                    try:
+                        if i.order_id == msg:
+                            await performer_states.PerformerDetailsTasks.enter_task.set()
+                            await bot.send_message(message.from_user.id,
+                                                   "Вы вошли в детали этого заказа",
+                                                   reply_markup=markup_performer.details_task())
+                    except UnboundLocalError:
+                        pass
+            except TypeError:
+                pass
 
     @staticmethod
     async def detail_task(message: types.Message, state: FSMContext):

@@ -9,7 +9,7 @@ from geopy.geocoders import Nominatim
 
 from bot import bot, dp
 from data.commands import customers_get, customers_set, performers_get, general_set, general_get
-from markups import markup_customer
+from markups import markup_customer, markup_performer
 from states import customer_states
 from settings import config
 from settings.config import KEYBOARD
@@ -986,12 +986,35 @@ class CustomerCreateTask:
                                                        data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                        int(data.get("order_worth")))
             await general_set.add_review(order_id)
-            await state.finish()
+            performers = await general_get.all_performers_auto_send()
+            for i in performers:
+                await bot.send_message(i.user_id,
+                                       "Новый заказ!\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(data.get('geo_data_from').split())}'>"
+                                       f"{data.get('geo_data_from')}</a>\n"
+                                       f"{config.KEYBOARD.get('B_BUTTON')} "
+                                       f"Куда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(data.get('geo_data_to').split())}'>"
+                                       f"{data.get('geo_data_to')}</a>\n"
+                                       f"{config.KEYBOARD.get('INFORMATION')} "
+                                       f"Название - <b>{data.get('title')}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{data.get('description')}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена - <b>{data.get('price')}</b>\n"
+                                       f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                       f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
+                                       disable_web_page_preview=True)
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "<b>Отклик без фото или видео отправлен.</b>\n"
                                    "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
                                    reply_markup=markup_customer.main_menu())
+            await state.finish()
         if message.text == "Загрузить Фото":
             await customer_states.CustomerCreateTask.photo.set()
             await bot.send_message(message.from_user.id,
@@ -1036,6 +1059,29 @@ class CustomerCreateTask:
                                                        data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                        int(data.get("order_worth")))
                 await general_set.add_review(data.get("order_id"))
+                performers = await general_get.all_performers_auto_send()
+                for i in performers:
+                    await bot.send_message(i.user_id,
+                                           "Новый заказ!\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(data.get('geo_data_from').split())}'>"
+                                           f"{data.get('geo_data_from')}</a>\n"
+                                           f"{config.KEYBOARD.get('B_BUTTON')} "
+                                           f"Куда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(data.get('geo_data_to').split())}'>"
+                                           f"{data.get('geo_data_to')}</a>\n"
+                                           f"{config.KEYBOARD.get('INFORMATION')} "
+                                           f"Название - <b>{data.get('title')}</b>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{data.get('description')}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена - <b>{data.get('price')}</b>\n"
+                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                           f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}",
+                                           disable_web_page_preview=True)
                 await state.finish()
                 await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
@@ -1071,6 +1117,29 @@ class CustomerCreateTask:
                                                    data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                    int(data.get("order_worth")))
             await general_set.add_review(data.get("order_id"))
+            performers = await general_get.all_performers_auto_send()
+            for i in performers:
+                await bot.send_message(i.user_id,
+                                       "Новый заказ!\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(data.get('geo_data_from').split())}'>"
+                                       f"{data.get('geo_data_from')}</a>\n"
+                                       f"{config.KEYBOARD.get('B_BUTTON')} "
+                                       f"Куда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(data.get('geo_data_to').split())}'>"
+                                       f"{data.get('geo_data_to')}</a>\n"
+                                       f"{config.KEYBOARD.get('INFORMATION')} "
+                                       f"Название - <b>{data.get('title')}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{data.get('description')}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена - <b>{data.get('price')}</b>\n"
+                                       f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                       f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
+                                       disable_web_page_preview=True)
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
@@ -1567,6 +1636,29 @@ class CustomerCreateTaskComp:
                                                        data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                        int(data.get("order_worth")))
             await general_set.add_review(order_id)
+            performers = await general_get.all_performers_auto_send()
+            for i in performers:
+                await bot.send_message(i.user_id,
+                                       "Новый заказ!\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(data.get('geo_data_from_comp').split())}'>"
+                                       f"{data.get('geo_data_from_comp')}</a>\n"
+                                       f"{config.KEYBOARD.get('B_BUTTON')} "
+                                       f"Куда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(data.get('geo_data_to_comp').split())}'>"
+                                       f"{data.get('geo_data_to_comp')}</a>\n"
+                                       f"{config.KEYBOARD.get('INFORMATION')} "
+                                       f"Название - <b>{data.get('title')}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{data.get('description')}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена - <b>{data.get('price')}</b>\n"
+                                       f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                       f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
+                                       disable_web_page_preview=True)
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
@@ -1617,6 +1709,29 @@ class CustomerCreateTaskComp:
                                                        data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                        int(data.get("order_worth")))
                 await general_set.add_review(data.get("order_id"))
+                performers = await general_get.all_performers_auto_send()
+                for i in performers:
+                    await bot.send_message(i.user_id,
+                                           "Новый заказ!\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(data.get('geo_data_from_comp').split())}'>"
+                                           f"{data.get('geo_data_from_comp')}</a>\n"
+                                           f"{config.KEYBOARD.get('B_BUTTON')} "
+                                           f"Куда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(data.get('geo_data_to_comp').split())}'>"
+                                           f"{data.get('geo_data_to_comp')}</a>\n"
+                                           f"{config.KEYBOARD.get('INFORMATION')} "
+                                           f"Название - <b>{data.get('title')}</b>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{data.get('description')}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена - <b>{data.get('price')}</b>\n"
+                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                           f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}",
+                                           disable_web_page_preview=True)
                 await state.finish()
                 await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
@@ -1652,6 +1767,29 @@ class CustomerCreateTaskComp:
                                                    data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                    int(data.get("order_worth")))
             await general_set.add_review(data.get("order_id"))
+            performers = await general_get.all_performers_auto_send()
+            for i in performers:
+                await bot.send_message(i.user_id,
+                                       "Новый заказ!\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(data.get('geo_data_from_comp').split())}'>"
+                                       f"{data.get('geo_data_from_comp')}</a>\n"
+                                       f"{config.KEYBOARD.get('B_BUTTON')} "
+                                       f"Куда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(data.get('geo_data_to_comp').split())}'>"
+                                       f"{data.get('geo_data_to_comp')}</a>\n"
+                                       f"{config.KEYBOARD.get('INFORMATION')} "
+                                       f"Название - <b>{data.get('title')}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{data.get('description')}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена - <b>{data.get('price')}</b>\n"
+                                       f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                       f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
+                                       disable_web_page_preview=True)
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
@@ -1879,6 +2017,25 @@ class CustomerCreateTaskLoading:
                                                                datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("people"))
+                performers = await general_get.all_performers_auto_send()
+                for i in performers:
+                    await bot.send_message(i.user_id,
+                                           "Новый заказ!\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Место работы - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(data.get('geo_data_from').split())}'>"
+                                           f"{data.get('geo_data_from')}</a>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Нужно грузчиков - {data.get('people')}\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена за 1 час - <b>{data.get('price')}</b>\n"
+                                           f"{config.KEYBOARD.get('STOPWATCH')} "
+                                           f"Начало работы - {data.get('start_time')}\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{data.get('description')}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}",
+                                           disable_web_page_preview=True)
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
@@ -1929,6 +2086,25 @@ class CustomerCreateTaskLoading:
                                                                data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("people"))
                 await general_set.add_review(data.get("order_id"))
+                performers = await general_get.all_performers_auto_send()
+                for i in performers:
+                    await bot.send_message(i.user_id,
+                                           "Новый заказ!\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Место работы - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(data.get('geo_data_from').split())}'>"
+                                           f"{data.get('geo_data_from')}</a>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Нужно грузчиков - {data.get('people')}\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена за 1 час - <b>{data.get('price')}</b>\n"
+                                           f"{config.KEYBOARD.get('STOPWATCH')} "
+                                           f"Начало работы - {data.get('start_time')}\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{data.get('description')}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}",
+                                           disable_web_page_preview=True)
                 await state.finish()
                 await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
@@ -1964,6 +2140,25 @@ class CustomerCreateTaskLoading:
                                                            data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                            data.get("people"))
             await general_set.add_review(data.get("order_id"))
+            performers = await general_get.all_performers_auto_send()
+            for i in performers:
+                await bot.send_message(i.user_id,
+                                       "Новый заказ!\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Место работы - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(data.get('geo_data_from').split())}'>"
+                                       f"{data.get('geo_data_from')}</a>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Нужно грузчиков - {data.get('people')}\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена за 1 час - <b>{data.get('price')}</b>\n"
+                                       f"{config.KEYBOARD.get('STOPWATCH')} "
+                                       f"Начало работы - {data.get('start_time')}\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{data.get('description')}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
+                                       disable_web_page_preview=True)
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,

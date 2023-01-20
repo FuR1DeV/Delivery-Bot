@@ -131,3 +131,13 @@ async def performer_change_arrive_status(order_id):
     arrive = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
     res = int(arrive.performer_arrive) - 1
     await arrive.update(performer_arrive=str(res)).apply()
+
+
+async def performer_change_auto_send(user_id):
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    await performer.update(auto_send=1).apply()
+
+
+async def performer_change_auto_send_close(user_id):
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    await performer.update(auto_send=0).apply()

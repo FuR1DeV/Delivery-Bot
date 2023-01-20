@@ -18,5 +18,6 @@ class Performers(BaseModel):
     canceled_orders = Column(Integer, nullable=False, server_default="0")
     performer_category = Column(String, nullable=False, server_default="pedestrian")
     performer_category_limit = Column(String)
+    auto_send = Column(Integer, server_default="0")
 
     query: sql.select
