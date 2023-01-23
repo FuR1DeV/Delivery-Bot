@@ -150,6 +150,8 @@ async def on_startup(_):
     """Создание БД"""
     await db.gino.create_all()
     await general_set.create_commission()
+
+    """Регистрация хэндлеров"""
     register_customer(dp)
     register_performer(dp)
     register_admin_handler(dp)
