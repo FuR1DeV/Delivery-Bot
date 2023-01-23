@@ -4,11 +4,10 @@ from datetime import datetime, timedelta
 from random import randint
 
 from aiogram import types
-from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
 
-from bot import dp, bot
+from bot import bot
 from data.commands import performers_get, performers_set, customers_get, general_get, general_set
 from markups import markup_performer
 from settings import config
@@ -68,7 +67,6 @@ class PerformerMain:
     async def performer_menu(message: types.Message, state: FSMContext):
         await state.finish()
         if "Мой профиль" in message.text:
-            PerformerProfile.register_performer_profile(dp)
             res = await performers_get.performer_select(message.from_user.id)
             status = None
             icon = None
@@ -103,7 +101,6 @@ class PerformerMain:
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile())
         if "Помощь" in message.text:
-            PerformerHelp.register_performer_help(dp)
             await performer_states.PerformerHelp.help.set()
             user_status_chat = await performers_get.check_private_chat_status(message.from_user.id)
             if user_status_chat is None:
@@ -119,14 +116,12 @@ class PerformerMain:
             performer = await performers_get.performer_select(message.from_user.id)
             performer_money = performer.performer_money
             if performer_money < 50:
-                PerformerProfile.register_performer_profile(dp)
                 await performer_states.PerformerProfile.my_profile.set()
                 await bot.send_message(message.from_user.id,
                                        "<b>У вас отрицательный баланс!</b>\n"
                                        "<b>Пополните ваш баланс</b>",
                                        reply_markup=markup_performer.performer_profile())
             if performer_money >= 50:
-                PerformerTasks.register_performer_tasks(dp)
                 await performer_states.PerformerTasks.check_all_orders.set()
                 await bot.send_message(message.from_user.id,
                                        "Посмотреть доступные задачи ?",
@@ -135,7 +130,6 @@ class PerformerMain:
             res = await performers_get.performer_view_list_orders(message.from_user.id)
             if res:
                 await performer_states.PerformerDetailsTasks.details_tasks.set()
-                PerformerDetailsTasks.register_performer_details_tasks(dp)
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 for i in res:
                     p_status = None
@@ -313,24 +307,6 @@ class PerformerMain:
                                    "Выберите ID задачи чтобы войти в детали заказа",
                                    reply_markup=keyboard)
             await performer_states.PerformerHistory.enter_history.set()
-            PerformerHistory.register_performer_history(dp)
-
-    @staticmethod
-    def register_performer_handler(disp: Dispatcher):
-        disp.register_message_handler(PerformerMain.phone, content_types=['contact'],
-                                      state=performer_states.PerformerPhone.phone)
-        disp.register_callback_query_handler(PerformerMain.hi_performer, text='performer')
-        disp.register_message_handler(PerformerMain.performer_menu,
-                                      state=performer_states.PerformerStart.performer_menu)
-        disp.register_callback_query_handler(PerformerMain.choose_month,
-                                             state=performer_states.PerformerStart.performer_menu,
-                                             text_contains='p_year_finish_')
-        disp.register_callback_query_handler(PerformerMain.choose_day,
-                                             state=performer_states.PerformerStart.performer_menu,
-                                             text_contains='p_month_finish_')
-        disp.register_callback_query_handler(PerformerMain.choose_job,
-                                             state=performer_states.PerformerStart.performer_menu,
-                                             text_contains='p_day_finish_')
 
 
 class PerformerProfile:
@@ -644,23 +620,6 @@ class PerformerProfile:
                                "Вы отменили пополнение баланса\n",
                                reply_markup=markup_performer.performer_profile())
         await performer_states.PerformerProfile.my_profile.set()
-
-    @staticmethod
-    def register_performer_profile(disp: Dispatcher):
-        disp.register_message_handler(PerformerProfile.performer_profile,
-                                      state=performer_states.PerformerProfile.my_profile)
-        disp.register_message_handler(PerformerProfile.performer_profile_change_status,
-                                      state=performer_states.PerformerProfile.change_status)
-        disp.register_message_handler(PerformerProfile.transport,
-                                      state=performer_states.PerformerProfile.change_status_transport)
-        disp.register_message_handler(PerformerProfile.pay,
-                                      state=performer_states.PerformerProfile.pay)
-        disp.register_callback_query_handler(PerformerProfile.check,
-                                             text_contains='check_',
-                                             state=performer_states.PerformerProfile.pay)
-        disp.register_callback_query_handler(PerformerProfile.cancel,
-                                             text='cancel_pay',
-                                             state=performer_states.PerformerProfile.pay)
 
 
 class PerformerTasks:
@@ -1012,47 +971,6 @@ class PerformerTasks:
     async def loading_request_decline(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
 
-    @staticmethod
-    def register_performer_tasks(disp: Dispatcher):
-        disp.register_message_handler(PerformerTasks.check_all_orders,
-                                      state=performer_states.PerformerTasks.check_all_orders)
-        disp.register_message_handler(PerformerTasks.get_order,
-                                      state=performer_states.PerformerTasks.get_order)
-        disp.register_callback_query_handler(PerformerTasks.order_request,
-                                             state=performer_states.PerformerTasks.approve_or_decline,
-                                             text='performer_request')
-        disp.register_callback_query_handler(PerformerTasks.approve_order, state=["*"],
-                                             text='performer_get')
-        disp.register_callback_query_handler(PerformerTasks.decline_order,
-                                             state=["*"],
-                                             text='performer_decline')
-        disp.register_callback_query_handler(PerformerTasks.proposal,
-                                             state=performer_states.PerformerTasks.approve_or_decline,
-                                             text='performer_proposal')
-        disp.register_message_handler(PerformerTasks.proposal_price,
-                                      state=performer_states.PerformerTasks.proposal)
-        disp.register_callback_query_handler(PerformerTasks.approve_order_with_new_price,
-                                             state=["*"],
-                                             text='performer_get_with_new_price')
-        disp.register_callback_query_handler(PerformerTasks.choose_category,
-                                             state=performer_states.PerformerTasks.check_all_orders,
-                                             text_contains="cat_")
-        disp.register_callback_query_handler(PerformerTasks.order_rating_plus,
-                                             state=performer_states.PerformerTasks.check_all_orders,
-                                             text_contains="plus_")
-        disp.register_callback_query_handler(PerformerTasks.order_rating_minus,
-                                             state=performer_states.PerformerTasks.check_all_orders,
-                                             text_contains="minus_")
-        disp.register_callback_query_handler(PerformerTasks.order_loading_into_yes,
-                                             state=["*"],
-                                             text_contains="yes_req_load_")
-        disp.register_callback_query_handler(PerformerTasks.loading_request,
-                                             state=["*"],
-                                             text_contains="request_loading_")
-        disp.register_callback_query_handler(PerformerTasks.loading_request_decline,
-                                             state=["*"],
-                                             text="decline_loading")
-
 
 class PerformerDetailsTasks:
     @staticmethod
@@ -1151,7 +1069,6 @@ class PerformerDetailsTasks:
                                        reply_markup=markup_performer.main_menu())
             else:
                 arrive = await performers_get.performer_arrive_info(data.get("order_id"))
-                PerformerDetailsTasksStatus.register_performer_details_tasks_status(dp)
                 await performer_states.PerformerDetailsTasksStatus.enter_status.set()
                 if int(arrive) > 0:
                     await bot.send_message(message.from_user.id,
@@ -1196,13 +1113,6 @@ class PerformerDetailsTasks:
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню",
                                    reply_markup=markup_performer.main_menu())
-
-    @staticmethod
-    def register_performer_details_tasks(disp: Dispatcher):
-        disp.register_message_handler(PerformerDetailsTasks.performer_details,
-                                      state=performer_states.PerformerDetailsTasks.details_tasks)
-        disp.register_message_handler(PerformerDetailsTasks.detail_task,
-                                      state=performer_states.PerformerDetailsTasks.enter_task)
 
 
 class PerformerDetailsTasksStatus:
@@ -1417,27 +1327,6 @@ class PerformerDetailsTasksStatus:
                                        reply_markup=markup_performer.details_task_status_end())
                 await performer_states.PerformerDetailsTasksStatus.enter_status.set()
 
-    @staticmethod
-    def register_performer_details_tasks_status(disp: Dispatcher):
-        disp.register_message_handler(PerformerDetailsTasksStatus.details_status,
-                                      state=performer_states.PerformerDetailsTasksStatus.enter_status)
-        disp.register_callback_query_handler(PerformerDetailsTasksStatus.cancel_order,
-                                             text="cancel",
-                                             state=performer_states.PerformerDetailsTasksStatus.enter_status)
-        disp.register_callback_query_handler(PerformerDetailsTasksStatus.no_cancel_order,
-                                             text="no_cancel",
-                                             state=performer_states.PerformerDetailsTasksStatus.enter_status)
-        disp.register_callback_query_handler(PerformerDetailsTasksStatus.close_order,
-                                             text="close_order",
-                                             state=performer_states.PerformerDetailsTasksStatus.enter_status)
-        disp.register_callback_query_handler(PerformerDetailsTasksStatus.no_close,
-                                             text="no_close",
-                                             state=performer_states.PerformerDetailsTasksStatus.enter_status)
-        disp.register_message_handler(PerformerDetailsTasksStatus.rating,
-                                      state=performer_states.PerformerDetailsTasksStatus.rating)
-        disp.register_message_handler(PerformerDetailsTasksStatus.review,
-                                      state=performer_states.PerformerDetailsTasksStatus.review)
-
 
 class PerformerHelp:
     logger = logging.getLogger("bot.handler_performer.performer_help")
@@ -1542,21 +1431,6 @@ class PerformerHelp:
                                "<b>Перейдите по ссылке ниже</b>\n"
                                f"{config.PRIVATE_CHAT_LINK}")
 
-    @staticmethod
-    def register_performer_help(disp: Dispatcher):
-        disp.register_message_handler(PerformerHelp.performer_help,
-                                      content_types=['text'],
-                                      state=performer_states.PerformerHelp.help)
-        disp.register_message_handler(PerformerHelp.performer_upload_photo,
-                                      content_types=['photo', 'text'],
-                                      state=performer_states.PerformerHelp.upload_photo)
-        disp.register_message_handler(PerformerHelp.performer_upload_video,
-                                      content_types=['video', 'text'],
-                                      state=performer_states.PerformerHelp.upload_video)
-        disp.register_callback_query_handler(PerformerHelp.performer_private_chat,
-                                             text='private_chat',
-                                             state=performer_states.PerformerHelp.help)
-
 
 class PerformerHistory:
     @staticmethod
@@ -1656,11 +1530,3 @@ class PerformerHistory:
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в детали заказа",
                                    reply_markup=markup_performer.details_task_history())
-
-    @staticmethod
-    def register_performer_history(disp: Dispatcher):
-        disp.register_message_handler(PerformerHistory.history, state=performer_states.PerformerHistory.enter_history)
-        disp.register_message_handler(PerformerHistory.order_history,
-                                      state=performer_states.PerformerHistory.order_history)
-        disp.register_message_handler(PerformerHistory.order_details,
-                                      state=performer_states.PerformerHistory.order_history_details)

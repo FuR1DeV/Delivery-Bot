@@ -2,14 +2,12 @@ from collections import Counter
 import csv
 from datetime import datetime, timedelta
 
-from aiogram import Dispatcher, types
+from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InputFile, ParseMode
 
-from bot import bot, dp
+from bot import bot
 from data.commands import general_get, admins_get, admins_set
-from handler_customer.customer import CustomerMain
-from handler_performer.performer import PerformerMain
 from markups import markup_start, markup_admin
 from settings import config
 from settings.config import KEYBOARD
@@ -25,7 +23,6 @@ class AdminMain:
                                    "а так же для разных видов деятельности",
                                    reply_markup=markup_admin.commission())
             await states.Commission.commission.set()
-            AdminCommission.register_commission_handler(dp)
         if message.text == "Просмотр Заказов":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете просмотреть все заказы, статистику, и отзывы",
@@ -43,7 +40,6 @@ class AdminMain:
             await states.AboutUsers.enter.set()
             async with state.proxy() as data:
                 data["type_user"] = "customers"
-            AdminControl.register_control_handler(dp)
         if message.text == "Управление Исполнителями":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете посмотреть информацию о Исполнителе",
@@ -51,7 +47,6 @@ class AdminMain:
             await states.AboutUsers.enter.set()
             async with state.proxy() as data:
                 data["type_user"] = "performers"
-            AdminControl.register_control_handler(dp)
         if message.text == "Выход":
             await bot.send_message(message.from_user.id,
                                    f'Добро пожаловать в Telegram Bot который поможет найти исполнителя '
@@ -60,8 +55,6 @@ class AdminMain:
             await bot.send_message(message.from_user.id,
                                    f'Ты заказчик или исполнитель {message.from_user.first_name} ?',
                                    reply_markup=markup_start.inline_start)
-            CustomerMain.register_customer_handler(dp)
-            PerformerMain.register_performer_handler(dp)
 
     @staticmethod
     async def orders(message: types.Message):
@@ -70,13 +63,11 @@ class AdminMain:
                                    "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
                                    reply_markup=markup_admin.enter_id())
             await states.Orders.enter.set()
-            AdminOrders.register_orders_handler(dp)
         if message.text == "Статистика":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы можете просмотреть статистику",
                                    reply_markup=markup_admin.statistics())
             await states.Statistics.enter.set()
-            AdminStats.register_orders_handler(dp)
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню Администратора",
@@ -112,12 +103,6 @@ class AdminMain:
                                    "Вы вернулись в главное меню Администратора",
                                    reply_markup=markup_admin.admin_main())
             await states.AdminStates.enter.set()
-
-    @staticmethod
-    async def register_admin_handler(disp: Dispatcher):
-        disp.register_message_handler(AdminMain.admin_main, state=states.AdminStates.enter)
-        disp.register_message_handler(AdminMain.loading_db, state=states.AdminStates.loading_db)
-        disp.register_message_handler(AdminMain.orders, state=states.AdminStates.orders)
 
 
 class AdminOrders:
@@ -420,12 +405,6 @@ class AdminOrders:
                                    reply_markup=markup_admin.enter_id())
             await states.Orders.enter.set()
 
-    @staticmethod
-    def register_orders_handler(disp: Dispatcher):
-        disp.register_message_handler(AdminOrders.enter_orders, state=states.Orders.enter)
-        disp.register_message_handler(AdminOrders.order, state=states.Orders.order)
-        disp.register_message_handler(AdminOrders.order_details, state=states.Orders.detail_order)
-
 
 class AdminStats:
     @staticmethod
@@ -458,10 +437,6 @@ class AdminStats:
                                    "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
                                    reply_markup=markup_admin.orders_stat())
             await states.AdminStates.orders.set()
-
-    @staticmethod
-    def register_orders_handler(disp: Dispatcher):
-        disp.register_message_handler(AdminStats.stat_main, state=states.Statistics.enter)
 
 
 class AdminCommission:
@@ -728,27 +703,6 @@ class AdminCommission:
                                                           date)
                 await states.Commission.commission_set.set()
 
-    @staticmethod
-    def register_commission_handler(disp: Dispatcher):
-        disp.register_message_handler(AdminCommission.commission, state=states.Commission.commission)
-        disp.register_message_handler(AdminCommission.commission_set, state=states.Commission.commission_set)
-        disp.register_message_handler(AdminCommission.commission_for_performer,
-                                      state=states.Commission.commission_for_performer)
-        disp.register_message_handler(AdminCommission.commission_for_categories,
-                                      state=states.CommissionForCategories.commission_for_categories)
-        disp.register_message_handler(AdminCommission.commission_for,
-                                      state=states.CommissionForCategories.commission_for_category)
-        disp.register_message_handler(AdminCommission.commission_promo,
-                                      state=states.Commission.commission_promo)
-        disp.register_message_handler(AdminCommission.commission_promo_find_id,
-                                      state=states.Commission.commission_promo_find_id)
-        disp.register_callback_query_handler(AdminCommission.commission_promo_set_discount,
-                                             state=states.Commission.commission_promo_set_discount,
-                                             text_contains='commission_')
-        disp.register_callback_query_handler(AdminCommission.commission_promo_set_time,
-                                             state=states.Commission.commission_promo_set_discount,
-                                             text_contains='time_')
-
 
 class AdminControlChange:
     @staticmethod
@@ -785,11 +739,6 @@ class AdminControlChange:
             await states.AdminStates.enter.set()
         else:
             await bot.send_message(message.from_user.id, "Нужно ввести целое число")
-
-    @staticmethod
-    def register_control_change_handler(disp: Dispatcher):
-        disp.register_message_handler(AdminControlChange.change_main, state=states.ChangeUsers.enter)
-        disp.register_message_handler(AdminControlChange.add_money, state=states.ChangeUsers.add_money)
 
 
 class AdminControl:
@@ -874,7 +823,6 @@ class AdminControl:
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            reply_markup=markup_admin.find_user(money_add))
                     await states.ChangeUsers.enter.set()
-                    AdminControlChange.register_control_change_handler(dp)
                 else:
                     await bot.send_message(message.from_user.id, "Пользователь найден!")
                     await bot.send_message(message.from_user.id, f"{config.KEYBOARD.get('CROSS_MARK')} "
@@ -898,7 +846,6 @@ class AdminControl:
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            reply_markup=markup_admin.find_user(money_add))
                     await states.ChangeUsers.enter.set()
-                    AdminControlChange.register_control_change_handler(dp)
             else:
                 if type_user == "performers":
                     await bot.send_message(message.from_user.id,
@@ -1101,10 +1048,3 @@ class AdminControl:
                 await bot.send_message(message.from_user.id,
                                        "Если хотите заблокировать пользователя или начислить сумму, "
                                        "то вам нужно воспользоваться поиском по ID (Скопируйте нужный вам ID)")
-
-    @staticmethod
-    def register_control_handler(disp: Dispatcher):
-        disp.register_message_handler(AdminControl.control, state=states.AboutUsers.enter)
-        disp.register_message_handler(AdminControl.find_id, state=states.AboutUsers.find_id)
-        disp.register_message_handler(AdminControl.find_first_name, state=states.AboutUsers.find_first_name)
-        disp.register_message_handler(AdminControl.find_username, state=states.AboutUsers.find_username)

@@ -9,8 +9,8 @@ import asyncio
 from bot import dp, bot
 from data.commands import general_set, performers_set, admins_set, admins_get, general_get
 from handler_customer import register_customer
-from handler_admin.admin import AdminMain
-from handler_performer.performer import PerformerMain
+from handler_performer import register_performer
+from handler_admin import register_admin_handler
 from markups import markup_start, markup_admin
 from settings import config
 from states import states
@@ -48,8 +48,6 @@ async def start(message: types.Message, state: FSMContext):
     await bot.send_message(message.from_user.id,
                            f'Ты заказчик или исполнитель {message.from_user.first_name} ?',
                            reply_markup=markup_start.inline_start)
-    register_customer(dp)
-    PerformerMain.register_performer_handler(dp)
 
 
 @dp.message_handler(commands='admin', state='*')
@@ -62,7 +60,6 @@ async def admin(message: types.Message, state: FSMContext):
                                        message.from_user.username,
                                        message.from_user.first_name,
                                        message.from_user.last_name)
-        await AdminMain.register_admin_handler(dp)
         await bot.send_message(message.from_user.id,
                                f'Добро пожаловать в панель администратора',
                                reply_markup=markup_admin.admin_main())
@@ -153,7 +150,9 @@ async def on_startup(_):
     """Создание БД"""
     await db.gino.create_all()
     await general_set.create_commission()
-
+    register_customer(dp)
+    register_performer(dp)
+    register_admin_handler(dp)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
