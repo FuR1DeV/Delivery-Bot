@@ -68,7 +68,6 @@ class CustomerMain:
     async def customer_menu(message: types.Message, state: FSMContext):
         await state.finish()
         if "Мой профиль" in message.text:
-            # CustomerProfile.register_customer_profile(dp)
             customer = await customers_get.customer_select(message.from_user.id)
             await customer_states.CustomerProfile.my_profile.set()
             await bot.send_message(message.from_user.id,
@@ -86,8 +85,6 @@ class CustomerMain:
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_customer.customer_profile())
         if "Создать заказ" in message.text:
-            # CustomerCreateTask.register_customer_create_task(dp)
-            # CustomerCreateTaskComp.register_customer_create_task_comp(dp)
             await customer_states.CustomerCreateTask.create.set()
             await bot.send_message(message.from_user.id,
                                    "Вы можете создать новый заказ с Компьютера или с Телефона",
@@ -123,7 +120,6 @@ class CustomerMain:
                                    "Опишите вашу проблему, можете прикрепить фото или видео\n"
                                    "Когда закончите сможете вернуться в главное меню",
                                    reply_markup=markup_customer.photo_or_video_help())
-            # CustomerHelp.register_customer_help(dp)
 
     @staticmethod
     async def orders(message: types.Message):
@@ -210,7 +206,6 @@ class CustomerMain:
                                        "Выберите ID задачи чтобы войти в детали заказа",
                                        reply_markup=keyboard)
                 await customer_states.CustomerDetailsTasks.my_tasks.set()
-                # CustomerDetailsTasks.register_customer_details_tasks(dp)
             else:
                 await bot.send_message(message.from_user.id,
                                        "У вас нет созданных заказов для Доставки")
@@ -264,7 +259,6 @@ class CustomerMain:
                                        "Выберите ID задачи чтобы войти в детали заказа",
                                        reply_markup=keyboard)
                 await customer_states.CustomerDetailsTasks.my_tasks.set()
-                # CustomerDetailsTasks.register_customer_details_tasks(dp)
             else:
                 await bot.send_message(message.from_user.id,
                                        "У вас нет созданных заказов для Грузчиков")
@@ -359,7 +353,6 @@ class CustomerMain:
                                    "Выберите ID задачи чтобы войти в детали заказа",
                                    reply_markup=keyboard)
             await customer_states.CustomerDetailsTasks.my_tasks.set()
-            # CustomerDetailsTasks.register_customer_details_tasks(dp)
 
     @staticmethod
     async def refresh_loading(callback: types.CallbackQuery):
@@ -547,7 +540,6 @@ class CustomerMain:
                                    "Выберите ID задачи чтобы войти в детали заказа",
                                    reply_markup=keyboard)
             await customer_states.CustomerHistory.enter_history.set()
-            # CustomerHistory.register_customer_history(dp)
 
     @staticmethod
     async def customer_approve(callback: types.CallbackQuery):
@@ -673,7 +665,6 @@ class CustomerCreateTask:
                                        "На карте вы можете отправить точку откуда забрать посылку",
                                        reply_markup=markup_customer.send_my_geo()
                                        )
-                # CustomerCreateTaskLoading.register_customer_create_task(dp)
                 await customer_states.CustomerCreateTaskLoading.geo_position.set()
             else:
                 await bot.send_message(message.from_user.id,
@@ -1219,7 +1210,6 @@ class CustomerCreateTaskComp:
                 await bot.send_message(callback.from_user.id,
                                        "Укажите количество требуемых грузчиков",
                                        reply_markup=markup_customer.back())
-                # CustomerCreateTaskLoading.register_customer_create_task(dp)
                 await customer_states.CustomerCreateTaskLoading.people.set()
             else:
                 await bot.delete_message(callback.from_user.id, callback.message.message_id)
@@ -1322,7 +1312,6 @@ class CustomerCreateTaskComp:
                 await bot.send_message(callback.from_user.id,
                                        "Укажите количество требуемых грузчиков",
                                        reply_markup=markup_customer.back())
-                # CustomerCreateTaskLoading.register_customer_create_task(dp)
                 await customer_states.CustomerCreateTaskLoading.people.set()
             else:
                 await bot.delete_message(callback.from_user.id, callback.message.message_id)
@@ -2181,7 +2170,6 @@ class CustomerDetailsTasks:
                                        "Завершить заказ или проверить статус заказа для его закрытия",
                                        reply_markup=markup_customer.details_task_status())
                 await customer_states.CustomerDetailsTasksStatus.enter_status.set()
-                # CustomerDetailsTasksStatus.register_customer_details_tasks_status(dp)
         if "Профиль исполнителя" in message.text:
             res = await customers_get.customer_get_status_order(data.get("order_id"))
             if res is None:
@@ -2219,7 +2207,6 @@ class CustomerDetailsTasks:
 
     @staticmethod
     async def detail_task_not_at_work(message: types.Message, state: FSMContext):
-        # CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
         async with state.proxy() as data:
             orders = await general_get.order_select(data.get("order_id"))
         if "Отменить заказ" in message.text:
@@ -2254,7 +2241,6 @@ class CustomerDetailsTasks:
 
     @staticmethod
     async def details_task_loading(message: types.Message, state: FSMContext):
-        # CustomerDetailsTasksChange.register_customer_details_tasks_change(dp)
         async with state.proxy() as data:
             orders_loading = await general_get.order_select_loading(data.get("order_id"))
         if message.text == f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Нашли всех грузчиков":
