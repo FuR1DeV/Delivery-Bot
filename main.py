@@ -8,8 +8,8 @@ import asyncio
 
 from bot import dp, bot
 from data.commands import general_set, performers_set, admins_set, admins_get, general_get
+from handler_customer import register_customer
 from handler_admin.admin import AdminMain
-from handler_customer.customer import CustomerMain
 from handler_performer.performer import PerformerMain
 from markups import markup_start, markup_admin
 from settings import config
@@ -48,7 +48,7 @@ async def start(message: types.Message, state: FSMContext):
     await bot.send_message(message.from_user.id,
                            f'Ты заказчик или исполнитель {message.from_user.first_name} ?',
                            reply_markup=markup_start.inline_start)
-    CustomerMain.register_customer_handler(dp)
+    register_customer(dp)
     PerformerMain.register_performer_handler(dp)
 
 

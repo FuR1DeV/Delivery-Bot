@@ -993,13 +993,6 @@ class PerformerTasks:
                                f"Вы поставили дизлайк заказу <b>{callback.data[6:]}</b>")
 
     @staticmethod
-    async def order_loading_into(callback: types.CallbackQuery):
-        await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(callback.from_user.id,
-                               "Вы действительно хотите вписаться самому ?",
-                               reply_markup=markup_performer.inline_approve_loading_yes_no(callback.data[16:]))
-
-    @staticmethod
     async def order_loading_into_yes(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await performers_set.performer_set_order_loading(callback.from_user.id,
@@ -1009,6 +1002,15 @@ class PerformerTasks:
         await bot.send_message(callback.from_user.id,
                                "Вы вписались!",
                                reply_markup=markup_performer.main_menu())
+
+    @staticmethod
+    async def loading_request(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        print(callback.data[16:])
+
+    @staticmethod
+    async def loading_request_decline(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
 
     @staticmethod
     def register_performer_tasks(disp: Dispatcher):
@@ -1041,12 +1043,15 @@ class PerformerTasks:
         disp.register_callback_query_handler(PerformerTasks.order_rating_minus,
                                              state=performer_states.PerformerTasks.check_all_orders,
                                              text_contains="minus_")
-        disp.register_callback_query_handler(PerformerTasks.order_loading_into,
-                                             state=["*"],
-                                             text_contains="request_loading_")
         disp.register_callback_query_handler(PerformerTasks.order_loading_into_yes,
                                              state=["*"],
                                              text_contains="yes_req_load_")
+        disp.register_callback_query_handler(PerformerTasks.loading_request,
+                                             state=["*"],
+                                             text_contains="request_loading_")
+        disp.register_callback_query_handler(PerformerTasks.loading_request_decline,
+                                             state=["*"],
+                                             text="decline_loading")
 
 
 class PerformerDetailsTasks:

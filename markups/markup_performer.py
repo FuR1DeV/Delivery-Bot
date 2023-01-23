@@ -22,10 +22,10 @@ def inline_approve():
 
 def inline_approve_loading(order_id):
     approve_ = InlineKeyboardMarkup()
-    get = InlineKeyboardButton(text='Вписаться самому',
+    get = InlineKeyboardButton(text='Запрос',
                                callback_data=f'request_loading_{order_id}')
-    decline = InlineKeyboardButton(text='Вписать несколько',
-                                   callback_data=f'request_many_loading_{order_id}')
+    decline = InlineKeyboardButton(text='Отказаться',
+                                   callback_data=f'decline_loading')
     approve_.insert(get)
     approve_.insert(decline)
     return approve_
