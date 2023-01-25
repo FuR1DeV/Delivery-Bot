@@ -1893,7 +1893,7 @@ class CustomerCreateTaskLoading:
                 performers = await general_get.all_performers_auto_send()
                 for i in performers:
                     await bot.send_message(i.user_id,
-                                           f"Новый заказ! {data.get('order_id')}\n"
+                                           f"Новый заказ! От заказчика {message.from_user.id}\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
                                            f"Место работы - <a href='https://yandex.ru/maps/?text="
@@ -1964,7 +1964,7 @@ class CustomerCreateTaskLoading:
                 performers = await general_get.all_performers_auto_send()
                 for i in performers:
                     await bot.send_message(i.user_id,
-                                           f"Новый заказ! {data.get('order_id')}\n"
+                                           f"Новый заказ! От заказчика {message.from_user.id}\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
                                            f"Место работы - <a href='https://yandex.ru/maps/?text="
@@ -2020,7 +2020,7 @@ class CustomerCreateTaskLoading:
             performers = await general_get.all_performers_auto_send()
             for i in performers:
                 await bot.send_message(i.user_id,
-                                       f"Новый заказ! {data.get('order_id')}\n"
+                                       f"Новый заказ! От заказчика {message.from_user.id}\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
                                        f"Место работы - <a href='https://yandex.ru/maps/?text="

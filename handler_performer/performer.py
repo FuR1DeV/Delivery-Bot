@@ -965,7 +965,13 @@ class PerformerTasks:
     @staticmethod
     async def loading_request(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        print(callback.data[16:])
+        performer = await performers_get.performer_select(callback.from_user.id)
+        await bot.send_message(callback.message.text.split()[4],
+                               f"Запрос на ваша заказ <b>{callback.data[16:]}</b>\n"
+                               f"Имя - <b>{performer.first_name}\n</b>"
+                               f"Рейтинг - <b>{performer.performer_rating}\n</b>"
+                               f"Взял заказов - <b>{performer.get_orders}\n</b>"
+                               f"Отменил заказов - <b>{performer.canceled_orders}</b>")
 
     @staticmethod
     async def loading_request_decline(callback: types.CallbackQuery):
