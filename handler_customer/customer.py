@@ -214,13 +214,11 @@ class CustomerMain:
             if orders_loading:
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 for i in orders_loading:
-                    order_get = "Пока не взят"
-                    if i.order_get is not None:
-                        order_get = i.order_get
                     if i.image != "No Photo":
                         await bot.send_photo(message.from_user.id, i.image)
                     if i.video != "No Video":
                         await bot.send_video(message.from_user.id, i.video)
+                    loaders = [await performers_get.performer_select(v) for v in i.persons_list]
                     await bot.send_message(message.from_user.id,
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
                                            f"<b>Детали заказа для Грузчиков</b>\n"
@@ -239,10 +237,10 @@ class CustomerMain:
                                            f"ID заказа - <b>{i.order_id}</b>\n"
                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                            f"Заказ создан: <b>{i.order_create}</b>\n"
-                                           f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                           f"Заказ взят: <b>{order_get}</b>\n"
                                            f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                            f"Действует до: <b>{i.order_expired}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Грузчики: {' | '.join([k.username for k in loaders])}\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
@@ -361,13 +359,11 @@ class CustomerMain:
         if orders_loading:
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
             for i in orders_loading:
-                order_get = "Пока не взят"
-                if i.order_get is not None:
-                    order_get = i.order_get
                 if i.image != "No Photo":
                     await bot.send_photo(callback.from_user.id, i.image)
                 if i.video != "No Video":
                     await bot.send_video(callback.from_user.id, i.video)
+                loaders = [await performers_get.performer_select(v) for v in i.persons_list]
                 await bot.send_message(callback.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
                                        f"<b>Детали заказа для Грузчиков</b>\n"
@@ -384,10 +380,10 @@ class CustomerMain:
                                        f"ID заказа - <b>{i.order_id}</b>\n"
                                        f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                        f"Заказ создан: <b>{i.order_create}</b>\n"
-                                       f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                       f"Заказ взят: <b>{order_get}</b>\n"
                                        f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                        f"Действует до: <b>{i.order_expired}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Грузчики: {' | '.join([k.username for k in loaders])}\n"
                                        f"{config.KEYBOARD.get('BAR_CHART')} "
                                        f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n",
@@ -2096,9 +2092,14 @@ class CustomerDetailsTasks:
                                                    reply_markup=markup_customer.details_task_not_at_work())
                         if loading == 1:
                             await customer_states.CustomerDetailsTasks.loading.set()
-                            await bot.send_message(message.from_user.id,
-                                                   "Вы вошли в заказ с типом Погрузка/Разгрузка",
-                                                   reply_markup=markup_customer.details_task_loading())
+                            if int(i.person) - int(i.count_person) == 0:
+                                await bot.send_message(message.from_user.id,
+                                                       "Вы вошли в заказ с типом Погрузка/Разгрузка",
+                                                       reply_markup=markup_customer.details_task_loading_at_work())
+                            else:
+                                await bot.send_message(message.from_user.id,
+                                                       "Вы вошли в заказ с типом Погрузка/Разгрузка",
+                                                       reply_markup=markup_customer.details_task_loading())
 
     @staticmethod
     async def detail_task(message: types.Message, state: FSMContext):
@@ -2192,7 +2193,7 @@ class CustomerDetailsTasks:
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                        f"Фамилия <b>{res_performer.last_name}</b>\n"
                                        f"{config.KEYBOARD.get('BAR_CHART')} "
-                                       f"Рейтинг <b>{str(res_performer.performer_rating)[0:5]}</b>\n"
+                                       f"Рейтинг <b>{res_performer.performer_rating}</b>\n"
                                        f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
                                        f"Заказов взял - <b>{res_performer.get_orders}</b>\n"
                                        f"{config.KEYBOARD.get('CROSS_MARK')} "
@@ -2260,11 +2261,87 @@ class CustomerDetailsTasks:
                     await bot.send_message(message.from_user.id,
                                            "Ваш заказ уже взяли!",
                                            reply_markup=markup_customer.main_menu())
+        if message.text == f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков":
+            loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
+            for i in loaders:
+                await bot.send_message(message.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"Профиль <b>Исполнителя</b>:\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"ID : <b>{i.user_id}</b>\n"
+                                       f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+                                       f"Никнейм <b>@{i.username}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Номер <b>{i.telephone}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Имя <b>{i.first_name}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Фамилия <b>{i.last_name}</b>\n"
+                                       f"{config.KEYBOARD.get('BAR_CHART')} "
+                                       f"Рейтинг <b>{i.performer_rating}</b>\n"
+                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                       f"Заказов взял - <b>{i.get_orders}</b>\n"
+                                       f"{config.KEYBOARD.get('CROSS_MARK')} "
+                                       f"Заказов отменил - <b>{i.canceled_orders}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",)
+        if message.text == f"{KEYBOARD.get('CLIPBOARD')} Детали заказа":
+            if orders_loading.image != "No Photo":
+                await bot.send_photo(message.from_user.id, orders_loading.image)
+            if orders_loading.video != "No Video":
+                await bot.send_video(message.from_user.id, orders_loading.video)
+            loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
+            await bot.send_message(message.from_user.id,
+                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                   f"<b>Детали заказа для Грузчиков</b>\n"
+                                   f"{config.KEYBOARD.get('A_BUTTON')} "
+                                   f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                   f"{'+'.join(orders_loading.geo_position.split())}'>"
+                                   f"{orders_loading.geo_position}</a>\n"
+                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                   f"Сколько Грузчиков - <b>{orders_loading.person}</b>\n"
+                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                   f"Уже Грузчиков - <b>{orders_loading.count_person}</b>\n"
+                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                   f"Грузчики: <b>{' | '.join([k.username for k in loaders])}</b>\n"
+                                   f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                   f"Описание - <b>{orders_loading.description}</b>\n"
+                                   f"{config.KEYBOARD.get('DOLLAR')} "
+                                   f"Цена за 1 час - <b>{orders_loading.price}</b>\n"
+                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                   f"ID заказа - <b>{orders_loading.order_id}</b>\n"
+                                   f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                   f"Заказ создан: <b>{orders_loading.order_create}</b>\n"
+                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                   f"Действует до: <b>{orders_loading.order_expired}</b>\n"
+                                   f"{config.KEYBOARD.get('BAR_CHART')} "
+                                   f"Рейтинг заказа | <b>{orders_loading.order_rating}</b>\n"
+                                   f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                   disable_web_page_preview=True)
+        if message.text == f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Завершить заказ":
+            await bot.send_message(message.from_user.id,
+                                   "Подтвердите завершение заказа",
+                                   reply_markup=markup_customer.inline_close_loading_task())
         if "Назад" in message.text:
             await customer_states.CustomerStart.orders.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в меню выбора типов Заказа",
                                    reply_markup=markup_customer.customer_type_orders())
+
+    @staticmethod
+    async def close_loading_order(callback: types.CallbackQuery, state: FSMContext):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        async with state.proxy() as data:
+            await customers_set.customer_close_order_loading(data.get('order_id'),
+                                                             datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+        await customer_states.CustomerStart.customer_menu.set()
+        await bot.send_message(callback.from_user.id,
+                               "Заказ закрыт",
+                               reply_markup=markup_customer.main_menu())
+
+    @staticmethod
+    async def no_close_loading_order(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+
 
     @staticmethod
     async def cancel_order_not_at_work(callback: types.CallbackQuery, state: FSMContext):
@@ -2682,15 +2759,48 @@ class CustomerDetailsTasksChange:
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
                                "Вы нашли всех грузчиков\n"
-                               "Заказ удаляется",
-                               reply_markup=markup_customer.main_menu())
-        await customer_states.CustomerStart.customer_menu.set()
+                               "Заказ исчез из поиска",
+                               reply_markup=markup_customer.details_task_loading_at_work())
         async with state.proxy() as data:
-            await customers_set.customer_delete_order_loading(data.get("order_id"))
+            await customers_set.customer_set_block_order(data.get("order_id"), 1)
 
     @staticmethod
     async def decline_people_loading(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
+
+    @staticmethod
+    async def loading_invite_people(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+
+        order_id = callback.message.text.split()[4]
+        user = await performers_get.performer_select(int(callback.data[15:]))
+
+        order_loading = await customers_get.customer_view_order(order_id)
+        order_loading = order_loading[0]
+
+        if int(order_loading.person) - int(order_loading.count_person) == 0:
+            await bot.send_message(callback.from_user.id,
+                                   "<b>Для этого заказа все Грузчики уже найдены!</b>")
+            await bot.send_message(user.user_id,
+                                   f"По этому заказу <b>{order_id}</b> уже набраны все Грузчики!")
+        else:
+            await customers_set.customer_loading_set_count_person(order_id, user.user_id)
+            order_loading = await customers_get.customer_view_order(order_id)
+            order_loading = order_loading[0]
+            if int(order_loading.person) - int(order_loading.count_person) == 0:
+                await bot.send_message(callback.from_user.id,
+                                       "<b>Все Грузчики найдены!</b>")
+            else:
+                await bot.send_message(callback.from_user.id,
+                                       f"Теперь у вас - <b>{order_loading.count_person}</b> Грузчик/Грузчика\n"
+                                       f"Вам осталось найти - "
+                                       f"<b>{int(order_loading.person) - int(order_loading.count_person)}</b> "
+                                       f"Грузчик/Грузчика")
+            await bot.send_message(callback.from_user.id,
+                                   f"Данные вашего Грузчика\n"
+                                   f"Username - <b>@{user.username}</b>\n"
+                                   f"Телефон - <b>{user.telephone}</b>\n"
+                                   f"Имя - <b>{user.first_name}</b>")
 
 
 class CustomerDetailsTasksStatus:

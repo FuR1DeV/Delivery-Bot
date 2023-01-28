@@ -163,6 +163,12 @@ def register_customer(disp: Dispatcher):
                                          state=customer_states.CustomerDetailsTasks.not_at_work)
     disp.register_message_handler(CustomerDetailsTasks.details_task_loading,
                                   state=customer_states.CustomerDetailsTasks.loading)
+    disp.register_callback_query_handler(CustomerDetailsTasks.close_loading_order,
+                                         text="loading_close_order",
+                                         state=["*"])
+    disp.register_callback_query_handler(CustomerDetailsTasks.no_close_loading_order,
+                                         text="loading_no_close",
+                                         state=["*"])
 
     # def register_customer_details_tasks_change(disp: Dispatcher):
     disp.register_callback_query_handler(CustomerDetailsTasksChange.change_task_enter,
@@ -193,6 +199,9 @@ def register_customer(disp: Dispatcher):
                                          state=["*"])
     disp.register_callback_query_handler(CustomerDetailsTasksChange.decline_people_loading,
                                          text="not_all_people_loading",
+                                         state=["*"])
+    disp.register_callback_query_handler(CustomerDetailsTasksChange.loading_invite_people,
+                                         text_contains="loading_invite_",
                                          state=["*"])
 
     # def register_customer_details_tasks_status(disp: Dispatcher):

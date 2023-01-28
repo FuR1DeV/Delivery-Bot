@@ -119,10 +119,20 @@ def details_task_not_at_work():
     return keyboard
 
 
+def details_task_loading_at_work():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row(f"{KEYBOARD.get('CLIPBOARD')} Детали заказа",
+                 f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков")
+    keyboard.row(f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Завершить заказ")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    return keyboard
+
+
 def details_task_loading():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Нашли всех грузчиков",
                  f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ")
+    keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
@@ -300,6 +310,15 @@ def inline_close_task():
     return close
 
 
+def inline_close_loading_task():
+    close = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text="Да, все сделано", callback_data="loading_close_order")
+    no = InlineKeyboardButton(text="Нет, не до конца", callback_data="loading_no_close")
+    close.insert(yes)
+    close.insert(no)
+    return close
+
+
 def inline_cancel_task():
     cancel_ = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text="Отменяем", callback_data="cancel")
@@ -335,6 +354,17 @@ def inline_approve_proposal_with_new_price(price):
                                callback_data='performer_get_with_new_price')
     decline = InlineKeyboardButton(text=f'Отказаться',
                                    callback_data='performer_decline')
+    approve_.insert(get)
+    approve_.insert(decline)
+    return approve_
+
+
+def inline_approve_loading_proposal(user_id):
+    approve_ = InlineKeyboardMarkup()
+    get = InlineKeyboardButton(text=f'Пригласить',
+                               callback_data=f'loading_invite_{user_id}')
+    decline = InlineKeyboardButton(text=f'Отказать',
+                                   callback_data='decline_loading')
     approve_.insert(get)
     approve_.insert(decline)
     return approve_

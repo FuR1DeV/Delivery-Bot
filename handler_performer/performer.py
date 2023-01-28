@@ -9,7 +9,7 @@ from aiogram.types import ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
 
 from bot import bot
 from data.commands import performers_get, performers_set, customers_get, general_get, general_set
-from markups import markup_performer
+from markups import markup_performer, markup_customer
 from settings import config
 from states import performer_states
 
@@ -641,9 +641,13 @@ class PerformerTasks:
                 await bot.send_message(message.from_user.id,
                                        "Выводим список всех заказов для Грузчиков")
                 for i in res:
+                    if i.image != "No Photo":
+                        await bot.send_photo(message.from_user.id, i.image)
+                    if i.video != "No Video":
+                        await bot.send_video(message.from_user.id, i.video)
                     await bot.send_message(message.from_user.id,
+                                           f"<b>Детали заказа от Заказчика {i.user_id}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                           f"<b>Детали заказа</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
                                            f"Место работы - <a href='https://yandex.ru/maps/?text="
                                            f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
@@ -664,6 +668,7 @@ class PerformerTasks:
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           reply_markup=markup_performer.inline_approve_loading(i.order_id),
                                            disable_web_page_preview=True)
             else:
                 await bot.send_message(message.from_user.id,
@@ -967,11 +972,12 @@ class PerformerTasks:
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         performer = await performers_get.performer_select(callback.from_user.id)
         await bot.send_message(callback.message.text.split()[4],
-                               f"Запрос на ваша заказ <b>{callback.data[16:]}</b>\n"
+                               f"Запрос на ваш заказ <b>{callback.data[16:]}</b>\n"
                                f"Имя - <b>{performer.first_name}\n</b>"
                                f"Рейтинг - <b>{performer.performer_rating}\n</b>"
                                f"Взял заказов - <b>{performer.get_orders}\n</b>"
-                               f"Отменил заказов - <b>{performer.canceled_orders}</b>")
+                               f"Отменил заказов - <b>{performer.canceled_orders}</b>",
+                               reply_markup=markup_customer.inline_approve_loading_proposal(callback.from_user.id))
 
     @staticmethod
     async def loading_request_decline(callback: types.CallbackQuery):

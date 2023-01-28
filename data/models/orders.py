@@ -52,6 +52,7 @@ class OrdersLoading(BaseModel):
     person = Column(Integer, nullable=False)
     count_person = Column(Integer, server_default="0")
     block = Column(Integer, server_default="0")
+    persons_list = Column(ARRAY(BigInteger))
     query: sql.select
 
 

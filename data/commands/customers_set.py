@@ -36,7 +36,7 @@ async def customer_add_order_loading(user_id, geo_position, description, price, 
     logger.info(f'Заказчик {user_id} добавляет заказ {order_id}')
     order = OrdersLoading(user_id=user_id, geo_position=geo_position, description=description, price=price,
                           start_time=start_time, image=image, video=video, order_id=order_id, order_create=order_create,
-                          order_expired=order_expired, person=people)
+                          order_expired=order_expired, person=people, persons_list=[])
     customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
     create = customer.create_orders + 1
     await customer.update(create_orders=create).apply()
@@ -127,3 +127,16 @@ async def customer_change_order(order_id, change, result):
 async def customer_delete_order_loading(order_id):
     order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
     await order_loading.delete()
+
+
+async def customer_close_order_loading(order_id, order_end):
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    await order_loading.update(completed=1, order_end=order_end).apply()
+
+
+async def customer_loading_set_count_person(order_id, user_id):
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    res = order_loading.persons_list
+    res.append(user_id)
+    await order_loading.update(count_person=int(order_loading.count_person) + 1,
+                               persons_list=res).apply()
