@@ -52,7 +52,8 @@ async def performer_checks_all_orders_loading(user_id):
     orders = await OrdersLoading.query.where(and_(OrdersLoading.block == 0,
                                                   OrdersLoading.order_end == None,
                                                   OrdersLoading.order_cancel == None,
-                                                  OrdersLoading.user_id != user_id)).gino.all()
+                                                  OrdersLoading.user_id != user_id,
+                                                  OrdersLoading.person != OrdersLoading.count_person)).gino.all()
     return orders
 
 
