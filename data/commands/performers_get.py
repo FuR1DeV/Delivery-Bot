@@ -70,6 +70,12 @@ async def performer_checks_all_orders_with_category(user_id, performer_category,
     return orders
 
 
+async def performer_check_loading_order(order_id):
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    if order_loading.persons_list:
+        return order_loading
+
+
 async def performer_check_order_rating(order_id, user_id):
     """Исполнитель смотрит рейтинг заказа"""
     order = await OrdersRating.query.where(and_(OrdersRating.order_id == order_id,

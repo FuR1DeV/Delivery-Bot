@@ -1765,8 +1765,10 @@ class CustomerCreateTaskLoading:
             async with state.proxy() as data:
                 data["people"] = int(message.text)
             await bot.send_message(message.from_user.id,
-                                   "Что нужно делать ?\n"
-                                   "Введите описание работ\n",
+                                   "<b>Что нужно делать ?</b>\n"
+                                   "<b>Введите описание работ</b>\n"
+                                   "<b>Укажите что за груз, его габариты. "
+                                   "В общем все детали нужно указывать здесь!</b>",
                                    reply_markup=markup_customer.back())
             await customer_states.CustomerCreateTaskLoading.next()
         elif message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
@@ -2263,27 +2265,32 @@ class CustomerDetailsTasks:
                                            reply_markup=markup_customer.main_menu())
         if message.text == f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков":
             loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
-            for i in loaders:
+            if loaders:
+                for i in loaders:
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"Профиль <b>Исполнителя</b>:\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID : <b>{i.user_id}</b>\n"
+                                           f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+                                           f"Никнейм <b>@{i.username}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Номер <b>{i.telephone}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Имя <b>{i.first_name}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Фамилия <b>{i.last_name}</b>\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} "
+                                           f"Рейтинг <b>{i.performer_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                           f"Заказов взял - <b>{i.get_orders}</b>\n"
+                                           f"{config.KEYBOARD.get('CROSS_MARK')} "
+                                           f"Заказов отменил - <b>{i.canceled_orders}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}",
+                                           reply_markup=markup_customer.inline_delete_loader())
+            else:
                 await bot.send_message(message.from_user.id,
-                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                       f"Профиль <b>Исполнителя</b>:\n"
-                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                       f"ID : <b>{i.user_id}</b>\n"
-                                       f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-                                       f"Никнейм <b>@{i.username}</b>\n"
-                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Номер <b>{i.telephone}</b>\n"
-                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Имя <b>{i.first_name}</b>\n"
-                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Фамилия <b>{i.last_name}</b>\n"
-                                       f"{config.KEYBOARD.get('BAR_CHART')} "
-                                       f"Рейтинг <b>{i.performer_rating}</b>\n"
-                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                       f"Заказов взял - <b>{i.get_orders}</b>\n"
-                                       f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                       f"Заказов отменил - <b>{i.canceled_orders}</b>\n"
-                                       f"{config.KEYBOARD.get('DASH') * 14}",)
+                                       "Пока грузчиков нет!")
         if message.text == f"{KEYBOARD.get('CLIPBOARD')} Детали заказа":
             if orders_loading.image != "No Photo":
                 await bot.send_photo(message.from_user.id, orders_loading.image)
@@ -2364,10 +2371,6 @@ class CustomerDetailsTasks:
     @staticmethod
     async def no_change_order_not_at_work(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await customer_states.CustomerDetailsTasks.not_at_work.set()
-        await bot.send_message(callback.from_user.id,
-                               "Ваш Заказ еще не взяли, но его можно отредактировать или отменить",
-                               reply_markup=markup_customer.details_task_not_at_work())
 
 
 class CustomerDetailsTasksChange:

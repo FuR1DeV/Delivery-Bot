@@ -337,6 +337,13 @@ def inline_change_task():
     return change
 
 
+def inline_delete_loader():
+    delete = InlineKeyboardMarkup()
+    deleter = InlineKeyboardButton(text="Уволить Грузчика", callback_data="delete_loader")
+    delete.insert(deleter)
+    return delete
+
+
 def inline_approve():
     approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Взять',

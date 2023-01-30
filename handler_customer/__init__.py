@@ -160,7 +160,7 @@ def register_customer(disp: Dispatcher):
                                          state=customer_states.CustomerDetailsTasks.not_at_work)
     disp.register_callback_query_handler(CustomerDetailsTasks.no_change_order_not_at_work,
                                          text='no_change',
-                                         state=customer_states.CustomerDetailsTasks.not_at_work)
+                                         state=["*"])
     disp.register_message_handler(CustomerDetailsTasks.details_task_loading,
                                   state=customer_states.CustomerDetailsTasks.loading)
     disp.register_callback_query_handler(CustomerDetailsTasks.close_loading_order,
