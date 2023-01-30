@@ -98,6 +98,11 @@ async def customer_set_block_order(order_id, block: int):
         return "order_loading"
 
 
+async def customer_find_all_persons(order_id):
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    await order_loading.update(person=order_loading.count_person).apply()
+
+
 async def customer_change_order(order_id, change, result):
     logger.info(f'Заказчик редактирует {change}, заказ - {order_id}')
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()

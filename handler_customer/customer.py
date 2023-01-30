@@ -2342,7 +2342,6 @@ class CustomerDetailsTasks:
     async def no_close_loading_order(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
 
-
     @staticmethod
     async def cancel_order_not_at_work(callback: types.CallbackQuery, state: FSMContext):
         async with state.proxy() as data:
@@ -2762,7 +2761,7 @@ class CustomerDetailsTasksChange:
                                "Заказ исчез из поиска",
                                reply_markup=markup_customer.details_task_loading_at_work())
         async with state.proxy() as data:
-            await customers_set.customer_set_block_order(data.get("order_id"), 1)
+            await customers_set.customer_find_all_persons(data.get("order_id"))
 
     @staticmethod
     async def decline_people_loading(callback: types.CallbackQuery):
@@ -2781,6 +2780,11 @@ class CustomerDetailsTasksChange:
         if int(order_loading.person) - int(order_loading.count_person) == 0:
             await bot.send_message(callback.from_user.id,
                                    "<b>Для этого заказа все Грузчики уже найдены!</b>")
+            await bot.send_message(user.user_id,
+                                   f"По этому заказу <b>{order_id}</b> уже набраны все Грузчики!")
+        if order_loading.block == 1:
+            await bot.send_message(callback.from_user.id,
+                                   "<b>Вы заблокировали заказ!</b>")
             await bot.send_message(user.user_id,
                                    f"По этому заказу <b>{order_id}</b> уже набраны все Грузчики!")
         else:
