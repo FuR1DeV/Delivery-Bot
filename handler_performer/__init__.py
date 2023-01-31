@@ -78,6 +78,8 @@ def register_performer(disp: Dispatcher):
     disp.register_callback_query_handler(PerformerTasks.loading_request_decline,
                                          state=["*"],
                                          text="decline_loading")
+    disp.register_message_handler(PerformerTasks.loading_request_approve,
+                                  state=performer_states.PerformerTasks.loading_request)
 
     # def register_performer_details_tasks(disp: Dispatcher):
     disp.register_message_handler(PerformerDetailsTasks.performer_details,

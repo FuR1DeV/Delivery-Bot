@@ -44,6 +44,7 @@ class PerformerTasks(StatesGroup):
     get_order: State = State()
     approve_or_decline: State = State()
     proposal: State = State()
+    loading_request: State = State()
 
 
 class PerformerDetailsTasksStatus(StatesGroup):

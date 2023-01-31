@@ -970,35 +970,62 @@ class PerformerTasks:
                                reply_markup=markup_performer.main_menu())
 
     @staticmethod
-    async def loading_request(callback: types.CallbackQuery):
+    async def loading_request(callback: types.CallbackQuery, state: FSMContext):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         order_loading = await performers_get.performer_check_loading_order(callback.data[16:])
-        # ЗДЕСЬ НАДО СДЕЛАТЬ ЗАПРОС С КОММЕНТАРИЕМ!
-        if order_loading.persons_list:
-            if callback.from_user.id in order_loading.persons_list:
-                await bot.send_message(callback.from_user.id,
-                                       "Вы уже подавали Запрос на этот заказ")
+        async with state.proxy() as data:
+            data["order_loading"] = order_loading
+        await performer_states.PerformerTasks.loading_request.set()
+        await bot.send_message(callback.from_user.id,
+                               "<b>Напишите комментарий Заказчику</b>\n"
+                               "<b>Например через сколько вы будете на месте</b>",
+                               reply_markup=markup_performer.back())
+
+    @staticmethod
+    async def loading_request_approve(message: types.Message, state: FSMContext):
+        if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await performer_states.PerformerStart.performer_menu.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в Главное меню",
+                                   reply_markup=markup_performer.main_menu())
+        if message.text != f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            async with state.proxy() as data:
+                order_loading = data.get("order_loading")
+            if order_loading.persons_list:
+                if message.from_user.id in order_loading.persons_list:
+                    await bot.send_message(message.from_user.id,
+                                           "Вы уже подавали Запрос на этот заказ")
+                else:
+                    performer = await performers_get.performer_select(message.from_user.id)
+                    await bot.send_message(order_loading.user_id,
+                                           f"Запрос на ваш заказ <b>{order_loading.order_id}</b>\n"
+                                           f"Тип заказа - <b>Погрузка/Разгрузка</b>\n"
+                                           f"Имя - <b>{performer.first_name}\n</b>"
+                                           f"Рейтинг - <b>{performer.performer_rating}\n</b>"
+                                           f"Взял заказов - <b>{performer.get_orders}\n</b>"
+                                           f"Отменил заказов - <b>{performer.canceled_orders}\n</b>"
+                                           f"Комментарий Грузчика: \n"
+                                           f"{message.text}",
+                                           reply_markup=markup_customer.inline_approve_loading_proposal(
+                                               message.from_user.id))
             else:
-                performer = await performers_get.performer_select(callback.from_user.id)
-                await bot.send_message(callback.message.text.split()[4],
-                                       f"Запрос на ваш заказ <b>{callback.data[16:]}</b>\n"
+                performer = await performers_get.performer_select(message.from_user.id)
+                await bot.send_message(order_loading.user_id,
+                                       f"Запрос на ваш заказ <b>{order_loading.order_id}</b>\n"
                                        f"Тип заказа - <b>Погрузка/Разгрузка</b>\n"
                                        f"Имя - <b>{performer.first_name}\n</b>"
                                        f"Рейтинг - <b>{performer.performer_rating}\n</b>"
                                        f"Взял заказов - <b>{performer.get_orders}\n</b>"
-                                       f"Отменил заказов - <b>{performer.canceled_orders}</b>",
+                                       f"Отменил заказов - <b>{performer.canceled_orders}\n</b>"
+                                       f"Комментарий Грузчика: \n"
+                                       f"{message.text}",
                                        reply_markup=markup_customer.inline_approve_loading_proposal(
-                                           callback.from_user.id))
-        else:
-            performer = await performers_get.performer_select(callback.from_user.id)
-            await bot.send_message(callback.message.text.split()[4],
-                                   f"Запрос на ваш заказ <b>{callback.data[16:]}</b>\n"
-                                   f"Тип заказа - <b>Погрузка/Разгрузка</b>\n"
-                                   f"Имя - <b>{performer.first_name}\n</b>"
-                                   f"Рейтинг - <b>{performer.performer_rating}\n</b>"
-                                   f"Взял заказов - <b>{performer.get_orders}\n</b>"
-                                   f"Отменил заказов - <b>{performer.canceled_orders}</b>",
-                                   reply_markup=markup_customer.inline_approve_loading_proposal(callback.from_user.id))
+                                           message.from_user.id))
+            await performer_states.PerformerStart.performer_menu.set()
+            await bot.send_message(message.from_user.id,
+                                   "Запрос отправлен!\n"
+                                   "Возвращаем вас в Главное меню",
+                                   reply_markup=markup_performer.main_menu())
 
     @staticmethod
     async def loading_request_decline(callback: types.CallbackQuery):

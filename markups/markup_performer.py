@@ -6,6 +6,12 @@ from settings.config import KEYBOARD
 markup_clean = ReplyKeyboardRemove()
 
 
+def back():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    return keyboard
+
+
 def inline_approve():
     approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Запросить',
