@@ -2821,6 +2821,9 @@ class CustomerDetailsTasksChange:
                                    "<b>Вы заблокировали заказ!</b>")
             await bot.send_message(user.user_id,
                                    f"По этому заказу <b>{order_id}</b> уже набраны все Грузчики!")
+        if user.user_id in order_loading.persons_list:
+            await bot.send_message(callback.from_user.id,
+                                   "<b>Вы уже пригласили этого Грузчика!</b>")
         else:
             await customers_set.customer_loading_set_count_person(order_id, user.user_id)
             order_loading = await customers_get.customer_view_order(order_id)
