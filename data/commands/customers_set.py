@@ -4,7 +4,6 @@ from data.models.customers import Customers
 from data.models.orders import Orders, OrdersStatus, Reviews, OrdersLoading
 from data.commands import customers_get, performers_get
 
-
 logger = logging.getLogger("bot.data.commands.customer_set_db")
 
 """Функции добавления/обновления БД для Заказчика"""
@@ -145,3 +144,10 @@ async def customer_loading_set_count_person(order_id, user_id):
     res.append(user_id)
     await order_loading.update(count_person=int(order_loading.count_person) + 1,
                                persons_list=res).apply()
+
+
+async def customer_delete_loader(user_id, order_id):
+    """Заказчик удаляет Грузчика из своего заказа"""
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    await order_loading.update(count_person=order_loading.count_person - 1,
+                               persons_list=[i for i in order_loading.persons_list if int(user_id) != i]).apply()

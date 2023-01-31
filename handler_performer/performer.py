@@ -655,6 +655,8 @@ class PerformerTasks:
                                            f"Нужно грузчиков - <b>{i.person}</b>\n"
                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                            f"Уже грузчиков - <b>{i.count_person}</b>\n"
+                                           f"{config.KEYBOARD.get('STOPWATCH')} "
+                                           f"Начало работы - <b>{i.start_time}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{i.description}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
@@ -971,13 +973,27 @@ class PerformerTasks:
     async def loading_request(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         order_loading = await performers_get.performer_check_loading_order(callback.data[16:])
-        if callback.from_user.id in order_loading.persons_list:
-            await bot.send_message(callback.from_user.id,
-                                   "Вы уже подавали Запрос на этот заказ")
+        # ЗДЕСЬ НАДО СДЕЛАТЬ ЗАПРОС С КОММЕНТАРИЕМ!
+        if order_loading.persons_list:
+            if callback.from_user.id in order_loading.persons_list:
+                await bot.send_message(callback.from_user.id,
+                                       "Вы уже подавали Запрос на этот заказ")
+            else:
+                performer = await performers_get.performer_select(callback.from_user.id)
+                await bot.send_message(callback.message.text.split()[4],
+                                       f"Запрос на ваш заказ <b>{callback.data[16:]}</b>\n"
+                                       f"Тип заказа - <b>Погрузка/Разгрузка</b>\n"
+                                       f"Имя - <b>{performer.first_name}\n</b>"
+                                       f"Рейтинг - <b>{performer.performer_rating}\n</b>"
+                                       f"Взял заказов - <b>{performer.get_orders}\n</b>"
+                                       f"Отменил заказов - <b>{performer.canceled_orders}</b>",
+                                       reply_markup=markup_customer.inline_approve_loading_proposal(
+                                           callback.from_user.id))
         else:
             performer = await performers_get.performer_select(callback.from_user.id)
             await bot.send_message(callback.message.text.split()[4],
                                    f"Запрос на ваш заказ <b>{callback.data[16:]}</b>\n"
+                                   f"Тип заказа - <b>Погрузка/Разгрузка</b>\n"
                                    f"Имя - <b>{performer.first_name}\n</b>"
                                    f"Рейтинг - <b>{performer.performer_rating}\n</b>"
                                    f"Взял заказов - <b>{performer.get_orders}\n</b>"

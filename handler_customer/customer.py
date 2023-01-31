@@ -227,6 +227,8 @@ class CustomerMain:
                                            f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                            f"Сколько Грузчиков - <b>{i.person}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Уже Грузчиков - <b>{i.count_person}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{i.description}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
@@ -372,6 +374,8 @@ class CustomerMain:
                                        f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                        f"Сколько Грузчиков - <b>{i.person}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Уже Грузчиков - <b>{i.count_person}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{i.description}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -2094,14 +2098,9 @@ class CustomerDetailsTasks:
                                                    reply_markup=markup_customer.details_task_not_at_work())
                         if loading == 1:
                             await customer_states.CustomerDetailsTasks.loading.set()
-                            if int(i.person) - int(i.count_person) == 0:
-                                await bot.send_message(message.from_user.id,
-                                                       "Вы вошли в заказ с типом Погрузка/Разгрузка",
-                                                       reply_markup=markup_customer.details_task_loading_at_work())
-                            else:
-                                await bot.send_message(message.from_user.id,
-                                                       "Вы вошли в заказ с типом Погрузка/Разгрузка",
-                                                       reply_markup=markup_customer.details_task_loading())
+                            await bot.send_message(message.from_user.id,
+                                                   "Вы вошли в заказ с типом Погрузка/Разгрузка",
+                                                   reply_markup=markup_customer.details_task_loading())
 
     @staticmethod
     async def detail_task(message: types.Message, state: FSMContext):
@@ -2185,7 +2184,7 @@ class CustomerDetailsTasks:
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
                                        f"Профиль <b>Исполнителя</b>:\n"
                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                       f"ID : <b>{res_performer.user_id}</b>\n"
+                                       f"ID: <b>{res_performer.user_id}</b>\n"
                                        f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
                                        f"Никнейм <b>@{res_performer.username}</b>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
@@ -2271,7 +2270,7 @@ class CustomerDetailsTasks:
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
                                            f"Профиль <b>Исполнителя</b>:\n"
                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                           f"ID : <b>{i.user_id}</b>\n"
+                                           f"ID: <b>{i.user_id}</b>\n"
                                            f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
                                            f"Никнейм <b>@{i.username}</b>\n"
                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
@@ -2372,6 +2371,30 @@ class CustomerDetailsTasks:
     async def no_change_order_not_at_work(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
 
+    @staticmethod
+    async def dismiss_loader(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        user_id = callback.message.text.split()[5]
+        await bot.send_message(callback.from_user.id,
+                               "Вы действительно хотите уволить этого Грузчика ?",
+                               reply_markup=markup_customer.inline_delete_loader_approve(user_id))
+
+    @staticmethod
+    async def dismiss_loader_approve(callback: types.CallbackQuery, state: FSMContext):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        user_id = callback.data[22:]
+        async with state.proxy() as data:
+            order_id = data.get("order_id")
+            await customers_set.customer_delete_loader(user_id, order_id)
+        await bot.send_message(callback.from_user.id,
+                               "Грузчик был уволен!")
+        await bot.send_message(user_id,
+                               f"{config.KEYBOARD.get('CROSS_MARK') * 10}\n"
+                               f"<b>ВНИМАНИЕ!</b>\n"
+                               f"<b>Вы были уволены из Заказа Погрузки/Разгрузки</b>\n"
+                               f"<b>ID заказа - {order_id}</b>\n"
+                               f"{config.KEYBOARD.get('CROSS_MARK') * 10}")
+
 
 class CustomerDetailsTasksChange:
     @staticmethod
@@ -2444,6 +2467,14 @@ class CustomerDetailsTasksChange:
                                    reply_markup=markup_customer.markup_clean)
             await bot.send_message(message.from_user.id,
                                    f"Введите чтобы поменять Цену заказа",
+                                   reply_markup=markup_customer.back())
+            await customer_states.CustomerChangeOrder.change_money.set()
+        if "Цена за 1 час" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   f'Цена заказа сейчас за 1 час - "{order.price}"',
+                                   reply_markup=markup_customer.markup_clean)
+            await bot.send_message(message.from_user.id,
+                                   f"Введите чтобы поменять Цену заказа за 1 час",
                                    reply_markup=markup_customer.back())
             await customer_states.CustomerChangeOrder.change_money.set()
         if "Разблокировать заказ / Назад" in message.text:
@@ -2803,11 +2834,17 @@ class CustomerDetailsTasksChange:
                                        f"Вам осталось найти - "
                                        f"<b>{int(order_loading.person) - int(order_loading.count_person)}</b> "
                                        f"Грузчик/Грузчика")
+            tel = await customers_get.customer_select(callback.from_user.id)
             await bot.send_message(callback.from_user.id,
                                    f"Данные вашего Грузчика\n"
                                    f"Username - <b>@{user.username}</b>\n"
                                    f"Телефон - <b>{user.telephone}</b>\n"
                                    f"Имя - <b>{user.first_name}</b>")
+            await bot.send_message(user.user_id,
+                                   "Вас взяли на заказ Грузчиком\n"
+                                   f"Ваш Заказчик - <b>{callback.from_user.first_name}</b>\n"
+                                   f"Написать - <b>@{callback.from_user.username}</b>\n"
+                                   f"Позвонить - <b>{tel.telephone}</b>")
 
 
 class CustomerDetailsTasksStatus:

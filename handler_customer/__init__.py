@@ -169,6 +169,12 @@ def register_customer(disp: Dispatcher):
     disp.register_callback_query_handler(CustomerDetailsTasks.no_close_loading_order,
                                          text="loading_no_close",
                                          state=["*"])
+    disp.register_callback_query_handler(CustomerDetailsTasks.dismiss_loader,
+                                         text="delete_loader",
+                                         state=["*"])
+    disp.register_callback_query_handler(CustomerDetailsTasks.dismiss_loader_approve,
+                                         text_contains="delete_loader_approve_",
+                                         state=["*"])
 
     # def register_customer_details_tasks_change(disp: Dispatcher):
     disp.register_callback_query_handler(CustomerDetailsTasksChange.change_task_enter,

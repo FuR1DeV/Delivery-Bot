@@ -72,8 +72,7 @@ async def performer_checks_all_orders_with_category(user_id, performer_category,
 
 async def performer_check_loading_order(order_id):
     order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
-    if order_loading.persons_list:
-        return order_loading
+    return order_loading
 
 
 async def performer_check_order_rating(order_id, user_id):

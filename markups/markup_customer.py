@@ -130,9 +130,10 @@ def details_task_loading_at_work():
 
 def details_task_loading():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Нашли всех грузчиков",
-                 f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ")
-    keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков")
+    keyboard.row(f"{KEYBOARD.get('CLIPBOARD')} Детали заказа",
+                 f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков")
+    keyboard.row(f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ",
+                 f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Завершить заказ",)
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
@@ -344,6 +345,13 @@ def inline_delete_loader():
     return delete
 
 
+def inline_delete_loader_approve(user_id):
+    delete = InlineKeyboardMarkup()
+    delete.insert(InlineKeyboardButton(text="Да", callback_data=f"delete_loader_approve_{user_id}"))
+    delete.insert(InlineKeyboardButton(text="Нет", callback_data="no_change"))
+    return delete
+
+
 def inline_approve():
     approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Взять',
@@ -405,7 +413,7 @@ def details_task_change_loading():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('INFORMATION')} Описание",
                  f"{KEYBOARD.get('A_BUTTON')} Место работы")
-    keyboard.row(f"{KEYBOARD.get('DOLLAR')} Цену",
+    keyboard.row(f"{KEYBOARD.get('DOLLAR')} Цена за 1 час",
                  f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Количество грузчиков")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Разблокировать заказ / Назад")
     return keyboard
