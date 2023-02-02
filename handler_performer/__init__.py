@@ -22,6 +22,8 @@ def register_performer(disp: Dispatcher):
     disp.register_callback_query_handler(PerformerMain.choose_job,
                                          state=performer_states.PerformerStart.performer_menu,
                                          text_contains='p_day_finish_')
+    disp.register_message_handler(PerformerMain.orders,
+                                  state=performer_states.PerformerStart.orders)
 
     # def register_performer_profile(disp: Dispatcher):
     disp.register_message_handler(PerformerProfile.performer_profile,
@@ -86,6 +88,8 @@ def register_performer(disp: Dispatcher):
                                   state=performer_states.PerformerDetailsTasks.details_tasks)
     disp.register_message_handler(PerformerDetailsTasks.detail_task,
                                   state=performer_states.PerformerDetailsTasks.enter_task)
+    disp.register_message_handler(PerformerDetailsTasks.performer_details_loading,
+                                  state=performer_states.PerformerDetailsTasks.loading_tasks)
 
     # def register_performer_details_tasks_status(disp: Dispatcher):
     disp.register_message_handler(PerformerDetailsTasksStatus.details_status,

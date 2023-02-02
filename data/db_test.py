@@ -15,9 +15,10 @@ async def db_test():
     pass
     await db.set_bind(config.POSTGRES_URI)
 
-    order_loading = await OrdersLoading.query.where(OrdersLoading.persons_list == []).gino.all()
-    for i in order_loading:
-        print(i.order_id)
+    orders_loading = await OrdersLoading.query.where(OrdersLoading.order_end == None).gino.all()
+    res_orders = [i for i in orders_loading if 5761065854 in i.persons_list]
+    for i in res_orders:
+        print(i.persons_list)
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(db_test())

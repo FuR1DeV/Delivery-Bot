@@ -114,6 +114,24 @@ def get_order():
     return keyboard
 
 
+def performer_type_orders():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки {KEYBOARD.get('B_BUTTON')}",
+                 f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчика {KEYBOARD.get('ARROWS_BUTTON')}")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    return keyboard
+
+
+def details_task_loading():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row(f"{KEYBOARD.get('TELEPHONE')} Позвонить/написать заказчику",
+                 f"{KEYBOARD.get('CLIPBOARD')} Детали заказа")
+    keyboard.row(f"{KEYBOARD.get('EX_QUEST_MARK')} Список Грузчиков",
+                 f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Профиль заказчика")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    return keyboard
+
+
 def back_user_profile():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в Мой профиль")

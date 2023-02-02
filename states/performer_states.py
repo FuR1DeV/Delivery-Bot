@@ -14,6 +14,7 @@ class PerformerHistory(StatesGroup):
 class PerformerStart(StatesGroup):
     start: State = State()
     performer_menu: State = State()
+    orders: State = State()
 
 
 class PerformerProfile(StatesGroup):
@@ -27,6 +28,8 @@ class PerformerProfile(StatesGroup):
 class PerformerDetailsTasks(StatesGroup):
     details_tasks: State = State()
     enter_task: State = State()
+    loading_tasks: State = State()
+    enter_loading_task: State = State()
 
 
 class PerformerCompetedTasks(StatesGroup):

@@ -127,6 +127,34 @@ class PerformerMain:
                                        "Выберите тип Заказа",
                                        reply_markup=markup_performer.approve(performer.auto_send))
         if "Задачи в работе" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   "Выберите тип заказа",
+                                   reply_markup=markup_performer.performer_type_orders())
+            await performer_states.PerformerStart.orders.set()
+        if "Выполненные Задачи" in message.text:
+            res = await performers_get.performer_all_completed_orders(message.from_user.id)
+            if res:
+                finished_orders = InlineKeyboardMarkup()
+                year = []
+                for i in res:
+                    year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
+                res_years = Counter(year)
+                for k, v in res_years.items():
+                    finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
+                                                                callback_data=f"p_year_finish_{k}"))
+                await bot.send_message(message.from_user.id,
+                                       "Выберите год\n"
+                                       "В скобках указано количество завершенных заказов",
+                                       reply_markup=finished_orders)
+                await performer_states.PerformerStart.performer_menu.set()
+            else:
+                await performer_states.PerformerStart.performer_menu.set()
+                await bot.send_message(message.from_user.id,
+                                       "У вас еще нет завершенных заказов!")
+
+    @staticmethod
+    async def orders(message: types.Message):
+        if "Заказы Доставки" in message.text:
             res = await performers_get.performer_view_list_orders(message.from_user.id)
             if res:
                 await performer_states.PerformerDetailsTasks.details_tasks.set()
@@ -192,26 +220,59 @@ class PerformerMain:
             else:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id, "У вас еще нет взятых заказов")
-        if "Выполненные Задачи" in message.text:
-            res = await performers_get.performer_all_completed_orders(message.from_user.id)
-            if res:
-                finished_orders = InlineKeyboardMarkup()
-                year = []
-                for i in res:
-                    year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
-                res_years = Counter(year)
-                for k, v in res_years.items():
-                    finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
-                                                                callback_data=f"p_year_finish_{k}"))
+        if "Заказы Грузчика" in message.text:
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            if orders_loading:
+                keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                for i in orders_loading:
+                    if i.image != "No Photo":
+                        await bot.send_photo(message.from_user.id, i.image)
+                    if i.video != "No Video":
+                        await bot.send_video(message.from_user.id, i.video)
+                    loaders = [await performers_get.performer_select(v) for v in i.persons_list]
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"<b>Детали заказа для Грузчиков</b>\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Сколько Грузчиков - <b>{i.person}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Уже Грузчиков - <b>{i.count_person}</b>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{i.description}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена за 1 час - <b>{i.price}</b>\n"
+                                           f"{config.KEYBOARD.get('STOPWATCH')} "
+                                           f"Начало работ: <b>{i.start_time}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID заказа - <b>{i.order_id}</b>\n"
+                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                           f"Заказ создан: <b>{i.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                           f"Действует до: <b>{i.order_expired}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Грузчики: {' | '.join([k.username for k in loaders])}\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} "
+                                           f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
+                    keyboard.add(f"{config.KEYBOARD.get('ARROWS_BUTTON')} {i.order_id} "
+                                 f"{config.KEYBOARD.get('ARROWS_BUTTON')}")
+                keyboard.add(f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
                 await bot.send_message(message.from_user.id,
-                                       "Выберите год\n"
-                                       "В скобках указано количество завершенных заказов",
-                                       reply_markup=finished_orders)
-                await performer_states.PerformerStart.performer_menu.set()
+                                       "Выберите ID задачи чтобы войти в детали заказа",
+                                       reply_markup=keyboard)
+                await performer_states.PerformerDetailsTasks.loading_tasks.set()
             else:
-                await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "У вас еще нет завершенных заказов!")
+                                       "У вас нет взятых заказов для Грузчиков")
+        if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_performer.main_menu())
+            await performer_states.PerformerStart.performer_menu.set()
 
     @staticmethod
     async def choose_month(callback: types.CallbackQuery, state: FSMContext):
@@ -1056,6 +1117,28 @@ class PerformerDetailsTasks:
                         pass
             except TypeError:
                 pass
+
+    @staticmethod
+    async def performer_details_loading(message: types.Message, state: FSMContext):
+        if "Назад" in message.text:
+            await performer_states.PerformerStart.orders.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_performer.performer_type_orders())
+        else:
+            try:
+                """Когда пользователь нажимает кнопку заказа (order_id) здесь мы сохраняем order_id в памяти
+                а потом проверяем взял ли этот заказ Исполнитель"""
+                async with state.proxy() as data:
+                    order_id = message.text.split()[1]
+                    data["order_id"] = await performers_get.performer_check_order_loading(order_id)
+                await bot.send_message(message.from_user.id,
+                                       "Вы вошли в детали Заказа",
+                                       reply_markup=markup_performer.details_task_loading())
+                await performer_states.PerformerDetailsTasks.enter_loading_task.set()
+            except IndexError:
+                await bot.send_message(message.from_user.id,
+                                       "Откройте клавиатуру и нажмите на ID вашего заказа")
 
     @staticmethod
     async def detail_task(message: types.Message, state: FSMContext):

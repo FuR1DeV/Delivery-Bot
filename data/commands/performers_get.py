@@ -57,6 +57,11 @@ async def performer_checks_all_orders_loading(user_id):
     return orders
 
 
+async def performer_check_order_loading(order_id):
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    return order_loading
+
+
 async def performer_checks_all_orders_with_category(user_id, performer_category, category_delivery):
     """Исполнитель смотрит все заказы с определенной категорией"""
     orders = await Orders.query.where(and_(Orders.in_work == 0,
@@ -73,6 +78,12 @@ async def performer_checks_all_orders_with_category(user_id, performer_category,
 async def performer_check_loading_order(order_id):
     order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
     return order_loading
+
+
+async def performer_loader_order(user_id):
+    orders_loading = await OrdersLoading.query.where(OrdersLoading.order_end == None).gino.all()
+    res_orders = [i for i in orders_loading if user_id in i.persons_list]
+    return res_orders
 
 
 async def performer_check_order_rating(order_id, user_id):
