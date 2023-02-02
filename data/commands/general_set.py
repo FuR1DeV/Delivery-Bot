@@ -3,7 +3,7 @@ from datetime import datetime
 
 from data.models.performers import Performers
 from data.models.admins import Payment, PrivateChat
-from data.models.orders import Orders, Reviews, OrdersStatus, Commission, CommissionPromo
+from data.models.orders import Orders, Reviews, OrdersStatus, Commission, CommissionPromo, OrdersLoading
 from data.commands import performers_get, general_get
 
 logger = logging.getLogger("bot.data.commands.general_set_db")
@@ -122,6 +122,12 @@ async def delete_order_expired(order_id):
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
     logger.info(f'Система удаляет заказ {order_id}. Время заказа истекло')
     await order.delete()
+
+
+async def delete_order_loading_expired(order_id):
+    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    logger.info(f'Система удаляет заказ {order_id}. Время заказа истекло')
+    await order_loading.delete()
 
 
 async def private_chat_delete_user(user_id):

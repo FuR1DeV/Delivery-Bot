@@ -118,10 +118,15 @@ async def join_request(message: types.ChatJoinRequest):
 
 async def db_checker_orders_expired():
     orders = await general_get.check_orders_expired()
+    orders_loading = await general_get.check_orders_loading_expired()
     for i in orders:
         limitation = str(datetime.now() - datetime.strptime(i.order_expired, '%d-%m-%Y, %H:%M:%S'))[:1]
         if limitation != "-":
             await general_set.delete_order_expired(i.order_id)
+    for i in orders_loading:
+        limitation = str(datetime.now() - datetime.strptime(i.order_expired, '%d-%m-%Y, %H:%M:%S'))[:1]
+        if limitation != "-":
+            await general_set.delete_order_loading_expired(i.order_id)
 
 
 async def db_checker_orders_status():

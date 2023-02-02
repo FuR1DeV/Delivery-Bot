@@ -15,8 +15,9 @@ async def db_test():
     pass
     await db.set_bind(config.POSTGRES_URI)
 
-    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == "01_26_96697").gino.first()
-    print(order_loading.persons_list)
+    order_loading = await OrdersLoading.query.where(OrdersLoading.persons_list == []).gino.all()
+    for i in order_loading:
+        print(i.order_id)
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(db_test())
