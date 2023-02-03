@@ -148,6 +148,7 @@ def rating():
     rating_ = types.ReplyKeyboardMarkup(resize_keyboard=True)
     rating_.row("5", "4")
     rating_.row("3", "2", "1")
+    rating_.row("Пропустить")
     return rating_
 
 

@@ -1541,18 +1541,25 @@ class PerformerDetailsTasksStatus:
 
     @staticmethod
     async def rating(message: types.Message, state: FSMContext):
-        rate = ['1', '2', '3', '4', '5']
+        rate = ['1', '2', '3', '4', '5', 'Пропустить']
         if message.text in rate:
-            async with state.proxy() as data:
-                await performers_set.performer_set_rating_to_customer(data.get("user_id"),
-                                                                      message.text)
-                await performers_set.performer_set_rating_to_customer_in_review_db(data.get("order_id"), message.text)
-            await bot.send_message(message.from_user.id,
-                                   f"Вы поставили оценку Заказчику - <b>{message.text}</b>\n"
-                                   f"Спасибо за оценку!"
-                                   f"Вы можете оставить отзыв, или войти в детали заказа",
-                                   reply_markup=markup_performer.details_task_status_review())
-            await performer_states.PerformerDetailsTasksStatus.review.set()
+            if message.text == "Пропустить":
+                await bot.send_message(message.from_user.id,
+                                       f"Вы не поставили оценку Заказчику\n"
+                                       f"Вы можете оставить отзыв, или войти в детали заказа",
+                                       reply_markup=markup_performer.details_task_status_review())
+                await performer_states.PerformerDetailsTasksStatus.review.set()
+            else:
+                async with state.proxy() as data:
+                    await performers_set.performer_set_rating_to_customer(data.get("user_id"),
+                                                                          message.text)
+                    await performers_set.performer_set_rating_to_customer_in_review_db(data.get("order_id"), message.text)
+                await bot.send_message(message.from_user.id,
+                                       f"Вы поставили оценку Заказчику - <b>{message.text}</b>\n"
+                                       f"Спасибо за оценку!\n"
+                                       f"Вы можете оставить отзыв, или войти в детали заказа",
+                                       reply_markup=markup_performer.details_task_status_review())
+                await performer_states.PerformerDetailsTasksStatus.review.set()
         else:
             await bot.send_message(message.from_user.id, "Надо поставить оценку 1,2,3,4,5")
 
