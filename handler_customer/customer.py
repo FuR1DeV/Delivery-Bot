@@ -1,4 +1,5 @@
 import logging
+import calendar
 from collections import Counter
 from random import randint
 from datetime import datetime, timedelta
@@ -416,7 +417,7 @@ class CustomerMain:
         finished_orders = InlineKeyboardMarkup()
         months = []
         for i in res:
-            months.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').month)
+            months.append(calendar.month_name[datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').month])
         res_months = Counter(months)
         for k, v in res_months.items():
             finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
@@ -430,7 +431,11 @@ class CustomerMain:
     async def choose_day(callback: types.CallbackQuery, state: FSMContext):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         month = callback.data[13:]
-        if len(month) == 1:
+        months = {month: index for index, month in enumerate(calendar.month_name) if month}
+        for k, v in months.items():
+            if k == month:
+                month = v
+        if len(str(month)) == 1:
             month = f"0{month}"
         async with state.proxy() as data:
             data["month"] = month
@@ -3007,7 +3012,8 @@ class CustomerDetailsTasksStatus:
             else:
                 async with state.proxy() as data:
                     await customers_set.customer_set_rating_to_performer(data.get("user_id"), message.text)
-                    await customers_set.customer_set_rating_to_performer_in_review_db(data.get("order_id"), message.text)
+                    await customers_set.customer_set_rating_to_performer_in_review_db(data.get("order_id"),
+                                                                                      message.text)
                 await bot.send_message(message.from_user.id,
                                        f"Вы поставили оценку Исполнителю - <b>{message.text}</b>\n"
                                        f"Спасибо за оценку!\n"

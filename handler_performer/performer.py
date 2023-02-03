@@ -1,3 +1,4 @@
+import calendar
 import logging
 from collections import Counter
 from datetime import datetime, timedelta
@@ -281,7 +282,7 @@ class PerformerMain:
         finished_orders = InlineKeyboardMarkup()
         months = []
         for i in res:
-            months.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').month)
+            months.append(calendar.month_name[datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').month])
         res_months = Counter(months)
         for k, v in res_months.items():
             finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
@@ -294,7 +295,11 @@ class PerformerMain:
     async def choose_day(callback: types.CallbackQuery, state: FSMContext):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         month = callback.data[15:]
-        if len(month) == 1:
+        months = {month: index for index, month in enumerate(calendar.month_name) if month}
+        for k, v in months.items():
+            if k == month:
+                month = v
+        if len(str(month)) == 1:
             month = f"0{month}"
         async with state.proxy() as data:
             data["month"] = month
@@ -1553,7 +1558,8 @@ class PerformerDetailsTasksStatus:
                 async with state.proxy() as data:
                     await performers_set.performer_set_rating_to_customer(data.get("user_id"),
                                                                           message.text)
-                    await performers_set.performer_set_rating_to_customer_in_review_db(data.get("order_id"), message.text)
+                    await performers_set.performer_set_rating_to_customer_in_review_db(data.get("order_id"),
+                                                                                       message.text)
                 await bot.send_message(message.from_user.id,
                                        f"Вы поставили оценку Заказчику - <b>{message.text}</b>\n"
                                        f"Спасибо за оценку!\n"
@@ -1713,7 +1719,7 @@ class PerformerHistory:
         if "Написать Заказчику" in message.text:
             await bot.send_message(message.from_user.id,
                                    f"Напишите через телеграмм вот его никнейм @{customer_res.username}")
-        if "Посмотреть детали заказа" in message.text:
+        if "Детали заказа" in message.text:
             await performer_states.PerformerHistory.order_history_details.set()
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"

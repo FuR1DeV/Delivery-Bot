@@ -252,16 +252,16 @@ def details_task_history():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('TELEPHONE')} Позвонить Заказчику",
                  f"{KEYBOARD.get('PENCIL')} Написать Заказчику")
-    keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Профиль Заказчика")
-    keyboard.row(f"{KEYBOARD.get('CLIPBOARD')} Посмотреть детали заказа")
+    keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Профиль Заказчика",
+                 f"{KEYBOARD.get('CLIPBOARD')} Детали заказа")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
     return keyboard
 
 
 def details_task_history_details_order():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"Посмотреть фото")
-    keyboard.row(f"Посмотреть видео")
+    keyboard.row(f"Посмотреть фото",
+                 f"Посмотреть видео")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад в детали заказа")
     return keyboard
 
