@@ -3145,7 +3145,7 @@ class CustomerHistory:
         if "Написать исполнителю" in message.text:
             await bot.send_message(message.from_user.id,
                                    f"Напишите через телеграмм вот его никнейм @{performer_res.username}")
-        if "Посмотреть детали заказа" in message.text:
+        if "Детали заказа" in message.text:
             category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
                         f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
                         f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
