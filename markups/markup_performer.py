@@ -126,9 +126,9 @@ def details_task_loading():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('TELEPHONE')} Позвонить/написать заказчику",
                  f"{KEYBOARD.get('CLIPBOARD')} Детали заказа")
-    keyboard.row(f"{KEYBOARD.get('EX_QUEST_MARK')} Список Грузчиков",
+    keyboard.row(f"{KEYBOARD.get('BUSTS_IN_SILHOUETTE')} Список Грузчиков",
                  f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Профиль заказчика")
-    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 

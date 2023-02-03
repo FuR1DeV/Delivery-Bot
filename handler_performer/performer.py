@@ -207,8 +207,6 @@ class PerformerMain:
                                            f"ID заказа - <b>{i.order_id}</b>\n"
                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                            f"Заказ создан: <b>{i.order_create}</b>\n"
-                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                           f"Действует до: <b>{i.order_expired}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
                                            disable_web_page_preview=True)
                     keyboard.add(f"{icon} {i.order_id} {icon}")
@@ -250,8 +248,6 @@ class PerformerMain:
                                            f"ID заказа - <b>{i.order_id}</b>\n"
                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                            f"Заказ создан: <b>{i.order_create}</b>\n"
-                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                           f"Действует до: <b>{i.order_expired}</b>\n"
                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                            f"Грузчики: {' | '.join([k.username for k in loaders])}\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
@@ -726,8 +722,6 @@ class PerformerTasks:
                                            f"ID заказа - <b>{i.order_id}</b>\n"
                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                            f"Заказ создан: <b>{i.order_create}</b>\n"
-                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                           f"Действует до: <b>{i.order_expired}</b>\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
@@ -836,8 +830,6 @@ class PerformerTasks:
                                    f"ID заказа - <b>{i.order_id}</b>\n"
                                    f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                    f"Заказ создан: <b>{i.order_create}</b>\n"
-                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                   f"Действует до: <b>{i.order_expired}</b>\n"
                                    f"{config.KEYBOARD.get('BAR_CHART')} "
                                    f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}\n",
@@ -895,8 +887,6 @@ class PerformerTasks:
                                    f"ID заказа - <b>{res.order_id}</b>\n"
                                    f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                    f"Заказ создан: <b>{res.order_create}</b>\n"
-                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                   f"Действует до: <b>{res.order_expired}</b>\n"
                                    f"{config.KEYBOARD.get('BAR_CHART')} "
                                    f"Рейтинг заказа | <b>{res.order_rating}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}\n",
@@ -1033,7 +1023,7 @@ class PerformerTasks:
     @staticmethod
     async def loading_request(callback: types.CallbackQuery, state: FSMContext):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        order_loading = await performers_get.performer_check_loading_order(callback.data[16:])
+        order_loading = await performers_get.performer_check_order_loading(callback.data[16:])
         async with state.proxy() as data:
             data["order_loading"] = order_loading
         if order_loading.persons_list:
@@ -1131,7 +1121,8 @@ class PerformerDetailsTasks:
                 а потом проверяем взял ли этот заказ Исполнитель"""
                 async with state.proxy() as data:
                     order_id = message.text.split()[1]
-                    data["order_id"] = await performers_get.performer_check_order_loading(order_id)
+                    data["order_id"] = order_id
+                    data["order"] = await performers_get.performer_check_order_loading(order_id)
                 await bot.send_message(message.from_user.id,
                                        "Вы вошли в детали Заказа",
                                        reply_markup=markup_performer.details_task_loading())
@@ -1139,6 +1130,125 @@ class PerformerDetailsTasks:
             except IndexError:
                 await bot.send_message(message.from_user.id,
                                        "Откройте клавиатуру и нажмите на ID вашего заказа")
+
+    @staticmethod
+    async def performer_details_loading_enter(message: types.Message, state: FSMContext):
+        async with state.proxy() as data:
+            order_id = data.get("order_id")
+            customer = await customers_get.customer_select(data.get("order").user_id)
+        if message.text == f"{config.KEYBOARD.get('TELEPHONE')} Позвонить/написать заказчику":
+            order = await performers_get.performer_check_order_loading_relevance(message.from_user.id, order_id)
+            if order is None:
+                await performer_states.PerformerStart.performer_menu.set()
+                await bot.send_message(message.from_user.id,
+                                       "Вы вернулись в главное меню",
+                                       reply_markup=markup_performer.main_menu())
+            else:
+                await bot.send_message(message.from_user.id,
+                                       f"Вот его номер телефона {customer.telephone}\n"
+                                       f"Или напишите ему в телеграм @{customer.username}")
+        if message.text == f"{config.KEYBOARD.get('CLIPBOARD')} Детали заказа":
+            order = await performers_get.performer_check_order_loading_relevance(message.from_user.id, order_id)
+            if order is None:
+                await performer_states.PerformerStart.performer_menu.set()
+                await bot.send_message(message.from_user.id,
+                                       "Вы вернулись в главное меню",
+                                       reply_markup=markup_performer.main_menu())
+            else:
+                if order.image != "No Photo":
+                    await bot.send_photo(message.from_user.id, order.image)
+                if order.video != "No Video":
+                    await bot.send_video(message.from_user.id, order.video)
+                loaders = [await performers_get.performer_select(v) for v in order.persons_list]
+                await bot.send_message(message.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"<b>Детали заказа для Грузчиков</b>\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(order.geo_position.split())}'>{order.geo_position}</a>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Сколько Грузчиков - <b>{order.person}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Уже Грузчиков - <b>{order.count_person}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{order.description}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена за 1 час - <b>{order.price}</b>\n"
+                                       f"{config.KEYBOARD.get('STOPWATCH')} "
+                                       f"Начало работ: <b>{order.start_time}</b>\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"ID заказа - <b>{order.order_id}</b>\n"
+                                       f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                       f"Заказ создан: <b>{order.order_create}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Грузчики: {' | '.join([k.username for k in loaders])}\n"
+                                       f"{config.KEYBOARD.get('BAR_CHART')} "
+                                       f"Рейтинг заказа | <b>{order.order_rating}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                       disable_web_page_preview=True)
+        if message.text == f"{config.KEYBOARD.get('BUSTS_IN_SILHOUETTE')} Список Грузчиков":
+            order = await performers_get.performer_check_order_loading_relevance(message.from_user.id, order_id)
+            if order is None:
+                await performer_states.PerformerStart.performer_menu.set()
+                await bot.send_message(message.from_user.id,
+                                       "Вы вернулись в главное меню",
+                                       reply_markup=markup_performer.main_menu())
+            else:
+                loaders = [await performers_get.performer_select(v) for v in order.persons_list]
+                for i in loaders:
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"Профиль <b>Исполнителя</b>:\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID: <b>{i.user_id}</b>\n"
+                                           f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+                                           f"Никнейм <b>@{i.username}</b>\n"
+                                           f"{config.KEYBOARD.get('TELEPHONE')} "
+                                           f"Номер <b>{i.telephone}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Имя <b>{i.first_name}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Фамилия <b>{i.last_name}</b>\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} "
+                                           f"Рейтинг <b>{i.performer_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                           f"Заказов взял - <b>{i.get_orders}</b>\n"
+                                           f"{config.KEYBOARD.get('CROSS_MARK')} "
+                                           f"Заказов отменил - <b>{i.canceled_orders}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}")
+        if message.text == f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} Профиль заказчика":
+            order = await performers_get.performer_check_order_loading_relevance(message.from_user.id, order_id)
+            if order is None:
+                await performer_states.PerformerStart.performer_menu.set()
+                await bot.send_message(message.from_user.id,
+                                       "Вы вернулись в главное меню",
+                                       reply_markup=markup_performer.main_menu())
+            else:
+                await bot.send_message(message.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"Профиль <b>Заказчика</b>:\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"ID : <b>{customer.user_id}</b>\n"
+                                       f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+                                       f"Никнейм <b>@{customer.username}</b>\n"
+                                       f"{config.KEYBOARD.get('TELEPHONE')} "
+                                       f"Номер <b>{customer.telephone}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Имя <b>{customer.first_name}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Фамилия <b>{customer.last_name}</b>\n"
+                                       f"{config.KEYBOARD.get('BAR_CHART')} "
+                                       f"Рейтинг <b>{customer.customer_rating}</b>\n"
+                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                       f"Заказов создал - <b>{customer.create_orders}</b>\n"
+                                       f"{config.KEYBOARD.get('CROSS_MARK')} "
+                                       f"Заказов отменил - <b>{customer.canceled_orders}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}")
+        if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await performer_states.PerformerStart.orders.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_performer.performer_type_orders())
 
     @staticmethod
     async def detail_task(message: types.Message, state: FSMContext):
@@ -1193,8 +1303,6 @@ class PerformerDetailsTasks:
                                        f"Ценность этого товара - <b>{order.order_worth}</b>\n"
                                        f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                        f"Заказ создан: <b>{order.order_create}</b>\n"
-                                       f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                       f"Действует до: <b>{order.order_expired}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n",
                                        disable_web_page_preview=True)
         if "Статус заказа" in message.text:
@@ -1232,14 +1340,14 @@ class PerformerDetailsTasks:
                                        f"ID : <b>{customer.user_id}</b>\n"
                                        f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
                                        f"Никнейм <b>@{customer.username}</b>\n"
-                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"{config.KEYBOARD.get('TELEPHONE')} "
                                        f"Номер <b>{customer.telephone}</b>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                        f"Имя <b>{customer.first_name}</b>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                        f"Фамилия <b>{customer.last_name}</b>\n"
                                        f"{config.KEYBOARD.get('BAR_CHART')} "
-                                       f"Рейтинг <b>{str(customer.customer_rating)[0:5]}</b>\n"
+                                       f"Рейтинг <b>{customer.customer_rating}</b>\n"
                                        f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
                                        f"Заказов создал - <b>{customer.create_orders}</b>\n"
                                        f"{config.KEYBOARD.get('CROSS_MARK')} "
@@ -1631,7 +1739,7 @@ class PerformerHistory:
                                    f"ID : <b>{customer_res.user_id}</b>\n"
                                    f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
                                    f"Никнейм <b>@{customer_res.username}</b>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                   f"{config.KEYBOARD.get('TELEPHONE')} "
                                    f"Номер <b>{customer_res.telephone}</b>\n"
                                    f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                    f"Имя <b>{customer_res.first_name}</b>\n"

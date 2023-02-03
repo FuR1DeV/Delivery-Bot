@@ -90,6 +90,8 @@ def register_performer(disp: Dispatcher):
                                   state=performer_states.PerformerDetailsTasks.enter_task)
     disp.register_message_handler(PerformerDetailsTasks.performer_details_loading,
                                   state=performer_states.PerformerDetailsTasks.loading_tasks)
+    disp.register_message_handler(PerformerDetailsTasks.performer_details_loading_enter,
+                                  state=performer_states.PerformerDetailsTasks.enter_loading_task)
 
     # def register_performer_details_tasks_status(disp: Dispatcher):
     disp.register_message_handler(PerformerDetailsTasksStatus.details_status,
