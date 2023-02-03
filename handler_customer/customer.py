@@ -2337,12 +2337,19 @@ class CustomerDetailsTasks:
     async def close_loading_order(callback: types.CallbackQuery, state: FSMContext):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         async with state.proxy() as data:
+            order_loading = await customers_get.customer_view_order(data.get('order_id'))
             await customers_set.customer_close_order_loading(data.get('order_id'),
                                                              datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
         await customer_states.CustomerStart.customer_menu.set()
         await bot.send_message(callback.from_user.id,
                                "Заказ закрыт",
                                reply_markup=markup_customer.main_menu())
+        for i in order_loading[0].persons_list:
+            await bot.send_message(i,
+                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}\n"
+                                   f"<b>Заказ Погрузка/Разгрузка завершен!</b>\n"
+                                   f"ID: {order_loading[0].order_id}\n"
+                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}")
 
     @staticmethod
     async def no_close_loading_order(callback: types.CallbackQuery):
