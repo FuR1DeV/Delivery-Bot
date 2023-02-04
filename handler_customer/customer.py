@@ -2168,8 +2168,8 @@ class CustomerDetailsTasks:
                                        reply_markup=markup_customer.main_menu())
             else:
                 await bot.send_message(message.from_user.id,
-                                       "Вы вошли в статус заказа, тут вы можете отменить заказ, "
-                                       "Завершить заказ или проверить статус заказа для его закрытия",
+                                       "Вы вошли в статус заказа, тут вы можете завершить заказ "
+                                       "или проверить статус заказа для его закрытия",
                                        reply_markup=markup_customer.details_task_status())
                 await customer_states.CustomerDetailsTasksStatus.enter_status.set()
         if "Профиль исполнителя" in message.text:
@@ -2863,24 +2863,24 @@ class CustomerDetailsTasksChange:
 class CustomerDetailsTasksStatus:
     @staticmethod
     async def details_status(message: types.Message, state: FSMContext):
-        if "Отменить заказ" in message.text:
-            async with state.proxy() as data:
-                status = await general_get.check_details_status(data.get("order_id"))
-            if status is None:
-                await bot.send_message(message.from_user.id,
-                                       "Заказ закрыт",
-                                       reply_markup=markup_customer.main_menu())
-                await customer_states.CustomerStart.customer_menu.set()
-            if status:
-                if status.customer_status:
-                    await bot.send_message(message.from_user.id,
-                                           "Вы уже не сможете отменить заказ так как вы его завершили",
-                                           reply_markup=markup_customer.details_task_status())
-                    await customer_states.CustomerDetailsTasksStatus.enter_status.set()
-                else:
-                    await bot.send_message(message.from_user.id,
-                                           "Вы хотите отменить заказ ?",
-                                           reply_markup=markup_customer.inline_cancel_task())
+        # if "Отменить заказ" in message.text:
+        #     async with state.proxy() as data:
+        #         status = await general_get.check_details_status(data.get("order_id"))
+        #     if status is None:
+        #         await bot.send_message(message.from_user.id,
+        #                                "Заказ закрыт",
+        #                                reply_markup=markup_customer.main_menu())
+        #         await customer_states.CustomerStart.customer_menu.set()
+        #     if status:
+        #         if status.customer_status:
+        #             await bot.send_message(message.from_user.id,
+        #                                    "Вы уже не сможете отменить заказ так как вы его завершили",
+        #                                    reply_markup=markup_customer.details_task_status())
+        #             await customer_states.CustomerDetailsTasksStatus.enter_status.set()
+        #         else:
+        #             await bot.send_message(message.from_user.id,
+        #                                    "Вы хотите отменить заказ ?",
+        #                                    reply_markup=markup_customer.inline_cancel_task())
         if "Завершить заказ" in message.text:
             async with state.proxy() as data:
                 status = await general_get.check_details_status(data.get("order_id"))
