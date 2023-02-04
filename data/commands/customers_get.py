@@ -25,9 +25,25 @@ async def customer_view_order(order_id) -> tuple:
 
 
 async def customer_all_orders(user_id):
-    """Заказчик выгружает список всех своих заказов"""
+    """Заказчик выгружает список всех своих заказов в работе"""
     orders = await Orders.query.where(and_(Orders.user_id == user_id,
                                            Orders.completed == 0)).gino.all()
+    return orders
+
+
+async def customer_all_orders_in_work(user_id):
+    """Заказчик выгружает список всех своих заказов в работе"""
+    orders = await Orders.query.where(and_(Orders.user_id == user_id,
+                                           Orders.completed == 0,
+                                           Orders.in_work > 0)).gino.all()
+    return orders
+
+
+async def customer_all_orders_not_at_work(user_id):
+    """Заказчик выгружает список всех своих заказов в ожидании"""
+    orders = await Orders.query.where(and_(Orders.user_id == user_id,
+                                           Orders.completed == 0,
+                                           Orders.in_work == 0)).gino.all()
     return orders
 
 

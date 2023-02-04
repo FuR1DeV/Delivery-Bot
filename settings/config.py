@@ -40,6 +40,7 @@ KEYBOARD = {
     'PAGE_WITH_WITH_CURL': emojize(':page_with_curl:'),
     'ARROWS_BUTTON': emojize(':counterclockwise_arrows_button:'),
     'HAMMER_AND_PICK': emojize(':hammer_and_pick:'),
+    'RECYCLING_SYMBOL': emojize(':recycling_symbol:'),
     'SOS_BUTTON': emojize(':SOS_button:'),
     'MONEY_BAG': emojize(':money_bag:'),
     'OUTBOX_TRAY': emojize(':outbox_tray:'),

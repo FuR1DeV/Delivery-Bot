@@ -124,14 +124,71 @@ class CustomerMain:
 
     @staticmethod
     async def orders(message: types.Message):
+        category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
+                    f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
+                    f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
+                    f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
+                    f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
+                    f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
         if "Заказы Доставки" in message.text:
-            orders = await customers_get.customer_all_orders(message.from_user.id)
-            category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
-                        f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
-                        f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
-                        f"Документы": f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')}",
-                        f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
-                        f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
+            await bot.send_message(message.from_user.id,
+                                   "В ожидании или в работе ?",
+                                   reply_markup=markup_customer.orders_type_work())
+        if "Заказы Грузчики" in message.text:
+            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            if orders_loading:
+                keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                for i in orders_loading:
+                    if i.image:
+                        await bot.send_photo(message.from_user.id, i.image)
+                    if i.video:
+                        await bot.send_video(message.from_user.id, i.video)
+                    loaders = [await performers_get.performer_select(v) for v in i.persons_list]
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"<b>Детали заказа для Грузчиков</b>\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Сколько Грузчиков - <b>{i.person}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Уже Грузчиков - <b>{i.count_person}</b>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{i.description}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена за 1 час - <b>{i.price}</b>\n"
+                                           f"{config.KEYBOARD.get('STOPWATCH')} "
+                                           f"Начало работ: <b>{i.start_time}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID заказа - <b>{i.order_id}</b>\n"
+                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                           f"Заказ создан: <b>{i.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                           f"Действует до: <b>{i.order_expired}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Грузчики: {' | '.join([k.username for k in loaders])}\n"
+                                           f"{config.KEYBOARD.get('BAR_CHART')} "
+                                           f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True)
+                    keyboard.add(f"{KEYBOARD.get('ARROWS_BUTTON')} {i.order_id} {KEYBOARD.get('ARROWS_BUTTON')}")
+                keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+                refresh = InlineKeyboardMarkup()
+                r = InlineKeyboardButton(text="Обновить", callback_data="refresh_loading")
+                refresh.insert(r)
+                await bot.send_message(message.from_user.id,
+                                       "Нажмите обновить для обновление рейтинга",
+                                       reply_markup=refresh)
+                await bot.send_message(message.from_user.id,
+                                       "Выберите ID задачи чтобы войти в детали заказа",
+                                       reply_markup=keyboard)
+                await customer_states.CustomerDetailsTasks.my_tasks.set()
+            else:
+                await bot.send_message(message.from_user.id,
+                                       "У вас нет созданных заказов для Грузчиков")
+        if "В ожидании" in message.text:
+            orders = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
             if orders:
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 for i in orders:
@@ -209,60 +266,85 @@ class CustomerMain:
                 await customer_states.CustomerDetailsTasks.my_tasks.set()
             else:
                 await bot.send_message(message.from_user.id,
-                                       "У вас нет созданных заказов для Доставки")
-        if "Заказы Грузчики" in message.text:
-            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
-            if orders_loading:
+                                       "У вас нет созданных заказов в ожидании")
+        if "В работе" in message.text:
+            orders = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            if orders:
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                for i in orders_loading:
+                for i in orders:
+                    order_get = "Пока не взят"
+                    icon_category = None
+                    icon = None
+                    p_status = None
+                    for k, v in category.items():
+                        if i.category_delivery == k:
+                            icon_category = v
+                    if i.performer_category == "pedestrian":
+                        p_status = "Пешеход"
+                        icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                    if i.performer_category == "scooter":
+                        p_status = "На самокате"
+                        icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+                    if i.performer_category == "car":
+                        p_status = "На машине"
+                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
+                    elif i.performer_category == "any":
+                        p_status = "Любой"
+                        icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
+                               f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
+                               f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                    if i.order_get is not None:
+                        order_get = i.order_get
                     if i.image:
                         await bot.send_photo(message.from_user.id, i.image)
                     if i.video:
                         await bot.send_video(message.from_user.id, i.video)
-                    loaders = [await performers_get.performer_select(v) for v in i.persons_list]
                     await bot.send_message(message.from_user.id,
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                           f"<b>Детали заказа для Грузчиков</b>\n"
+                                           f"<b>Детали заказа</b>\n"
+                                           f"{icon_category} "
+                                           f"Категория - <b>{i.category_delivery}</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
                                            f"Откуда - <a href='https://yandex.ru/maps/?text="
-                                           f"{'+'.join(i.geo_position.split())}'>{i.geo_position}</a>\n"
-                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                           f"Сколько Грузчиков - <b>{i.person}</b>\n"
-                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                           f"Уже Грузчиков - <b>{i.count_person}</b>\n"
+                                           f"{'+'.join(i.geo_position_from.split())}'>{i.geo_position_from}</a>\n"
+                                           f"{config.KEYBOARD.get('B_BUTTON')} "
+                                           f"Куда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
+                                           f"{config.KEYBOARD.get('INFORMATION')} "
+                                           f"Название - <b>{i.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{i.description}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
-                                           f"Цена за 1 час - <b>{i.price}</b>\n"
-                                           f"{config.KEYBOARD.get('STOPWATCH')} "
-                                           f"Начало работ: <b>{i.start_time}</b>\n"
+                                           f"Цена - <b>{i.price}</b>\n"
+                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                           f"Ценность вашего товара - <b>{i.order_worth}</b>\n"
                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
                                            f"ID заказа - <b>{i.order_id}</b>\n"
+                                           f"{icon} "
+                                           f"Исполнитель - <b>{p_status}</b>\n"
                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                            f"Заказ создан: <b>{i.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                           f"Заказ взят: <b>{order_get}</b>\n"
                                            f"{config.KEYBOARD.get('RED_CIRCLE')} "
                                            f"Действует до: <b>{i.order_expired}</b>\n"
-                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                           f"Грузчики: {' | '.join([k.username for k in loaders])}\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
                                            disable_web_page_preview=True)
-                    keyboard.add(f"{KEYBOARD.get('ARROWS_BUTTON')} {i.order_id} {KEYBOARD.get('ARROWS_BUTTON')}")
+                    keyboard.add(f"{icon} {i.order_id} {icon_category}")
                 keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
-                refresh = InlineKeyboardMarkup()
-                r = InlineKeyboardButton(text="Обновить", callback_data="refresh_loading")
-                refresh.insert(r)
-                await bot.send_message(message.from_user.id,
-                                       "Нажмите обновить для обновление рейтинга",
-                                       reply_markup=refresh)
                 await bot.send_message(message.from_user.id,
                                        "Выберите ID задачи чтобы войти в детали заказа",
                                        reply_markup=keyboard)
                 await customer_states.CustomerDetailsTasks.my_tasks.set()
             else:
                 await bot.send_message(message.from_user.id,
-                                       "У вас нет созданных заказов для Грузчиков")
+                                       "У вас нет заказов в работе")
+        if "Назад" in message.text:
+            await bot.send_message(message.from_user.id,
+                                   "Выберите тип заказа",
+                                   reply_markup=markup_customer.customer_type_orders())
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню",
@@ -272,7 +354,7 @@ class CustomerMain:
     @staticmethod
     async def refresh(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        orders = await customers_get.customer_all_orders(callback.from_user.id)
+        orders = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
         category = {f"Цветы": f"{KEYBOARD.get('BOUQUET')}",
                     f"Подарки": f"{KEYBOARD.get('WRAPPED_GIFT')}",
                     f"Кондитерка": f"{KEYBOARD.get('SHORTCAKE')}",
@@ -2065,7 +2147,7 @@ class CustomerDetailsTasks:
         if "Назад" in message.text:
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись на шаг назад",
-                                   reply_markup=markup_customer.customer_type_orders())
+                                   reply_markup=markup_customer.orders_type_work())
             await customer_states.CustomerStart.orders.set()
         else:
             orders = None
@@ -2214,6 +2296,11 @@ class CustomerDetailsTasks:
                                        f"Заказов выполнил - <b>{res_performer.completed_orders}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}",
                                        )
+        if "Назад" in message.text:
+            await customer_states.CustomerStart.orders.set()
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_customer.orders_type_work())
         if "Вернуться в главное меню" in message.text:
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,

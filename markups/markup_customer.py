@@ -107,7 +107,8 @@ def details_task():
                  f"{KEYBOARD.get('CLIPBOARD')} Детали заказа")
     keyboard.row(f"{KEYBOARD.get('EX_QUEST_MARK')} Статус заказа",
                  f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Профиль исполнителя")
-    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад",
+                 f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
     return keyboard
 
 
@@ -416,6 +417,14 @@ def details_task_change_loading():
     keyboard.row(f"{KEYBOARD.get('DOLLAR')} Цена за 1 час",
                  f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Количество грузчиков")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Разблокировать заказ / Назад")
+    return keyboard
+
+
+def orders_type_work():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row(f"{KEYBOARD.get('HAMMER_AND_PICK')} В работе",
+                 f"{KEYBOARD.get('RECYCLING_SYMBOL')} В ожидании")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
