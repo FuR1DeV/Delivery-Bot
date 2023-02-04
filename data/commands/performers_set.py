@@ -28,11 +28,10 @@ async def performer_set_order(user_id, order_id, order_get):
     order = await general_get.order_select(order_id)
     """Добавляется +1 счётчик в get_orders"""
     performer = await performers_get.performer_select(user_id)
-    count_orders = performer.get_orders + 1
     """Исполнитель взяв заказ добавляет его в состоянии статуса"""
     orders_status = OrdersStatus(order_id=order_id)
     await order.update(in_work=user_id, order_get=order_get).apply()
-    await performer.update(get_orders=count_orders).apply()
+    await performer.update(get_orders=performer.get_orders + 1).apply()
     await orders_status.create()
 
 

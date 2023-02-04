@@ -947,21 +947,7 @@ class PerformerTasks:
 
     @staticmethod
     async def approve_order_with_new_price(callback: types.CallbackQuery):
-        res = callback.message.text.split()
-        order_id, customer_id, new_price = res[12], res[2], res[9]
-        await performers_set.performer_set_order(callback.from_user.id,
-                                                 order_id,
-                                                 datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
-        await performers_set.add_new_price(order_id, new_price)
-        await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(customer_id,
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 8}\n"
-                               f"Ваш заказ {order_id} взят Исполнителем {callback.from_user.id}\n"
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 8}\n")
-        await bot.send_message(callback.from_user.id,
-                               'Вы взяли задачу!',
-                               reply_markup=markup_performer.main_menu())
-        await performer_states.PerformerStart.performer_menu.set()
+        pass
 
     @staticmethod
     async def decline_order(callback: types.CallbackQuery):

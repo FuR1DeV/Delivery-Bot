@@ -576,18 +576,23 @@ class CustomerMain:
     @staticmethod
     async def proposal_from_performer_yes(callback: types.CallbackQuery):
         res = callback.message.text.split()
+        new_price, order_id, performer_id = res[4], res[11], res[7]
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(res[7],
                                f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
                                f"Заказчик <b>{callback.from_user.id}</b> "
                                f"одобрил ваше предложение о новой цене <b>{res[4]}</b>\n"
                                f"По заказу <b>{res[11]}</b>\n"
-                               f"Нажмите взять или откажитесь"
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}",
-                               reply_markup=markup_customer.inline_approve_proposal_with_new_price(res[4]))
+                               f"<b>Вы успешно взяли новый Заказ!</b>"
+                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}")
+        await performers_set.performer_set_order(int(performer_id),
+                                                 order_id,
+                                                 datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+        await performers_set.add_new_price(order_id, new_price)
         await bot.send_message(callback.from_user.id,
-                               f"Вы отправили согласия о новой цене <b>{res[4]}</b>, "
-                               f"для Исполнителя <b>{res[7]}</b> на ваш заказ <b>{res[11]}</b>")
+                               "Вы взяли Исполнителя!",
+                               reply_markup=markup_customer.main_menu())
+        await customer_states.CustomerStart.customer_menu.set()
 
     @staticmethod
     async def proposal_from_performer_no(callback: types.CallbackQuery):
