@@ -26,6 +26,17 @@ def inline_approve():
     return approve_
 
 
+def inline_order_request(order_id):
+    approve_ = InlineKeyboardMarkup()
+    get = InlineKeyboardButton(text='Запросить',
+                               callback_data=f'order_request_{order_id}')
+    price = InlineKeyboardButton(text='Предложить цену',
+                                 callback_data=f'order_proposal_{order_id}')
+    approve_.insert(get)
+    approve_.insert(price)
+    return approve_
+
+
 def inline_approve_loading(order_id):
     approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Запрос',
@@ -109,8 +120,7 @@ def main_menu():
 
 def get_order():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(f"{KEYBOARD.get('ID_BUTTON')} Ввести ID задачи")
-    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 

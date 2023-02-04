@@ -44,19 +44,19 @@ def register_performer(disp: Dispatcher):
     # def register_performer_tasks(disp: Dispatcher):
     disp.register_message_handler(PerformerTasks.check_all_orders,
                                   state=performer_states.PerformerTasks.check_all_orders)
-    disp.register_message_handler(PerformerTasks.get_order,
-                                  state=performer_states.PerformerTasks.get_order)
+    # disp.register_message_handler(PerformerTasks.get_order,
+    #                               state=performer_states.PerformerTasks.get_order)
     disp.register_callback_query_handler(PerformerTasks.order_request,
-                                         state=performer_states.PerformerTasks.approve_or_decline,
-                                         text='performer_request')
+                                         state=["*"],
+                                         text_contains='order_request_')
     disp.register_callback_query_handler(PerformerTasks.approve_order, state=["*"],
                                          text='performer_get')
-    disp.register_callback_query_handler(PerformerTasks.decline_order,
-                                         state=["*"],
-                                         text='performer_decline')
+    # disp.register_callback_query_handler(PerformerTasks.decline_order,
+    #                                      state=["*"],
+    #                                      text='performer_decline')
     disp.register_callback_query_handler(PerformerTasks.proposal,
-                                         state=performer_states.PerformerTasks.approve_or_decline,
-                                         text='performer_proposal')
+                                         state=["*"],
+                                         text_contains='order_proposal_')
     disp.register_message_handler(PerformerTasks.proposal_price,
                                   state=performer_states.PerformerTasks.proposal)
     disp.register_callback_query_handler(PerformerTasks.approve_order_with_new_price,

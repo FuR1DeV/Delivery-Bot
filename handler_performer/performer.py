@@ -825,7 +825,6 @@ class PerformerTasks:
             if i.video:
                 await bot.send_video(callback.from_user.id, i.video)
             await bot.send_message(callback.from_user.id,
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"<b>Детали заказа</b>\n"
                                    f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
                                    f"Категория - <b>{i.category_delivery}</b>\n"
@@ -845,14 +844,13 @@ class PerformerTasks:
                                    f"Ценность этого товара - <b>{i.order_worth}</b>\n"
                                    f"{icon} "
                                    f"Исполнитель - <b>{p_status}</b>\n"
-                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                   f"ID заказа - <b>{i.order_id}</b>\n"
                                    f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                    f"Заказ создан: <b>{i.order_create}</b>\n"
                                    f"{config.KEYBOARD.get('BAR_CHART')} "
                                    f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                   disable_web_page_preview=True)
+                                   disable_web_page_preview=True,
+                                   reply_markup=markup_performer.inline_order_request(i.order_id))
             if order_rating is None:
                 await bot.send_message(callback.from_user.id,
                                        "Поставьте <b>Лайк</b> или <b>Дизлайк</b> этому заказу",
@@ -864,71 +862,64 @@ class PerformerTasks:
                     like = "Дизлайк"
                 await bot.send_message(callback.from_user.id,
                                        f"Вы поставили <b>{like}</b> этому заказу")
-            await bot.send_message(callback.from_user.id,
-                                   f"Нажмите на ID -> `{i.order_id}` <- чтобы cкопировать",
-                                   parse_mode=ParseMode.MARKDOWN)
-        await bot.send_message(callback.from_user.id,
-                               "Если хотите взять какой нибудь заказ\n"
-                               "Нажмите 'Ввести ID задачи', а потом наберите ID задачи и отправьте мне",
-                               reply_markup=markup_performer.get_order())
+
+    # @staticmethod
+    # async def get_order(message: types.Message, state: FSMContext):
+    #     res = await performers_get.performer_view_order(message.text)
+    #     if not res.in_work:
+    #         async with state.proxy() as data:
+    #             data["order_id"] = message.text
+    #             data["price"] = res.price
+    #         if res.image:
+    #             await bot.send_photo(message.from_user.id, res.image)
+    #         if res.video:
+    #             await bot.send_video(message.from_user.id, res.video)
+    #         await bot.send_message(message.from_user.id,
+    #                                f"{config.KEYBOARD.get('DASH') * 14}\n"
+    #                                f"<b>Детали заказа</b>\n"
+    #                                f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
+    #                                f"Категория - <b>{res.category_delivery}</b>\n"
+    #                                f"{config.KEYBOARD.get('A_BUTTON')} "
+    #                                f"Откуда - <a href='https://yandex.ru/maps/?text="
+    #                                f"{'+'.join(res.geo_position_from.split())}'>{res.geo_position_from}</a>\n"
+    #                                f"{config.KEYBOARD.get('B_BUTTON')} "
+    #                                f"Куда - <a href='https://yandex.ru/maps/?text="
+    #                                f"{'+'.join(res.geo_position_to.split())}'>{res.geo_position_to}</a>\n"
+    #                                f"{config.KEYBOARD.get('INFORMATION')} "
+    #                                f"Название - <b>{res.title}</b>\n"
+    #                                f"{config.KEYBOARD.get('CLIPBOARD')} "
+    #                                f"Описание - <b>{res.description}</b>\n"
+    #                                f"{config.KEYBOARD.get('DOLLAR')} "
+    #                                f"Цена - <b>{res.price}</b>\n"
+    #                                f"{config.KEYBOARD.get('MONEY_BAG')} "
+    #                                f"Ценность этого товара - <b>{res.order_worth}</b>\n"
+    #                                f"{config.KEYBOARD.get('ID_BUTTON')} "
+    #                                f"ID заказа - <b>{res.order_id}</b>\n"
+    #                                f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+    #                                f"Заказ создан: <b>{res.order_create}</b>\n"
+    #                                f"{config.KEYBOARD.get('BAR_CHART')} "
+    #                                f"Рейтинг заказа | <b>{res.order_rating}</b>\n"
+    #                                f"{config.KEYBOARD.get('DASH') * 14}\n",
+    #                                disable_web_page_preview=True)
+    #         await bot.send_message(message.from_user.id,
+    #                                "Вы хотите взять эту задачу ?",
+    #                                reply_markup=markup_performer.inline_approve())
+    #         await performer_states.PerformerTasks.approve_or_decline.set()
+    #     else:
+    #         await performer_states.PerformerStart.performer_menu.set()
+    #         await bot.send_message(message.from_user.id,
+    #                                "Заказа не существует! или его уже кто то взял!",
+    #                                reply_markup=markup_performer.main_menu())
 
     @staticmethod
-    async def get_order(message: types.Message, state: FSMContext):
-        res = await performers_get.performer_view_order(message.text)
-        if not res.in_work:
-            async with state.proxy() as data:
-                data["order_id"] = message.text
-                data["price"] = res.price
-            if res.image:
-                await bot.send_photo(message.from_user.id, res.image)
-            if res.video:
-                await bot.send_video(message.from_user.id, res.video)
-            await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                   f"<b>Детали заказа</b>\n"
-                                   f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
-                                   f"Категория - <b>{res.category_delivery}</b>\n"
-                                   f"{config.KEYBOARD.get('A_BUTTON')} "
-                                   f"Откуда - <a href='https://yandex.ru/maps/?text="
-                                   f"{'+'.join(res.geo_position_from.split())}'>{res.geo_position_from}</a>\n"
-                                   f"{config.KEYBOARD.get('B_BUTTON')} "
-                                   f"Куда - <a href='https://yandex.ru/maps/?text="
-                                   f"{'+'.join(res.geo_position_to.split())}'>{res.geo_position_to}</a>\n"
-                                   f"{config.KEYBOARD.get('INFORMATION')} "
-                                   f"Название - <b>{res.title}</b>\n"
-                                   f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                   f"Описание - <b>{res.description}</b>\n"
-                                   f"{config.KEYBOARD.get('DOLLAR')} "
-                                   f"Цена - <b>{res.price}</b>\n"
-                                   f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                   f"Ценность этого товара - <b>{res.order_worth}</b>\n"
-                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                   f"ID заказа - <b>{res.order_id}</b>\n"
-                                   f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                   f"Заказ создан: <b>{res.order_create}</b>\n"
-                                   f"{config.KEYBOARD.get('BAR_CHART')} "
-                                   f"Рейтинг заказа | <b>{res.order_rating}</b>\n"
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                   disable_web_page_preview=True)
-            await bot.send_message(message.from_user.id,
-                                   "Вы хотите взять эту задачу ?",
-                                   reply_markup=markup_performer.inline_approve())
-            await performer_states.PerformerTasks.approve_or_decline.set()
-        else:
-            await performer_states.PerformerStart.performer_menu.set()
-            await bot.send_message(message.from_user.id,
-                                   "Заказа не существует! или его уже кто то взял!",
-                                   reply_markup=markup_performer.main_menu())
-
-    @staticmethod
-    async def order_request(callback: types.CallbackQuery, state: FSMContext):
+    async def order_request(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        async with state.proxy() as data:
-            customer_id = await performers_get.performer_checks_customer_user_id(data['order_id'])
-            performer = await performers_get.performer_select(callback.from_user.id)
+        order_id = callback.data[14:]
+        customer_id = await performers_get.performer_checks_customer_user_id(order_id)
+        performer = await performers_get.performer_select(callback.from_user.id)
         """Здесь надо придумать как оповестить по СМС заказчику о том что его заказ хотят взять"""
-        await bot.send_message(customer_id, f"Ваш заказ <b>{data['order_id']}</b> хочет взять Исполнитель!\n"
-                                            f"Его рейтинг - <b>{str(performer.performer_rating)[0:5]}</b>\n"
+        await bot.send_message(customer_id, f"Ваш заказ <b>{order_id}</b> хочет взять Исполнитель!\n"
+                                            f"Его рейтинг - <b>{performer.performer_rating}</b>\n"
                                             f"Никнейм - <b>@{callback.from_user.username}</b>\n"
                                             f"Имя - <b>{callback.from_user.first_name}</b>\n"
                                             f"Фамилия - <b>{callback.from_user.last_name}</b>\n"
@@ -949,20 +940,45 @@ class PerformerTasks:
     async def approve_order_with_new_price(callback: types.CallbackQuery):
         pass
 
-    @staticmethod
-    async def decline_order(callback: types.CallbackQuery):
-        await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(callback.from_user.id,
-                               'Вы отказались от задачи',
-                               reply_markup=markup_performer.main_menu())
-        await performer_states.PerformerStart.performer_menu.set()
+    # @staticmethod
+    # async def decline_order(callback: types.CallbackQuery):
+    #     await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    #     await bot.send_message(callback.from_user.id,
+    #                            'Вы отказались от задачи',
+    #                            reply_markup=markup_performer.main_menu())
+    #     await performer_states.PerformerStart.performer_menu.set()
 
     @staticmethod
-    async def proposal(callback: types.CallbackQuery):
+    async def proposal(callback: types.CallbackQuery, state: FSMContext):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        res = await customers_get.customer_view_order(callback.data[15:])
         await bot.send_message(callback.from_user.id,
-                               "Введите цену",
-                               reply_markup=markup_performer.markup_clean)
+                               f"{config.KEYBOARD.get('DASH') * 14}\n"
+                               f"<b>Детали заказа</b>\n"
+                               f"{config.KEYBOARD.get('A_BUTTON')} "
+                               f"Откуда - <a href='https://yandex.ru/maps/?text="
+                               f"{'+'.join(res[0].geo_position_from.split())}'>{res[0].geo_position_from}</a>\n"
+                               f"{config.KEYBOARD.get('B_BUTTON')} "
+                               f"Куда - <a href='https://yandex.ru/maps/?text="
+                               f"{'+'.join(res[0].geo_position_to.split())}'>{res[0].geo_position_to}</a>\n"
+                               f"{config.KEYBOARD.get('INFORMATION')} "
+                               f"Название - <b>{res[0].title}</b>\n"
+                               f"{config.KEYBOARD.get('CLIPBOARD')} "
+                               f"Описание - <b>{res[0].description}</b>\n"
+                               f"{config.KEYBOARD.get('DOLLAR')} "
+                               f"Цена - <b>{res[0].price}</b>\n"
+                               f"{config.KEYBOARD.get('MONEY_BAG')} "
+                               f"Ценность этого товара - <b>{res[0].order_worth}</b>\n"
+                               f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                               f"Заказ создан: <b>{res[0].order_create}</b>\n"
+                               f"{config.KEYBOARD.get('BAR_CHART')} "
+                               f"Рейтинг заказа | <b>{res[0].order_rating}</b>\n"
+                               f"{config.KEYBOARD.get('DASH') * 14}\n",
+                               disable_web_page_preview=True)
+        async with state.proxy() as data:
+            data["order_id"] = callback.data[15:]
+        await bot.send_message(callback.from_user.id,
+                               "Введите новую цену")
         await performer_states.PerformerTasks.proposal.set()
 
     @staticmethod

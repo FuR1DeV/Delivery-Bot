@@ -98,8 +98,8 @@ async def performer_view_order(order_id):
 
 async def performer_checks_customer_user_id(order_id):
     """Исполнитель смотрит user_id Заказчика по order_id"""
-    user_id = await Orders.query.where(Orders.order_id == order_id).gino.first()
-    return user_id.user_id
+    user = await Orders.query.where(Orders.order_id == order_id).gino.first()
+    return user.user_id
 
 
 async def performer_view_list_orders(user_id):
