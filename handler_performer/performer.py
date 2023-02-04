@@ -173,9 +173,9 @@ class PerformerMain:
                         icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
                                f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
                                f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-                    if i.image != "No Photo":
+                    if i.image:
                         await bot.send_photo(message.from_user.id, i.image)
-                    if i.video != "No Video":
+                    if i.video:
                         await bot.send_video(message.from_user.id, i.video)
                     await bot.send_message(message.from_user.id,
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -222,9 +222,9 @@ class PerformerMain:
             if orders_loading:
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 for i in orders_loading:
-                    if i.image != "No Photo":
+                    if i.image:
                         await bot.send_photo(message.from_user.id, i.image)
-                    if i.video != "No Video":
+                    if i.video:
                         await bot.send_video(message.from_user.id, i.video)
                     loaders = [await performers_get.performer_select(v) for v in i.persons_list]
                     await bot.send_message(message.from_user.id,
@@ -329,9 +329,9 @@ class PerformerMain:
         if res:
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
             for i in res:
-                if i.image != "No Photo":
+                if i.image:
                     await bot.send_photo(callback.from_user.id, i.image)
-                if i.video != "No Video":
+                if i.video:
                     await bot.send_video(callback.from_user.id, i.video)
                 await bot.send_message(callback.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -706,9 +706,9 @@ class PerformerTasks:
                 await bot.send_message(message.from_user.id,
                                        "Выводим список всех заказов для Грузчиков")
                 for i in res:
-                    if i.image != "No Photo":
+                    if i.image:
                         await bot.send_photo(message.from_user.id, i.image)
-                    if i.video != "No Video":
+                    if i.video:
                         await bot.send_video(message.from_user.id, i.video)
                     await bot.send_message(message.from_user.id,
                                            f"<b>Детали заказа от Заказчика {i.user_id}</b>\n"
@@ -816,9 +816,9 @@ class PerformerTasks:
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
                        f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
                        f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-            if i.image != "No Photo":
+            if i.image:
                 await bot.send_photo(callback.from_user.id, i.image)
-            if i.video != "No Video":
+            if i.video:
                 await bot.send_video(callback.from_user.id, i.video)
             await bot.send_message(callback.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -875,9 +875,9 @@ class PerformerTasks:
             async with state.proxy() as data:
                 data["order_id"] = message.text
                 data["price"] = res.price
-            if res.image != "No Photo":
+            if res.image:
                 await bot.send_photo(message.from_user.id, res.image)
-            if res.video != "No Video":
+            if res.video:
                 await bot.send_video(message.from_user.id, res.video)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -1170,9 +1170,9 @@ class PerformerDetailsTasks:
                                        "Вы вернулись в главное меню",
                                        reply_markup=markup_performer.main_menu())
             else:
-                if order.image != "No Photo":
+                if order.image:
                     await bot.send_photo(message.from_user.id, order.image)
-                if order.video != "No Video":
+                if order.video:
                     await bot.send_video(message.from_user.id, order.video)
                 loaders = [await performers_get.performer_select(v) for v in order.persons_list]
                 await bot.send_message(message.from_user.id,
@@ -1293,9 +1293,9 @@ class PerformerDetailsTasks:
                                        "Вы вернулись в главное меню",
                                        reply_markup=markup_performer.main_menu())
             else:
-                if order.image != "No Photo":
+                if order.image:
                     await bot.send_photo(message.from_user.id, order.image)
-                if order.video != "No Video":
+                if order.video:
                     await bot.send_video(message.from_user.id, order.video)
                 await bot.send_message(message.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -1792,12 +1792,12 @@ class PerformerHistory:
         async with state.proxy() as data:
             order = data.get(data.get("order_id"))
         if "Посмотреть фото" in message.text:
-            if order.image != "No Photo":
+            if order.image:
                 await bot.send_photo(message.from_user.id, order.image)
             else:
                 await bot.send_message(message.from_user.id, "В вашем заказе нет фото")
         if "Посмотреть видео" in message.text:
-            if order.video != "No Video":
+            if order.video:
                 await bot.send_video(message.from_user.id, order.video)
             else:
                 await bot.send_message(message.from_user.id, "В вашем заказе нет видео")

@@ -158,9 +158,9 @@ class CustomerMain:
                                f"{config.KEYBOARD.get('PERSON_RUNNING')}"
                     if i.order_get is not None:
                         order_get = i.order_get
-                    if i.image != "No Photo":
+                    if i.image:
                         await bot.send_photo(message.from_user.id, i.image)
-                    if i.video != "No Video":
+                    if i.video:
                         await bot.send_video(message.from_user.id, i.video)
                     await bot.send_message(message.from_user.id,
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -215,9 +215,9 @@ class CustomerMain:
             if orders_loading:
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 for i in orders_loading:
-                    if i.image != "No Photo":
+                    if i.image:
                         await bot.send_photo(message.from_user.id, i.image)
-                    if i.video != "No Video":
+                    if i.video:
                         await bot.send_video(message.from_user.id, i.video)
                     loaders = [await performers_get.performer_select(v) for v in i.persons_list]
                     await bot.send_message(message.from_user.id,
@@ -305,9 +305,9 @@ class CustomerMain:
                            f"{config.KEYBOARD.get('PERSON_RUNNING')}"
                 if i.order_get is not None:
                     order_get = i.order_get
-                if i.image != "No Photo":
+                if i.image:
                     await bot.send_photo(callback.from_user.id, i.image)
-                if i.video != "No Video":
+                if i.video:
                     await bot.send_video(callback.from_user.id, i.video)
                 await bot.send_message(callback.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -362,9 +362,9 @@ class CustomerMain:
         if orders_loading:
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
             for i in orders_loading:
-                if i.image != "No Photo":
+                if i.image:
                     await bot.send_photo(callback.from_user.id, i.image)
-                if i.video != "No Video":
+                if i.video:
                     await bot.send_video(callback.from_user.id, i.video)
                 loaders = [await performers_get.performer_select(v) for v in i.persons_list]
                 await bot.send_message(callback.from_user.id,
@@ -494,9 +494,9 @@ class CustomerMain:
                     icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
                            f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
                            f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-                if i.image != "No Photo":
+                if i.image:
                     await bot.send_photo(callback.from_user.id, i.image)
-                if i.video != "No Video":
+                if i.video:
                     await bot.send_video(callback.from_user.id, i.video)
                 await bot.send_message(callback.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -935,7 +935,7 @@ class CustomerCreateTask:
                                                        data.get("title"),
                                                        int(data.get("price")),
                                                        data.get("description"),
-                                                       "No Photo", "No Video",
+                                                       None, None,
                                                        order_id,
                                                        datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                        data.get("category_delivery"),
@@ -1008,7 +1008,7 @@ class CustomerCreateTask:
                                                        data.get("title"),
                                                        int(data.get("price")),
                                                        data.get("description"),
-                                                       data.get("photo"), "No Video",
+                                                       data.get("photo"), None,
                                                        data.get("order_id"),
                                                        datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                        data.get("category_delivery"),
@@ -1066,7 +1066,7 @@ class CustomerCreateTask:
                                                    data.get("title"),
                                                    int(data.get("price")),
                                                    data.get("description"),
-                                                   "No Photo", data.get("video"),
+                                                   None, data.get("video"),
                                                    data.get("order_id"),
                                                    datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                    data.get("category_delivery"),
@@ -1546,7 +1546,7 @@ class CustomerCreateTaskComp:
                                                        data.get("title"),
                                                        int(data.get("price")),
                                                        data.get("description"),
-                                                       "No Photo", "No Video",
+                                                       None, None,
                                                        order_id,
                                                        datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                        data.get("category_delivery"),
@@ -1619,7 +1619,7 @@ class CustomerCreateTaskComp:
                                                        data.get("title"),
                                                        int(data.get("price")),
                                                        data.get("description"),
-                                                       data.get("photo"), "No Video",
+                                                       data.get("photo"), None,
                                                        data.get("order_id"),
                                                        datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                        data.get("category_delivery"),
@@ -1677,7 +1677,7 @@ class CustomerCreateTaskComp:
                                                    data.get("title"),
                                                    int(data.get("price")),
                                                    data.get("description"),
-                                                   "No Photo", data.get("video"),
+                                                   None, data.get("video"),
                                                    data.get("order_id"),
                                                    datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                    data.get("category_delivery"),
@@ -1886,8 +1886,8 @@ class CustomerCreateTaskLoading:
                                                                data.get("description"),
                                                                int(data.get("price")),
                                                                data.get("start_time"),
-                                                               "No Photo",
-                                                               "No Video",
+                                                               None,
+                                                               None,
                                                                order_id,
                                                                datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
@@ -1957,7 +1957,7 @@ class CustomerCreateTaskLoading:
                                                                int(data.get("price")),
                                                                data.get("start_time"),
                                                                data.get("photo"),
-                                                               "No Video",
+                                                               None,
                                                                data.get("order_id"),
                                                                datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
@@ -2012,7 +2012,7 @@ class CustomerCreateTaskLoading:
                                                            data.get("description"),
                                                            int(data.get("price")),
                                                            data.get("start_time"),
-                                                           "No Photo",
+                                                           None,
                                                            data.get("video"),
                                                            data.get("order_id"),
                                                            datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
@@ -2126,9 +2126,9 @@ class CustomerDetailsTasks:
                                        "Вы вернулись в главное меню",
                                        reply_markup=markup_customer.main_menu())
             else:
-                if res_order.image != "No Photo":
+                if res_order.image:
                     await bot.send_photo(message.from_user.id, res_order.image)
-                if res_order.video != "No Video":
+                if res_order.video:
                     await bot.send_video(message.from_user.id, res_order.video)
                 await bot.send_message(message.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -2295,9 +2295,9 @@ class CustomerDetailsTasks:
                 await bot.send_message(message.from_user.id,
                                        "Пока грузчиков нет!")
         if message.text == f"{KEYBOARD.get('CLIPBOARD')} Детали заказа":
-            if orders_loading.image != "No Photo":
+            if orders_loading.image:
                 await bot.send_photo(message.from_user.id, orders_loading.image)
-            if orders_loading.video != "No Video":
+            if orders_loading.video:
                 await bot.send_video(message.from_user.id, orders_loading.video)
             loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
             await bot.send_message(message.from_user.id,
@@ -3233,12 +3233,12 @@ class CustomerHistory:
         async with state.proxy() as data:
             order = data.get(data.get("order_id"))
         if message.text == "Посмотреть фото":
-            if order.image != "No Photo":
+            if order.image:
                 await bot.send_photo(message.from_user.id, order.image)
             else:
                 await bot.send_message(message.from_user.id, "В вашем заказе нет фото")
         if message.text == "Посмотреть видео":
-            if order.video != "No Video":
+            if order.video:
                 await bot.send_video(message.from_user.id, order.video)
             else:
                 await bot.send_message(message.from_user.id, "В вашем заказе нет видео")
