@@ -27,31 +27,24 @@ async def customer_view_order(order_id) -> tuple:
 async def customer_all_orders(user_id):
     """Заказчик выгружает список всех своих заказов"""
     orders = await Orders.query.where(and_(Orders.user_id == user_id,
-                                           Orders.completed == 0,
-                                           Orders.order_cancel == None)).gino.all()
+                                           Orders.completed == 0)).gino.all()
     return orders
 
 
 async def customer_all_orders_loading(user_id):
     """Заказчик выгружает список всех своих заказов погрузки/разгрузки"""
     orders_loading = await OrdersLoading.query.where(and_(OrdersLoading.user_id == user_id,
-                                                          OrdersLoading.completed == 0,
-                                                          OrdersLoading.order_cancel == None)).gino.all()
+                                                          OrdersLoading.completed == 0)).gino.all()
     return orders_loading
 
 
-async def customer_count_orders(user_id):
+async def customer_count_orders(user_id) -> tuple:
     """Заказчик смотрит статистику по заказам"""
-    orders = await Orders.query.where(Orders.user_id == user_id).gino.all()
+    customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
     orders_in_work = await Orders.query.where(and_(Orders.user_id == user_id,
                                                    Orders.in_work > 1,
-                                                   Orders.completed == 0,
-                                                   Orders.order_cancel == None)).gino.all()
-    orders_end = await Orders.query.where(and_(Orders.user_id == user_id,
-                                               Orders.completed == 1)).gino.all()
-    orders_cancel = await Orders.query.where(and_(Orders.user_id == user_id,
-                                                  Orders.order_cancel != None)).gino.all()
-    return len(orders), len(orders_in_work), len(orders_end), len(orders_cancel)
+                                                   Orders.completed == 0)).gino.all()
+    return customer, len(orders_in_work)
 
 
 async def customer_in_work_order(order_id):

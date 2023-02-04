@@ -94,10 +94,6 @@ class PerformerMain:
                                    f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
                                    f"{config.KEYBOARD.get('BAR_CHART')} "
                                    f"Ваш рейтинг: <b>{str(res.performer_rating)[0:5]}</b>\n"
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                   f"Взял заказов: <b>{res.get_orders}</b>\n"
-                                   f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                   f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile())
@@ -119,7 +115,7 @@ class PerformerMain:
             if performer_money < 50:
                 await performer_states.PerformerProfile.my_profile.set()
                 await bot.send_message(message.from_user.id,
-                                       "<b>У вас отрицательный баланс!</b>\n"
+                                       "<b>Баланс должен быть не ниже 50 рублей!</b>\n"
                                        "<b>Пополните ваш баланс</b>",
                                        reply_markup=markup_performer.performer_profile())
             if performer_money >= 50:
@@ -208,6 +204,8 @@ class PerformerMain:
                                            f"ID заказа - <b>{i.order_id}</b>\n"
                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                            f"Заказ создан: <b>{i.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                           f"Заказ взят: <b>{i.order_get}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
                                            disable_web_page_preview=True)
                     keyboard.add(f"{icon} {i.order_id} {icon}")
@@ -217,7 +215,7 @@ class PerformerMain:
                                        f"Выберите ID задачи чтобы их просмотреть или завершить",
                                        reply_markup=keyboard)
             else:
-                await performer_states.PerformerStart.performer_menu.set()
+                await performer_states.PerformerStart.orders.set()
                 await bot.send_message(message.from_user.id, "У вас еще нет взятых заказов")
         if "Заказы Грузчика" in message.text:
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
@@ -412,17 +410,22 @@ class PerformerProfile:
                                    "Введите сумму, на которую вы хотите пополнить баланс",
                                    reply_markup=markup_performer.back_user_profile())
             await performer_states.PerformerProfile.pay.set()
-        if "Статистика по заказам" in message.text:
-            count_orders = await performers_get.performer_count_orders(message.from_user.id)
+        if "Статистика" in message.text:
+            performer = await performers_get.performer_count_orders(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                   f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                   f"Вы внесли - <b>{performer[0].money_added}</b>\n"
+                                   f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                   f"Вы заработали - <b>{performer[0].money_earned}</b>\n"
+                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} Всего заказов вы взяли - "
-                                   f"<b>{count_orders[0]}</b>\n"
-                                   f"{config.KEYBOARD.get('CLIPBOARD')} В работе - <b>{count_orders[1]}</b>\n"
+                                   f"<b>{performer[0].get_orders}</b>\n"
+                                   f"{config.KEYBOARD.get('CLIPBOARD')} В работе - <b>{performer[1]}</b>\n"
                                    f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} Выполненных - "
-                                   f"<b>{count_orders[2]}</b>\n"
-                                   f"{config.KEYBOARD.get('CROSS_MARK')} Отменённых "
-                                   f"<b>{count_orders[3]}</b>\n"
+                                   f"<b>{performer[0].completed_orders}</b>\n"
+                                   f"{config.KEYBOARD.get('CROSS_MARK')} Отменённых - "
+                                   f"<b>{performer[0].canceled_orders}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    )
 
@@ -767,6 +770,10 @@ class PerformerTasks:
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню Исполнителя",
                                    reply_markup=markup_performer.main_menu())
+        # if "Автоотправление сообщений":
+        #     await bot.send_message(message.from_user.id,
+        #                            "Да!",
+        #                            reply_markup=markup_performer.auto_send_message())
         if "Автоотправление сообщений отключено" in message.text:
             await performers_set.performer_change_auto_send(message.from_user.id)
             performer = await performers_get.performer_select(message.from_user.id)
@@ -779,6 +786,9 @@ class PerformerTasks:
             await bot.send_message(message.from_user.id,
                                    "Теперь вы НЕ получаете автоматически сообщения о новых Заказах",
                                    reply_markup=markup_performer.approve(performer.auto_send))
+
+    # @staticmethod
+    # async def
 
     @staticmethod
     async def choose_category(callback: types.CallbackQuery, state: FSMContext):
@@ -953,7 +963,7 @@ class PerformerTasks:
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(customer_id,
                                f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 8}\n"
-                               f"Ваш заказ {order_id} взят Исполнителем {callback.from_user.id}"
+                               f"Ваш заказ {order_id} взят Исполнителем {callback.from_user.id}\n"
                                f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 8}\n")
         await bot.send_message(callback.from_user.id,
                                'Вы взяли задачу!',
@@ -1216,10 +1226,12 @@ class PerformerDetailsTasks:
                                            f"Фамилия <b>{i.last_name}</b>\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг <b>{i.performer_rating}</b>\n"
-                                           f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                           f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
                                            f"Заказов взял - <b>{i.get_orders}</b>\n"
                                            f"{config.KEYBOARD.get('CROSS_MARK')} "
                                            f"Заказов отменил - <b>{i.canceled_orders}</b>\n"
+                                           f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                           f"Заказов выполнил - <b>{i.completed_orders}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}")
         if message.text == f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} Профиль заказчика":
             order = await performers_get.performer_check_order_loading_relevance(message.from_user.id, order_id)
@@ -1244,10 +1256,12 @@ class PerformerDetailsTasks:
                                        f"Фамилия <b>{customer.last_name}</b>\n"
                                        f"{config.KEYBOARD.get('BAR_CHART')} "
                                        f"Рейтинг <b>{customer.customer_rating}</b>\n"
-                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                       f"Заказов создал - <b>{customer.create_orders}</b>\n"
+                                       f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
+                                       f"Заказов создано - <b>{customer.created_orders}</b>\n"
                                        f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                       f"Заказов отменил - <b>{customer.canceled_orders}</b>\n"
+                                       f"Заказов отменено - <b>{customer.canceled_orders}</b>\n"
+                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                       f"Заказов завершено - <b>{customer.completed_orders}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}")
         if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await performer_states.PerformerStart.orders.set()
@@ -1308,6 +1322,8 @@ class PerformerDetailsTasks:
                                        f"Ценность этого товара - <b>{order.order_worth}</b>\n"
                                        f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                        f"Заказ создан: <b>{order.order_create}</b>\n"
+                                       f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                       f"Заказ взят: <b>{order.order_get}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n",
                                        disable_web_page_preview=True)
         if "Статус заказа" in message.text:
@@ -1353,10 +1369,12 @@ class PerformerDetailsTasks:
                                        f"Фамилия <b>{customer.last_name}</b>\n"
                                        f"{config.KEYBOARD.get('BAR_CHART')} "
                                        f"Рейтинг <b>{customer.customer_rating}</b>\n"
-                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                       f"Заказов создал - <b>{customer.create_orders}</b>\n"
+                                       f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
+                                       f"Заказов создано - <b>{customer.created_orders}</b>\n"
                                        f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                       f"Заказов отменил - <b>{customer.canceled_orders}</b>\n"
+                                       f"Заказов отменено - <b>{customer.canceled_orders}</b>\n"
+                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                       f"Заказов завершено - <b>{customer.completed_orders}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}")
         if "Вернуться в главное меню" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
@@ -1385,7 +1403,7 @@ class PerformerDetailsTasksStatus:
                 else:
                     await bot.send_message(message.from_user.id,
                                            "Вы хотите отменить заказ ?\n"
-                                           "С вас спишется 10% от стоимости заказа",
+                                           "С вас спишется 5% от стоимости заказа",
                                            reply_markup=markup_performer.inline_cancel_task())
         if "Завершить заказ" in message.text:
             async with state.proxy() as data:
@@ -1474,7 +1492,7 @@ class PerformerDetailsTasksStatus:
         async with state.proxy() as data:
             order = await performers_get.performer_view_order(data.get("order_id"))
             price = order.price
-            commission = price / 10
+            commission = price / 5
             await performers_set.performer_cancel_order(callback.from_user.id, data.get("order_id"))
             await performers_set.performer_set_commission_for_cancel(callback.from_user.id, commission)
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
@@ -1512,10 +1530,10 @@ class PerformerDetailsTasksStatus:
                                    f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
             await bot.send_message(data.get("user_id"),
                                    f"Ваша задача <b>{data.get('order_id')}</b> "
-                                   f"была помечена исполнителем как ВЫПОЛНЕННАЯ!\n"
-                                   f"Посмотрите в разделе 'Проверить статус заказа'"
+                                   f"была помечена Исполнителем как выполненная!\n"
+                                   f"Посмотрите в разделе 'Проверить статус заказа'\n"
                                    f"Если Заказчик и Исполнитель завершили заказ, "
-                                   f"то заказ будет перемещен в раздел ВЫПОЛНЕННЫЕ")
+                                   f"то заказ будет перемещен в раздел Завершенных заказов")
             await bot.send_message(data.get("user_id"),
                                    f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
             await performers_set.performer_set_order_status(data.get("order_id"))

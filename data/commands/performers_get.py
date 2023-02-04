@@ -17,16 +17,12 @@ async def performer_select(user_id):
     return performer
 
 
-async def performer_count_orders(user_id):
+async def performer_count_orders(user_id) -> tuple:
     """Исполнитель смотрит статистику по заказам"""
-    orders = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
     orders_in_work = await Orders.query.where(and_(Orders.in_work == user_id,
-                                                   Orders.completed == 0,
-                                                   Orders.order_cancel == None)).gino.all()
-    orders_end = await Orders.query.where(and_(Orders.in_work == user_id,
-                                               Orders.completed == 1)).gino.all()
-    orders_cancel = await Performers.query.where(Performers.user_id == user_id).gino.first()
-    return orders.get_orders, len(orders_in_work), len(orders_end), orders_cancel.canceled_orders
+                                                   Orders.completed == 0)).gino.all()
+    return performer, len(orders_in_work)
 
 
 async def check_private_chat_status(user_id):
@@ -40,7 +36,6 @@ async def performer_checks_all_orders(user_id, performer_category):
     orders = await Orders.query.where(and_(Orders.in_work == 0,
                                            Orders.block == 0,
                                            Orders.order_get == None,
-                                           Orders.order_cancel == None,
                                            Orders.user_id != user_id,
                                            or_(Orders.performer_category == performer_category,
                                                Orders.performer_category == 'any'))).gino.all()
@@ -51,7 +46,6 @@ async def performer_checks_all_orders_loading(user_id):
     """Исполнитель смотрит все заказы Погрузки/Разгрузки"""
     orders = await OrdersLoading.query.where(and_(OrdersLoading.block == 0,
                                                   OrdersLoading.order_end == None,
-                                                  OrdersLoading.order_cancel == None,
                                                   OrdersLoading.user_id != user_id,
                                                   OrdersLoading.person != OrdersLoading.count_person)).gino.all()
     return orders
@@ -73,7 +67,6 @@ async def performer_checks_all_orders_with_category(user_id, performer_category,
     orders = await Orders.query.where(and_(Orders.in_work == 0,
                                            Orders.block == 0,
                                            Orders.order_get == None,
-                                           Orders.order_cancel == None,
                                            Orders.user_id != user_id,
                                            or_(Orders.performer_category == performer_category,
                                                Orders.performer_category == 'any'),
@@ -112,8 +105,7 @@ async def performer_checks_customer_user_id(order_id):
 async def performer_view_list_orders(user_id):
     """Исполнитель просматривает взятые заказы"""
     orders = await Orders.query.where(and_(Orders.in_work == user_id,
-                                           Orders.completed == 0,
-                                           Orders.order_cancel == None)).gino.all()
+                                           Orders.completed == 0)).gino.all()
     return orders
 
 

@@ -14,7 +14,8 @@ class Customers(BaseModel):
     customer_money = Column(DECIMAL(precision=8, asdecimal=True, scale=2), nullable=False, server_default="0")
     customer_rating = Column(DECIMAL(precision=8, asdecimal=True, scale=2), nullable=False, server_default="5.0")
     ban = Column(Integer, nullable=False, server_default="0")
-    create_orders = Column(Integer, nullable=False, server_default="0")
+    created_orders = Column(Integer, nullable=False, server_default="0")
     canceled_orders = Column(Integer, nullable=False, server_default="0")
+    completed_orders = Column(Integer, nullable=False, server_default="0")
 
     query: sql.select

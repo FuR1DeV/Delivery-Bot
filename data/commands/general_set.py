@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 from data.models.performers import Performers
+from data.models.customers import Customers
 from data.models.admins import Payment, PrivateChat
 from data.models.orders import Orders, Reviews, OrdersStatus, Commission, CommissionPromo, OrdersLoading
 from data.commands import performers_get, general_get
@@ -34,12 +35,16 @@ async def operation_commission(order):
     """Взимаем комиссию с Заказчика"""
     """Временные промо со сниженным процентом"""
     performer = await Performers.query.where(Performers.user_id == order.in_work).gino.first()
+    customer = await Customers.query.where(Customers.user_id == order.user_id).gino.first()
     money = float(performer.performer_money) - res_commission_for_performer
     promo = await general_get.check_commission_promo(order.in_work)
     if promo:
         res_commission_for_performer = ((int(order.price) * float(promo.percent)) / 100)
         money = float(performer.performer_money) - res_commission_for_performer
-    await performer.update(performer_money=round(money, 2)).apply()
+    await performer.update(performer_money=round(money, 2),
+                           completed_orders=performer.completed_orders + 1,
+                           money_earned=performer.money_earned + order.price).apply()
+    await customer.update(completed_orders=customer.completed_orders + 1).apply()
 
 
 async def check_orders_status():

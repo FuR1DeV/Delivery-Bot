@@ -25,20 +25,20 @@ async def customer_add_order(user_id, geo_position_from, geo_position_to, title,
                    order_create=order_create, category_delivery=category_delivery,
                    performer_category=performer_category, order_expired=order_expired, order_worth=order_worth)
     customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
-    create = customer.create_orders + 1
-    await customer.update(create_orders=create).apply()
+    create = customer.created_orders + 1
+    await customer.update(created_orders=create).apply()
     await order.create()
 
 
 async def customer_add_order_loading(user_id, geo_position, description, price, start_time, image, video, order_id,
                                      order_create, order_expired, people):
-    logger.info(f'Заказчик {user_id} добавляет заказ {order_id}')
+    logger.info(f'Заказчик {user_id} добавляет заказ Погрузка/Разгрузка {order_id}')
     order = OrdersLoading(user_id=user_id, geo_position=geo_position, description=description, price=price,
                           start_time=start_time, image=image, video=video, order_id=order_id, order_create=order_create,
                           order_expired=order_expired, person=people, persons_list=[])
-    customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
-    create = customer.create_orders + 1
-    await customer.update(create_orders=create).apply()
+    # customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
+    # create = customer.created_orders + 1
+    # await customer.update(created_orders=create).apply()
     await order.create()
 
 
@@ -48,17 +48,19 @@ async def update_customer_money(user_id, money):
     await customer.update(customer_money=money).apply()
 
 
-async def customer_cancel_order(order_id, order_cancel):
+async def customer_cancel_order(order_id, user_id):
     """Заказчик отменяет заказ"""
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
     order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
     if order:
         order_status = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
-        await order.update(order_cancel=order_cancel, completed=None).apply()
         if order_status:
             await order_status.delete()
+        await order.delete()
+        await customer.update(canceled_orders=customer.canceled_orders + 1).apply()
     if order_loading:
-        await order_loading.update(order_cancel=order_cancel, completed=None).apply()
+        await order_loading.delete()
 
 
 async def customer_set_order_status(order_id):

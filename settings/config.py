@@ -62,6 +62,7 @@ KEYBOARD = {
     'UPWARDS_BUTTON': emojize(':upwards_button:'),
     'CROSS_MARK': emojize(':cross_mark:'),
     'CHECK_MARK_BUTTON': emojize(':check_mark_button:'),
+    'CHECK_BOX_WITH_CHECK': emojize(':check_box_with_check:'),
     'TELEPHONE': emojize(':telephone_receiver:'),
     'COMP': emojize(':desktop_computer:'),
     'PHONE': emojize(':mobile_phone:'),

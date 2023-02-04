@@ -183,7 +183,7 @@ def performer_profile():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('OUTBOX_TRAY')} Вывести средства",
                  f"{KEYBOARD.get('INBOX_TRAY')} Пополнить баланс")
-    keyboard.row(f"{KEYBOARD.get('BAR_CHART')} Статистика по заказам",
+    keyboard.row(f"{KEYBOARD.get('BAR_CHART')} Статистика",
                  f"{KEYBOARD.get('PERSON_RUNNING')}{KEYBOARD.get('AUTOMOBILE')} Статус категории")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Главное меню")
     return keyboard
@@ -227,6 +227,15 @@ def details_task_status(arrive):
                  f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Завершить заказ")
     keyboard.row(f"{KEYBOARD.get('EX_QUEST_MARK')} Проверить статус заказа",
                  f"{KEYBOARD.get('WAVING_HAND')} Сообщить о прибытии {arrive}")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в детали заказа")
+    return keyboard
+
+
+def auto_send_message():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row(f"{KEYBOARD.get('CROSS_MARK')} Отменить заказ",
+                 f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Завершить заказ")
+    keyboard.row(f"{KEYBOARD.get('EX_QUEST_MARK')} Проверить статус заказа")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в детали заказа")
     return keyboard
 

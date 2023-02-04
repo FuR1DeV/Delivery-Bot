@@ -527,8 +527,7 @@ class CustomerMain:
                                        f"Заказ взят: <b>{i.order_get}</b>\n"
                                        f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
                                        f"Заказ завершен: <b>{i.order_end}</b>\n"
-                                       f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                       f"Действует до: <b>{i.order_expired}</b>\n",
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
                                        disable_web_page_preview=True)
                 keyboard.add(f"{i.order_id}")
                 async with state.proxy() as data:
@@ -613,20 +612,17 @@ class CustomerProfile:
                                    reply_markup=markup_customer.main_menu(),
                                    )
         if "Статистика по заказам" in message.text:
-            count_orders = await customers_get.customer_count_orders(message.from_user.id)
-            awaiting = int(count_orders[0]) - int(count_orders[3]) - int(count_orders[1]) - int(count_orders[2])
+            customer = await customers_get.customer_count_orders(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                   f"{config.KEYBOARD.get('CLIPBOARD')} Всего заказов - <b>{count_orders[0]}</b>\n"
-                                   f"{config.KEYBOARD.get('WRENCH')} В работе - <b>{count_orders[1]}</b>\n"
-                                   f"{config.KEYBOARD.get('WRENCH')} "
-                                   f"В ожидании - <b>{awaiting}</b>\n"
+                                   f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                   f"Всего заказов - <b>{customer[0].created_orders}</b>\n"
+                                   f"{config.KEYBOARD.get('WRENCH')} В работе - <b>{customer[1]}</b>\n"
                                    f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} Завершенных - "
-                                   f"<b>{count_orders[2]}</b>\n"
+                                   f"<b>{customer[0].completed_orders}</b>\n"
                                    f"{config.KEYBOARD.get('CROSS_MARK')} Отмененных - "
-                                   f"<b>{count_orders[3]}</b>\n"
-                                   f"{config.KEYBOARD.get('DASH') * 14}"
-                                   )
+                                   f"<b>{customer[0].canceled_orders}</b>\n"
+                                   f"{config.KEYBOARD.get('DASH') * 14}")
 
 
 class CustomerCreateTask:
@@ -888,8 +884,7 @@ class CustomerCreateTask:
                     data['order_expired'] = date
                 await bot.send_message(message.from_user.id,
                                        "<b>Определите примерную ценность вашего товара</b>\n"
-                                       "<b>Если ценности нет напишите 0</b>\n"
-                                       "<b>(Допустим у вас категория 'Погрузка/Разгрузка)'</b>)",
+                                       "<b>Если ценности нет, напишите 0</b>\n",
                                        reply_markup=markup_customer.back())
                 await customer_states.CustomerCreateTask.next()
             else:
@@ -2200,10 +2195,12 @@ class CustomerDetailsTasks:
                                        f"Фамилия <b>{res_performer.last_name}</b>\n"
                                        f"{config.KEYBOARD.get('BAR_CHART')} "
                                        f"Рейтинг <b>{res_performer.performer_rating}</b>\n"
-                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                       f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
                                        f"Заказов взял - <b>{res_performer.get_orders}</b>\n"
                                        f"{config.KEYBOARD.get('CROSS_MARK')} "
                                        f"Заказов отменил - <b>{res_performer.canceled_orders}</b>\n"
+                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                       f"Заказов выполнил - <b>{res_performer.completed_orders}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}",
                                        )
         if "Вернуться в главное меню" in message.text:
@@ -2286,10 +2283,12 @@ class CustomerDetailsTasks:
                                            f"Фамилия <b>{i.last_name}</b>\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг <b>{i.performer_rating}</b>\n"
-                                           f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                           f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
                                            f"Заказов взял - <b>{i.get_orders}</b>\n"
                                            f"{config.KEYBOARD.get('CROSS_MARK')} "
                                            f"Заказов отменил - <b>{i.canceled_orders}</b>\n"
+                                           f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                           f"Заказов выполнил - <b>{i.completed_orders}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            reply_markup=markup_customer.inline_delete_loader())
             else:
@@ -2363,8 +2362,7 @@ class CustomerDetailsTasks:
     @staticmethod
     async def cancel_order_not_at_work(callback: types.CallbackQuery, state: FSMContext):
         async with state.proxy() as data:
-            await customers_set.customer_cancel_order(data.get("order_id"),
-                                                      datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+            await customers_set.customer_cancel_order(data.get("order_id"), callback.from_user.id)
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await customer_states.CustomerStart.customer_menu.set()
         await bot.send_message(callback.from_user.id,
@@ -2945,7 +2943,7 @@ class CustomerDetailsTasksStatus:
     async def cancel_order(callback: types.CallbackQuery, state: FSMContext):
         async with state.proxy() as data:
             await customers_set.customer_cancel_order(data.get("order_id"),
-                                                      datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+                                                      callback.from_user.id)
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         async with state.proxy() as data:
             await bot.send_message(data.get("user_id"),
@@ -2974,10 +2972,10 @@ class CustomerDetailsTasksStatus:
                                    f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
             await bot.send_message(data.get("user_id"),
                                    f"Ваша задача <b>{data.get('order_id')}</b> "
-                                   f"была помечена заказчиком как ВЫПОЛНЕННАЯ!\n"
+                                   f"была помечена Заказчиком как выполненная!\n"
                                    f"Посмотрите в разделе 'Проверить статус заказа'\n"
                                    f"Если Заказчик и Исполнитель завершили заказ, "
-                                   f"то заказ будет перемещен в раздел ВЫПОЛНЕННЫЕ")
+                                   f"то заказ будет перемещен в раздел Завершенных заказов")
             await bot.send_message(data.get("user_id"),
                                    f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
             await customers_set.customer_set_order_status(data.get("order_id"))
@@ -3202,8 +3200,7 @@ class CustomerHistory:
                                    f"Заказ взят: <b>{order.order_get}</b>\n"
                                    f"{config.KEYBOARD.get('BLUE_CIRCLE')} "
                                    f"Заказ завершен: <b>{order.order_end}</b>\n"
-                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                   f"Действует до: <b>{order.order_expired}</b>\n",
+                                   f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_customer.details_task_history_details_order(),
                                    disable_web_page_preview=True)
         if "Профиль исполнителя" in message.text:
