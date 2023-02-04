@@ -9,7 +9,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from geopy.geocoders import Nominatim
 
 from bot import bot
-from data.commands import customers_get, customers_set, performers_get, general_set, general_get
+from data.commands import customers_get, customers_set, performers_get, general_set, general_get, performers_set
 from markups import markup_customer, markup_performer
 from states import customer_states
 from settings import config
@@ -550,11 +550,17 @@ class CustomerMain:
         res = callback.message.text.split()
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(res[-1],
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                               f"Заказчик <b>{callback.from_user.id}</b> одобрил ваш запрос по заказу <b>{res[2]}\n</b>"
-                               f"Нажмите взять или откажитесь "
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}",
-                               reply_markup=markup_customer.inline_approve())
+                               f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK') * 5}\n"
+                               f"Заказчик <b>{callback.from_user.id}</b> "
+                               f"одобрил ваш запрос по заказу <b>{res[2]}\n</b>"
+                               f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK') * 5}")
+        await performers_set.performer_set_order(int(res[-1]),
+                                                 res[2],
+                                                 datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+        await bot.send_message(callback.from_user.id,
+                               "Вы взяли Исполнителя!",
+                               reply_markup=markup_customer.main_menu())
+        await customer_states.CustomerStart.customer_menu.set()
 
     @staticmethod
     async def customer_decline(callback: types.CallbackQuery):

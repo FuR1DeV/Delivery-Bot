@@ -140,7 +140,7 @@ class PerformerMain:
                     finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
                                                                 callback_data=f"p_year_finish_{k}"))
                 await bot.send_message(message.from_user.id,
-                                       "Выберите год\n"
+                                       "<b>Выберите год</b>\n"
                                        "В скобках указано количество завершенных заказов",
                                        reply_markup=finished_orders)
                 await performer_states.PerformerStart.performer_menu.set()
@@ -286,7 +286,8 @@ class PerformerMain:
             finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
                                                         callback_data=f"p_month_finish_{k}"))
         await bot.send_message(callback.from_user.id,
-                               "Выберите месяц",
+                               "<b>Выберите месяц</b>\n"
+                               "В скобках указано кол-во завершенных заказов",
                                reply_markup=finished_orders)
 
     @staticmethod
@@ -313,7 +314,8 @@ class PerformerMain:
             finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
                                                         callback_data=f"p_day_finish_{k}"))
         await bot.send_message(callback.from_user.id,
-                               "Выберите день",
+                               "<b>Выберите день</b>\n"
+                               "В скобках указано кол-во завершенных заказов",
                                reply_markup=finished_orders)
 
     @staticmethod
@@ -415,9 +417,11 @@ class PerformerProfile:
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                   f"Вы внесли - <b>{performer[0].money_added}</b>\n"
+                                   f"Вы внесли - <b>{performer[0].money_added}</b> руб.\n"
                                    f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                   f"Вы заработали - <b>{performer[0].money_earned}</b>\n"
+                                   f"Вы заработали - <b>{performer[0].money_earned}</b> руб.\n"
+                                   f"{config.KEYBOARD.get('DOLLAR')} "
+                                   f"Ваш текущий баланс: <b>{performer[0].performer_money}</b> руб.\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} Всего заказов вы взяли - "
                                    f"<b>{performer[0].get_orders}</b>\n"
@@ -928,6 +932,8 @@ class PerformerTasks:
                                             f"Никнейм - <b>@{callback.from_user.username}</b>\n"
                                             f"Имя - <b>{callback.from_user.first_name}</b>\n"
                                             f"Фамилия - <b>{callback.from_user.last_name}</b>\n"
+                                            f"Заказов взял - <b>{performer.get_orders}</b>\n"
+                                            f"Заказов выполнил - <b>{performer.completed_orders}</b>\n"
                                             f"ID Исполнителя - <b>{callback.from_user.id}</b>",
                                reply_markup=markup_performer.inline_approve_main())
         await performer_states.PerformerStart.performer_menu.set()
@@ -937,20 +943,7 @@ class PerformerTasks:
 
     @staticmethod
     async def approve_order(callback: types.CallbackQuery):
-        order_id = callback.message.text.split()[8]
-        customer_id = callback.message.text.split()[2]
-        await performers_set.performer_set_order(callback.from_user.id,
-                                                 order_id,
-                                                 datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
-        await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(customer_id,
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 8}\n"
-                               f"Ваш заказ {order_id} взят Исполнителем {callback.from_user.id}\n"
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 8}\n")
-        await bot.send_message(callback.from_user.id,
-                               'Вы взяли задачу!',
-                               reply_markup=markup_performer.main_menu())
-        await performer_states.PerformerStart.performer_menu.set()
+        pass
 
     @staticmethod
     async def approve_order_with_new_price(callback: types.CallbackQuery):
