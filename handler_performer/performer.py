@@ -6,7 +6,7 @@ from random import randint
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.types import ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from bot import bot
 from data.commands import performers_get, performers_set, customers_get, general_get, general_set
@@ -977,6 +977,7 @@ class PerformerTasks:
                                disable_web_page_preview=True)
         async with state.proxy() as data:
             data["order_id"] = callback.data[15:]
+            data["price"] = res[0].price
         await bot.send_message(callback.from_user.id,
                                "Введите новую цену")
         await performer_states.PerformerTasks.proposal.set()
@@ -991,9 +992,10 @@ class PerformerTasks:
                                                          f"Подождите пока заказчик вам ответит")
             await bot.send_message(customer_id,
                                    f"{config.KEYBOARD.get('DOLLAR') * 10}\n"
-                                   f"Предложение новой цены {message.text} от Исполнителя {message.from_user.id} "
-                                   f"на ваш заказ {data.get('order_id')}\n"
-                                   f"Ваша цена заказа - {data.get('price')}\n"
+                                   f"Предложение новой цены <b>{message.text}</b> "
+                                   f"от Исполнителя <b>{message.from_user.id}</b> "
+                                   f"на ваш заказ <b>{data.get('order_id')}</b>\n"
+                                   f"Ваша цена заказа - <b>{data.get('price')}</b>\n"
                                    f"{config.KEYBOARD.get('DOLLAR') * 10}\n",
                                    reply_markup=markup_performer.inline_approve_proposal())
             await performer_states.PerformerStart.performer_menu.set()
