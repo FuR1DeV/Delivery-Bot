@@ -119,12 +119,12 @@ class AdminOrders:
                 writer = csv.writer(file)
                 writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price",
                                  "description", "image", "video", "performer_id", "completed", "order_id",
-                                 "order_create", "order_get", "order_cancel", "order_end", "category_delivery",
+                                 "order_create", "order_get", "order_end", "category_delivery",
                                  "block", "performer_category", "order_expired", "order_worth", "order_rating"])
                 for i in res:
                     writer.writerow([i.id, i.user_id, i.geo_position_from, i.geo_position_to, i.title, i.price,
                                      i.description, i.image, i.video, i.in_work, i.completed, i.order_id,
-                                     i.order_create, i.order_get, i.order_cancel, i.order_end, i.category_delivery,
+                                     i.order_create, i.order_get, i.order_end, i.category_delivery,
                                      i.block, i.performer_category, i.order_expired, i.order_worth, i.order_rating])
             table_orders = InputFile("logs/table_orders.csv")
             await bot.send_document(chat_id=message.from_user.id, document=table_orders)
@@ -177,9 +177,9 @@ class AdminOrders:
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
                        f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
                        f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-            if res.image != "No Photo":
+            if res.image:
                 await bot.send_photo(message.from_user.id, res.image)
-            if res.video != "No Video":
+            if res.video:
                 await bot.send_video(message.from_user.id, res.video)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -316,9 +316,9 @@ class AdminOrders:
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}" \
                        f"{config.KEYBOARD.get('KICK_SCOOTER')}" \
                        f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-            if order.image != "No Photo":
+            if order.image:
                 await bot.send_photo(message.from_user.id, order.image)
-            if order.video != "No Video":
+            if order.video:
                 await bot.send_video(message.from_user.id, order.video)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -355,12 +355,12 @@ class AdminOrders:
                                    disable_web_page_preview=True,
                                    reply_markup=markup_admin.order())
         if message.text == "Просмотр Фото":
-            if order.image != "No Photo":
+            if order.image:
                 await bot.send_photo(message.from_user.id, order.image)
             else:
                 await bot.send_message(message.from_user.id, "В этом заказе нет Фото")
         if message.text == "Просмотр Видео":
-            if order.video != "No Video":
+            if order.video:
                 await bot.send_video(message.from_user.id, order.video)
             else:
                 await bot.send_message(message.from_user.id, "В этом заказе нет Видео")
@@ -372,12 +372,12 @@ class AdminOrders:
                 writer.writerow(['Table order'])
                 writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price",
                                  "description", "image", "video", "performer_id", "completed", "order_id",
-                                 "order_create", "order_get", "order_cancel", "order_end", "category_delivery",
+                                 "order_create", "order_get", "order_end", "category_delivery",
                                  "performer_category", "order_expired", "order_worth", "order_rating"])
                 writer.writerow([order.id, order.user_id, order.geo_position_from, order.geo_position_to,
                                  order.title, order.price, order.description, order.image, order.video,
                                  order.in_work, order.completed, order.order_id, order.order_create,
-                                 order.order_get, order.order_cancel, order.order_end, order.category_delivery,
+                                 order.order_get, order.order_end, order.category_delivery,
                                  order.performer_category, order.order_expired, order.order_worth,
                                  order.order_rating])
                 writer.writerow(['Table review'])
