@@ -78,7 +78,7 @@ class AdminMain:
     async def loading_db(message: types.Message):
         if message.text == "Загрузить БД Заказчиков":
             all_customers = await general_get.all_customers()
-            with open("logs/table_customers.csv", "w", newline='', encoding="utf-8") as file:
+            with open("logs/table_customers.csv", "w", newline='', encoding="Windows-1251") as file:
                 writer = csv.writer(file)
                 writer.writerow(["id", "user_id", "username", "telephone", "firstname",
                                  "lastname", "rating", "ban"])
@@ -89,7 +89,7 @@ class AdminMain:
             await bot.send_document(chat_id=message.from_user.id, document=table_customers)
         if message.text == "Загрузить БД Исполнителей":
             all_performers = await general_get.all_performers()
-            with open("logs/table_performers.csv", "w", newline='', encoding="utf-8") as file:
+            with open("logs/table_performers.csv", "w", newline='', encoding="Windows-1251") as file:
                 writer = csv.writer(file)
                 writer.writerow(["id", "user_id", "username", "telephone", "firstname",
                                  "lastname", "rating", "ban"])
@@ -115,7 +115,7 @@ class AdminOrders:
                                    reply_markup=markup_admin.markup_clean)
         if message.text == "Выгрузить БД заказов":
             res = await general_get.all_orders()
-            with open("logs/table_orders.csv", "w", newline='', encoding="utf-8") as file:
+            with open("logs/table_orders.csv", "w", newline='', encoding="Windows-1251") as file:
                 writer = csv.writer(file)
                 writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price",
                                  "description", "image", "video", "performer_id", "completed", "order_id",
@@ -130,7 +130,7 @@ class AdminOrders:
             await bot.send_document(chat_id=message.from_user.id, document=table_orders)
         if message.text == "Выгрузить БД отзывов":
             res = await general_get.all_orders_reviews()
-            with open("logs/table_reviews.csv", "w", newline='', encoding="utf-8") as file:
+            with open("logs/table_reviews.csv", "w", newline='', encoding="Windows-1251") as file:
                 writer = csv.writer(file)
                 writer.writerow(["id", "review_from_customer", "review_from_performer",
                                  "rating_from_customer", "rating_from_performer", "order_id"])
@@ -367,7 +367,7 @@ class AdminOrders:
         if message.text == "Выгрузить БД этого заказа":
             await bot.send_message(message.from_user.id,
                                    f"Подготавливаем документ")
-            with open(f"logs/table_order_{order.order_id}.csv", "w", newline='', encoding="utf-8") as file:
+            with open(f"logs/table_order_{order.order_id}.csv", "w", newline='', encoding="Windows-1251") as file:
                 writer = csv.writer(file)
                 writer.writerow(['Table order'])
                 writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price",
@@ -387,10 +387,10 @@ class AdminOrders:
                                  review_res.rating_from_customer, review_res.rating_from_performer])
                 writer.writerow(['Table customer'])
                 writer.writerow(["id", "user_id", "username", "telephone", "first_name", "last_name",
-                                 "customer_rating", "ban", "create_orders", "canceled_orders"])
+                                 "customer_rating", "ban", "created_orders", "canceled_orders"])
                 writer.writerow([customer_res.id, customer_res.username, customer_res.telephone,
                                  customer_res.first_name, customer_res.last_name, customer_res.customer_rating,
-                                 customer_res.create_orders, customer_res.canceled_orders])
+                                 customer_res.created_orders, customer_res.canceled_orders])
                 writer.writerow(['Table performer'])
                 writer.writerow(["id", "user_id", "username", "telephone", "first_name", "last_name",
                                  "performer_rating", "get_orders", "canceled_orders"])
