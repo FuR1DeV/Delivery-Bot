@@ -60,8 +60,11 @@ class CustomerMain:
 
     @staticmethod
     async def main(message: types.Message):
+        not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+        at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+        loading = await customers_get.customer_all_orders_loading(message.from_user.id)
         await bot.send_message(message.from_user.id,
-                               f"{message.from_user.first_name} Вы в главном меню Заказчика",
+                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                reply_markup=markup_customer.main_menu())
         await customer_states.CustomerStart.customer_menu.set()
 
@@ -80,9 +83,9 @@ class CustomerMain:
                                    f"Ваш никнейм <b>@{message.from_user.username}</b>\n"
                                    f"{config.KEYBOARD.get('TELEPHONE')} "
                                    f"Ваш номер <b>{customer.telephone}</b>\n"
-                                   f"{config.KEYBOARD.get('BAR_CHART')} "
+                                   f"{config.KEYBOARD.get('STAR')} "
                                    f"Ваш рейтинг <b>"
-                                   f"{str(customer.customer_rating)[0:5]}</b>\n"
+                                   f"{customer.customer_rating}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_customer.customer_profile())
         if "Создать заказ" in message.text:
@@ -91,9 +94,14 @@ class CustomerMain:
                                    "Вы можете создать новый заказ с Компьютера или с Телефона",
                                    reply_markup=markup_customer.approve())
         if "Мои заказы" in message.text:
+            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            orders_at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    "Выберите тип заказа",
-                                   reply_markup=markup_customer.customer_type_orders())
+                                   reply_markup=markup_customer.customer_type_orders(len(orders_not_at_work),
+                                                                                     len(orders_at_work),
+                                                                                     len(orders_loading)))
             await customer_states.CustomerStart.orders.set()
         if "Завершенные заказы" in message.text:
             res = await customers_get.customer_all_completed_orders(message.from_user.id)
@@ -131,9 +139,12 @@ class CustomerMain:
                     f"Погрузка/Разгрузка": f"{KEYBOARD.get('ARROWS_BUTTON')}",
                     f"Другое": f"{KEYBOARD.get('INPUT_LATIN_LETTERS')}"}
         if "Заказы Доставки" in message.text:
+            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            orders_at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    "В ожидании или в работе ?",
-                                   reply_markup=markup_customer.orders_type_work())
+                                   reply_markup=markup_customer.orders_type_work(len(orders_not_at_work),
+                                                                                 len(orders_at_work)))
         if "Заказы Грузчики" in message.text:
             orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             if orders_loading:
@@ -342,21 +353,20 @@ class CustomerMain:
                 await bot.send_message(message.from_user.id,
                                        "У вас нет заказов в работе")
         if "Назад" in message.text:
-            await bot.send_message(message.from_user.id,
-                                   "Выберите тип заказа",
-                                   reply_markup=markup_customer.customer_type_orders())
-        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
             orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-            orders = await customers_get.customer_all_orders(message.from_user.id)
+            orders_at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('HOUSE')} Вы вернулись в главное меню\n"
-                                   f"{config.KEYBOARD.get('HAMMER_AND_PICK')} "
-                                   f"У вас <b>{len(orders)}</b> заказов в работе\n"
-                                   f"{config.KEYBOARD.get('RECYCLING_SYMBOL')} "
-                                   f"У вас <b>{len(orders_not_at_work)}</b> заказов в ожидании\n"
-                                   f"{config.KEYBOARD.get('ARROWS_BUTTON')} "
-                                   f"У вас <b>{len(orders_loading)}</b> заказов для Грузчиков",
+                                   "Выберите тип заказа",
+                                   reply_markup=markup_customer.customer_type_orders(len(orders_not_at_work),
+                                                                                     len(orders_at_work),
+                                                                                     len(orders_loading)))
+        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
 
@@ -649,7 +659,12 @@ class CustomerMain:
                                                  res[2],
                                                  datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
         await bot.send_message(callback.from_user.id,
-                               "Вы взяли Исполнителя!",
+                               "Вы взяли Исполнителя!")
+        not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
+        at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
+        loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                reply_markup=markup_customer.main_menu())
         await customer_states.CustomerStart.customer_menu.set()
 
@@ -681,7 +696,12 @@ class CustomerMain:
                                                  datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
         await performers_set.add_new_price(order_id, new_price)
         await bot.send_message(callback.from_user.id,
-                               "Вы взяли Исполнителя!",
+                               "Вы взяли Исполнителя!")
+        not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
+        at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
+        loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                reply_markup=markup_customer.main_menu())
         await customer_states.CustomerStart.customer_menu.set()
 
@@ -708,17 +728,11 @@ class CustomerProfile:
     @staticmethod
     async def customer_profile(message: types.Message):
         if "Главное меню" in message.text:
-            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-            orders = await customers_get.customer_all_orders(message.from_user.id)
-            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('HOUSE')} Вы вернулись в главное меню\n"
-                                   f"{config.KEYBOARD.get('HAMMER_AND_PICK')} "
-                                   f"У вас <b>{len(orders)}</b> заказов в работе\n"
-                                   f"{config.KEYBOARD.get('RECYCLING_SYMBOL')} "
-                                   f"У вас <b>{len(orders_not_at_work)}</b> заказов в ожидании\n"
-                                   f"{config.KEYBOARD.get('ARROWS_BUTTON')} "
-                                   f"У вас <b>{len(orders_loading)}</b> заказов для Грузчиков",
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
         if "Статистика по заказам" in message.text:
@@ -750,8 +764,11 @@ class CustomerCreateTask:
             await customer_states.CustomerCreateTaskComp.category_delivery.set()
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
             await customer_states.CustomerStart.customer_menu.set()
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили создание заказа",
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
 
     @staticmethod
@@ -1079,7 +1096,12 @@ class CustomerCreateTask:
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "<b>Отклик без фото или видео отправлен.</b>\n"
-                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
             await state.finish()
         if message.text == "Загрузить Фото":
@@ -1153,7 +1175,12 @@ class CustomerCreateTask:
                 await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "<b>Отклик с фото отправлен.</b>\n"
-                                       "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                       "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>")
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                        reply_markup=markup_customer.main_menu())
             except IndexError:
                 pass
@@ -1211,7 +1238,12 @@ class CustomerCreateTask:
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "<b>Отклик с видео отправлен.</b>\n"
-                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
 
 
@@ -1691,7 +1723,12 @@ class CustomerCreateTaskComp:
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "<b>Отклик без фото или видео отправлен.</b>\n"
-                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTaskComp.worth.set()
@@ -1764,7 +1801,12 @@ class CustomerCreateTaskComp:
                 await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "<b>Отклик с фото отправлен.</b>\n"
-                                       "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                       "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>")
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                        reply_markup=markup_customer.main_menu())
             except IndexError:
                 pass
@@ -1822,7 +1864,12 @@ class CustomerCreateTaskComp:
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "<b>Отклик с видео отправлен.</b>\n"
-                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
 
 
@@ -2027,7 +2074,12 @@ class CustomerCreateTaskLoading:
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "<b>Отклик без фото или видео отправлен.</b>\n"
-                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
         if message.text == "Загрузить Фото":
             await customer_states.CustomerCreateTaskLoading.photo.set()
@@ -2098,7 +2150,12 @@ class CustomerCreateTaskLoading:
                 await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "<b>Отклик с фото отправлен.</b>\n"
-                                       "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                       "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>")
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                        reply_markup=markup_customer.main_menu())
             except IndexError:
                 pass
@@ -2154,7 +2211,12 @@ class CustomerCreateTaskLoading:
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "<b>Отклик с видео отправлен.</b>\n"
-                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>",
+                                   "<b>Ожидайте пока Исполнитель примет ваш заказ!</b>")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
 
 
@@ -2162,9 +2224,12 @@ class CustomerDetailsTasks:
     @staticmethod
     async def customer_details(message: types.Message, state: FSMContext):
         if "Назад" in message.text:
+            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            orders = await customers_get.customer_all_orders_in_work(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись на шаг назад",
-                                   reply_markup=markup_customer.orders_type_work())
+                                   reply_markup=markup_customer.orders_type_work(len(orders_not_at_work),
+                                                                                 len(orders)))
             await customer_states.CustomerStart.orders.set()
         else:
             orders = None
@@ -2220,17 +2285,11 @@ class CustomerDetailsTasks:
         if "Написать/Позвонить исполнителю" in message.text:
             res = await customers_get.customer_get_status_order(data.get("order_id"))
             if res is None:
-                orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-                orders = await customers_get.customer_all_orders(message.from_user.id)
-                orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{config.KEYBOARD.get('HOUSE')} Вы вернулись в главное меню\n"
-                                       f"{config.KEYBOARD.get('HAMMER_AND_PICK')} "
-                                       f"У вас <b>{len(orders)}</b> заказов в работе\n"
-                                       f"{config.KEYBOARD.get('RECYCLING_SYMBOL')} "
-                                       f"У вас <b>{len(orders_not_at_work)}</b> заказов в ожидании\n"
-                                       f"{config.KEYBOARD.get('ARROWS_BUTTON')} "
-                                       f"У вас <b>{len(orders_loading)}</b> заказов для Грузчиков",
+                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             else:
@@ -2240,17 +2299,11 @@ class CustomerDetailsTasks:
         if "Детали заказа" in message.text:
             res = await customers_get.customer_get_status_order(data.get("order_id"))
             if res is None:
-                orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-                orders = await customers_get.customer_all_orders(message.from_user.id)
-                orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{config.KEYBOARD.get('HOUSE')} Вы вернулись в главное меню\n"
-                                       f"{config.KEYBOARD.get('HAMMER_AND_PICK')} "
-                                       f"У вас <b>{len(orders)}</b> заказов в работе\n"
-                                       f"{config.KEYBOARD.get('RECYCLING_SYMBOL')} "
-                                       f"У вас <b>{len(orders_not_at_work)}</b> заказов в ожидании\n"
-                                       f"{config.KEYBOARD.get('ARROWS_BUTTON')} "
-                                       f"У вас <b>{len(orders_loading)}</b> заказов для Грузчиков",
+                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             else:
@@ -2290,17 +2343,11 @@ class CustomerDetailsTasks:
         if "Статус заказа" in message.text:
             res = await customers_get.customer_get_status_order(data.get("order_id"))
             if res is None:
-                orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-                orders = await customers_get.customer_all_orders(message.from_user.id)
-                orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{config.KEYBOARD.get('HOUSE')} Вы вернулись в главное меню\n"
-                                       f"{config.KEYBOARD.get('HAMMER_AND_PICK')} "
-                                       f"У вас <b>{len(orders)}</b> заказов в работе\n"
-                                       f"{config.KEYBOARD.get('RECYCLING_SYMBOL')} "
-                                       f"У вас <b>{len(orders_not_at_work)}</b> заказов в ожидании\n"
-                                       f"{config.KEYBOARD.get('ARROWS_BUTTON')} "
-                                       f"У вас <b>{len(orders_loading)}</b> заказов для Грузчиков",
+                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             else:
@@ -2312,17 +2359,11 @@ class CustomerDetailsTasks:
         if "Профиль исполнителя" in message.text:
             res = await customers_get.customer_get_status_order(data.get("order_id"))
             if res is None:
-                orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-                orders = await customers_get.customer_all_orders(message.from_user.id)
-                orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{config.KEYBOARD.get('HOUSE')} Вы вернулись в главное меню\n"
-                                       f"{config.KEYBOARD.get('HAMMER_AND_PICK')} "
-                                       f"У вас <b>{len(orders)}</b> заказов в работе\n"
-                                       f"{config.KEYBOARD.get('RECYCLING_SYMBOL')} "
-                                       f"У вас <b>{len(orders_not_at_work)}</b> заказов в ожидании\n"
-                                       f"{config.KEYBOARD.get('ARROWS_BUTTON')} "
-                                       f"У вас <b>{len(orders_loading)}</b> заказов для Грузчиков",
+                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             else:
@@ -2333,13 +2374,13 @@ class CustomerDetailsTasks:
                                        f"ID: <b>{res_performer.user_id}</b>\n"
                                        f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
                                        f"Никнейм <b>@{res_performer.username}</b>\n"
-                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"{config.KEYBOARD.get('TELEPHONE')} "
                                        f"Номер <b>{res_performer.telephone}</b>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                        f"Имя <b>{res_performer.first_name}</b>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                        f"Фамилия <b>{res_performer.last_name}</b>\n"
-                                       f"{config.KEYBOARD.get('BAR_CHART')} "
+                                       f"{config.KEYBOARD.get('STAR')} "
                                        f"Рейтинг <b>{res_performer.performer_rating}</b>\n"
                                        f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
                                        f"Заказов взял - <b>{res_performer.get_orders}</b>\n"
@@ -2350,22 +2391,19 @@ class CustomerDetailsTasks:
                                        f"{config.KEYBOARD.get('DASH') * 14}",
                                        )
         if "Назад" in message.text:
+            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            orders_at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             await customer_states.CustomerStart.orders.set()
             await bot.send_message(message.from_user.id,
                                    "Выберите тип заказа",
-                                   reply_markup=markup_customer.orders_type_work())
+                                   reply_markup=markup_customer.orders_type_work(len(orders_not_at_work),
+                                                                                 len(orders_at_work)))
         if "Вернуться в главное меню" in message.text:
-            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-            orders = await customers_get.customer_all_orders(message.from_user.id)
-            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('HOUSE')} Вы вернулись в главное меню\n"
-                                   f"{config.KEYBOARD.get('HAMMER_AND_PICK')} "
-                                   f"У вас <b>{len(orders)}</b> заказов в работе\n"
-                                   f"{config.KEYBOARD.get('RECYCLING_SYMBOL')} "
-                                   f"У вас <b>{len(orders_not_at_work)}</b> заказов в ожидании\n"
-                                   f"{config.KEYBOARD.get('ARROWS_BUTTON')} "
-                                   f"У вас <b>{len(orders_loading)}</b> заказов для Грузчиков",
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
 
@@ -2382,7 +2420,12 @@ class CustomerDetailsTasks:
                 else:
                     await customer_states.CustomerStart.customer_menu.set()
                     await bot.send_message(message.from_user.id,
-                                           "Ваш заказ уже взяли!",
+                                           "Ваш заказ уже взяли!")
+                    not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                    at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                    loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                    await bot.send_message(message.from_user.id,
+                                           f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                            reply_markup=markup_customer.main_menu())
         if "Редактировать заказ" in message.text:
             if orders:
@@ -2395,13 +2438,23 @@ class CustomerDetailsTasks:
                 else:
                     await customer_states.CustomerStart.customer_menu.set()
                     await bot.send_message(message.from_user.id,
-                                           "Ваш заказ уже взяли!",
+                                           "Ваш заказ уже взяли!")
+                    not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                    at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                    loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                    await bot.send_message(message.from_user.id,
+                                           f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                            reply_markup=markup_customer.main_menu())
         if "Назад" in message.text:
+            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            orders_at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await customer_states.CustomerStart.orders.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в меню выбора типов Заказа",
-                                   reply_markup=markup_customer.customer_type_orders())
+                                   reply_markup=markup_customer.customer_type_orders(len(orders_not_at_work),
+                                                                                     len(orders_at_work),
+                                                                                     len(orders_loading)))
 
     @staticmethod
     async def details_task_loading(message: types.Message, state: FSMContext):
@@ -2422,7 +2475,12 @@ class CustomerDetailsTasks:
                 else:
                     await customer_states.CustomerStart.customer_menu.set()
                     await bot.send_message(message.from_user.id,
-                                           "Ваш заказ уже взяли!",
+                                           "Ваш заказ уже взяли!")
+                    not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                    at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                    loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                    await bot.send_message(message.from_user.id,
+                                           f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                            reply_markup=markup_customer.main_menu())
         if message.text == f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков":
             loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
@@ -2435,13 +2493,13 @@ class CustomerDetailsTasks:
                                            f"ID: <b>{i.user_id}</b>\n"
                                            f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
                                            f"Никнейм <b>@{i.username}</b>\n"
-                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"{config.KEYBOARD.get('TELEPHONE')} "
                                            f"Номер <b>{i.telephone}</b>\n"
                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                            f"Имя <b>{i.first_name}</b>\n"
                                            f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                            f"Фамилия <b>{i.last_name}</b>\n"
-                                           f"{config.KEYBOARD.get('BAR_CHART')} "
+                                           f"{config.KEYBOARD.get('STAR')} "
                                            f"Рейтинг <b>{i.performer_rating}</b>\n"
                                            f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
                                            f"Заказов взял - <b>{i.get_orders}</b>\n"
@@ -2492,21 +2550,32 @@ class CustomerDetailsTasks:
                                    "Подтвердите завершение заказа",
                                    reply_markup=markup_customer.inline_close_loading_task())
         if "Назад" in message.text:
+            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            orders = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await customer_states.CustomerStart.orders.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в меню выбора типов Заказа",
-                                   reply_markup=markup_customer.customer_type_orders())
+                                   reply_markup=markup_customer.customer_type_orders(len(orders_not_at_work),
+                                                                                     len(orders),
+                                                                                     len(orders_loading)))
 
     @staticmethod
     async def close_loading_order(callback: types.CallbackQuery, state: FSMContext):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         async with state.proxy() as data:
             order_loading = await customers_get.customer_view_order(data.get('order_id'))
-            await customers_set.customer_close_order_loading(data.get('order_id'),
+            await customers_set.customer_close_order_loading(callback.from_user.id,
+                                                             data.get('order_id'),
                                                              datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
         await customer_states.CustomerStart.customer_menu.set()
         await bot.send_message(callback.from_user.id,
-                               "Заказ закрыт",
+                               "Заказ закрыт")
+        not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
+        at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
+        loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                reply_markup=markup_customer.main_menu())
         for i in order_loading[0].persons_list:
             await bot.send_message(i,
@@ -2526,7 +2595,12 @@ class CustomerDetailsTasks:
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await customer_states.CustomerStart.customer_menu.set()
         await bot.send_message(callback.from_user.id,
-                               "Вы отменили заказ!",
+                               "Вы отменили заказ!")
+        not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
+        at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
+        loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                reply_markup=markup_customer.main_menu())
 
     @staticmethod
@@ -3046,7 +3120,12 @@ class CustomerDetailsTasksStatus:
                 status = await general_get.check_details_status(data.get("order_id"))
             if status is None:
                 await bot.send_message(message.from_user.id,
-                                       "Заказ закрыт",
+                                       "Заказ закрыт")
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             if status:
@@ -3090,7 +3169,12 @@ class CustomerDetailsTasksStatus:
                                            f"{config.KEYBOARD.get('CROSS_MARK')}")
             else:
                 await bot.send_message(message.from_user.id,
-                                       "Заказ закрыт",
+                                       "Заказ закрыт")
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
         if "Вернуться в детали заказа" in message.text:
@@ -3114,7 +3198,12 @@ class CustomerDetailsTasksStatus:
                                    f"{config.KEYBOARD.get('CROSS_MARK') * 14}")
         await customer_states.CustomerStart.customer_menu.set()
         await bot.send_message(callback.from_user.id,
-                               "Вы отменили заказ!",
+                               "Вы отменили заказ!")
+        not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
+        at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
+        loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                reply_markup=markup_customer.main_menu())
 
     @staticmethod
@@ -3217,12 +3306,22 @@ class CustomerHelp:
 
         if message.text == "Завершить":
             await bot.send_message(message.from_user.id,
-                                   "Все сообщения в службу поддержки отправлены!",
+                                   "Все сообщения в службу поддержки отправлены!")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
         if message.text == "Вернуться главное меню":
             await bot.send_message(message.from_user.id,
-                                   "Вы вошли в главное меню заказчика",
+                                   "Вы вошли в главное меню заказчика")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
         if message.text != "Загрузить Фото" and message.text != "Загрузить Видео" \
@@ -3278,17 +3377,11 @@ class CustomerHistory:
     @staticmethod
     async def history(message: types.Message, state: FSMContext):
         if "Вернуться в главное меню" in message.text:
-            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-            orders = await customers_get.customer_all_orders(message.from_user.id)
-            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('HOUSE')} Вы вернулись в главное меню\n"
-                                   f"{config.KEYBOARD.get('HAMMER_AND_PICK')} "
-                                   f"У вас <b>{len(orders)}</b> заказов в работе\n"
-                                   f"{config.KEYBOARD.get('RECYCLING_SYMBOL')} "
-                                   f"У вас <b>{len(orders_not_at_work)}</b> заказов в ожидании\n"
-                                   f"{config.KEYBOARD.get('ARROWS_BUTTON')} "
-                                   f"У вас <b>{len(orders_loading)}</b> заказов для Грузчиков",
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
         else:
@@ -3380,29 +3473,23 @@ class CustomerHistory:
                                    f"ID: <b>{performer_res.user_id}</b>\n"
                                    f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
                                    f"Никнейм <b>@{performer_res.username}</b>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                   f"{config.KEYBOARD.get('TELEPHONE')} "
                                    f"Номер <b>{performer_res.telephone}</b>\n"
                                    f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                    f"Имя <b>{performer_res.first_name}</b>\n"
                                    f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
                                    f"Фамилия <b>{performer_res.last_name}</b>\n"
-                                   f"{config.KEYBOARD.get('BAR_CHART')} "
+                                   f"{config.KEYBOARD.get('STAR')} "
                                    f"Рейтинг <b>"
                                    f"{performer_res.performer_rating}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    )
         if "Вернуться в главное меню" in message.text:
-            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-            orders = await customers_get.customer_all_orders(message.from_user.id)
-            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('HOUSE')} Вы вернулись в главное меню\n"
-                                   f"{config.KEYBOARD.get('HAMMER_AND_PICK')} "
-                                   f"У вас <b>{len(orders)}</b> заказов в работе\n"
-                                   f"{config.KEYBOARD.get('RECYCLING_SYMBOL')} "
-                                   f"У вас <b>{len(orders_not_at_work)}</b> заказов в ожидании\n"
-                                   f"{config.KEYBOARD.get('ARROWS_BUTTON')} "
-                                   f"У вас <b>{len(orders_loading)}</b> заказов для Грузчиков",
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
 

@@ -135,8 +135,10 @@ async def customer_delete_order_loading(order_id):
     await order_loading.delete()
 
 
-async def customer_close_order_loading(order_id, order_end):
+async def customer_close_order_loading(user_id, order_id, order_end):
     order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+    customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
+    await customer.update(completed_orders=customer.completed_orders + 1).apply()
     await order_loading.update(completed=1, order_end=order_end).apply()
 
 

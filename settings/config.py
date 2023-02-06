@@ -77,5 +77,6 @@ KEYBOARD = {
     'KICK_SCOOTER': emojize(':kick_scooter:'),
     'INPUT_LATIN_LETTERS': emojize(':input_latin_letters:'),
     'WAVING_HAND': emojize(':waving_hand:'),
+    'STAR': emojize(':star:'),
     'RIGHT_ARROW_CURVING_LEFT': emojize(':right_arrow_curving_left:'),
 }

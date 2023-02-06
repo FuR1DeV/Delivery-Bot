@@ -78,14 +78,6 @@ def photo_or_video_create_task():
     return keyboard
 
 
-def customer_type_orders():
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки {KEYBOARD.get('B_BUTTON')}",
-                 f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчики {KEYBOARD.get('ARROWS_BUTTON')}")
-    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
-    return keyboard
-
-
 def photo_or_video_help():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add("Загрузить Фото")
@@ -134,7 +126,7 @@ def details_task_loading():
     keyboard.row(f"{KEYBOARD.get('CLIPBOARD')} Детали заказа",
                  f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков")
     keyboard.row(f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ",
-                 f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Завершить заказ",)
+                 f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Завершить заказ", )
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
@@ -420,10 +412,20 @@ def details_task_change_loading():
     return keyboard
 
 
-def orders_type_work():
+def orders_type_work(orders_not_at_work: int, orders_at_work: int):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"{KEYBOARD.get('HAMMER_AND_PICK')} В работе",
-                 f"{KEYBOARD.get('RECYCLING_SYMBOL')} В ожидании")
+    if orders_at_work + orders_not_at_work == 0:
+        keyboard.row(f"{KEYBOARD.get('HAMMER_AND_PICK')} В работе",
+                     f"{KEYBOARD.get('RECYCLING_SYMBOL')} В ожидании")
+    if orders_at_work and orders_not_at_work == 0:
+        keyboard.row(f"{KEYBOARD.get('HAMMER_AND_PICK')} В работе ({orders_at_work})",
+                     f"{KEYBOARD.get('RECYCLING_SYMBOL')} В ожидании")
+    if orders_at_work == 0 and orders_not_at_work:
+        keyboard.row(f"{KEYBOARD.get('HAMMER_AND_PICK')} В работе",
+                     f"{KEYBOARD.get('RECYCLING_SYMBOL')} В ожидании ({orders_not_at_work})")
+    if orders_at_work and orders_not_at_work:
+        keyboard.row(f"{KEYBOARD.get('HAMMER_AND_PICK')} В работе ({orders_at_work})",
+                     f"{KEYBOARD.get('RECYCLING_SYMBOL')} В ожидании ({orders_not_at_work})")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
@@ -433,8 +435,90 @@ def buy_menu(is_url=True, url='', bill=''):
     if is_url:
         btn_url = InlineKeyboardButton(text="Ссылка на оплату", url=url)
         menu.insert(btn_url)
-    btn_check = InlineKeyboardButton(text="Проверить оплату", callback_data="check_"+bill)
+    btn_check = InlineKeyboardButton(text="Проверить оплату", callback_data="check_" + bill)
     btn_cancel = InlineKeyboardButton(text="Отмена", callback_data="cancel_pay")
     menu.insert(btn_check)
     menu.insert(btn_cancel)
     return menu
+
+
+def customer_type_orders(orders_not_at_work: int, orders_at_work: int, orders_loading: int):
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    if orders_at_work + orders_not_at_work + orders_loading == 0:
+        """Заказы Доставки и Грузчиков пустые"""
+        keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки",
+                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчики")
+    if orders_at_work + orders_not_at_work == 0 and orders_loading:
+        """Заказы Доставки пустые, а Грузчики есть"""
+        keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки",
+                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчики {orders_loading}")
+    if orders_at_work + orders_not_at_work > 0 and orders_loading:
+        """Заказы Доставки не пустые, и Грузчики не пустые"""
+        keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки "
+                     f"({orders_not_at_work + orders_at_work})",
+                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчики ({orders_loading})")
+    if orders_at_work + orders_not_at_work > 0 and orders_loading == 0:
+        """Заказы Доставки не пустые, а Грузчики пустые"""
+        keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки "
+                     f"({orders_not_at_work + orders_at_work})",
+                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчики")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    return keyboard
+
+
+def text_menu(orders_not_at_work, orders_at_work, orders_loading):
+    orders_not_at_work = len(orders_not_at_work)
+    orders_at_work = len(orders_at_work)
+    orders_loading = len(orders_loading)
+
+    if orders_at_work + orders_not_at_work + orders_loading == 0:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы вернулись в главное меню"
+
+    if orders_at_work + orders_not_at_work == 0 and orders_loading:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы вернулись в главное меню\n " \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} " \
+               f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
+    if orders_at_work + orders_loading == 0 and orders_not_at_work:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы вернулись в главное меню\n " \
+               f"{KEYBOARD.get('RECYCLING_SYMBOL')} " \
+               f"У вас <b>{orders_not_at_work}</b> заказов в ожидании\n"
+    if orders_loading + orders_not_at_work == 0 and orders_at_work:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы вернулись в главное меню\n " \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
+               f"У вас <b>{orders_at_work}</b> заказов в работе\n"
+
+    if orders_at_work and orders_not_at_work and orders_loading == 0:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы вернулись в главное меню\n " \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
+               f"У вас <b>{orders_at_work}</b> заказов в работе\n" \
+               f"{KEYBOARD.get('RECYCLING_SYMBOL')} " \
+               f"У вас <b>{orders_not_at_work}</b> заказов в ожидании\n"
+    if orders_at_work and orders_loading and orders_not_at_work == 0:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы вернулись в главное меню\n " \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
+               f"У вас <b>{orders_at_work}</b> заказов в работе\n" \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} " \
+               f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
+    if orders_loading and orders_not_at_work and orders_at_work == 0:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы вернулись в главное меню\n " \
+               f"{KEYBOARD.get('RECYCLING_SYMBOL')} " \
+               f"У вас <b>{orders_not_at_work}</b> заказов в ожидании\n" \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} " \
+               f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
+
+    if orders_at_work and orders_not_at_work and orders_loading:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы вернулись в главное меню\n " \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
+               f"У вас <b>{orders_at_work}</b> заказов в работе\n" \
+               f"{KEYBOARD.get('RECYCLING_SYMBOL')} " \
+               f"У вас <b>{orders_not_at_work}</b> заказов в ожидании\n" \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} " \
+               f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
