@@ -34,7 +34,12 @@ class CustomerMain:
             await bot.delete_message(callback.from_user.id, callback.message.message_id)
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(callback.from_user.id,
-                                   "Спасибо что пользуетесь нашим ботом!",
+                                   "Спасибо что пользуетесь нашим ботом!")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
+            await bot.send_message(callback.from_user.id,
+                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
                                    reply_markup=markup_customer.main_menu())
         else:
             await bot.delete_message(callback.from_user.id, callback.message.message_id)

@@ -473,41 +473,41 @@ def text_menu(orders_not_at_work, orders_at_work, orders_loading):
 
     if orders_at_work + orders_not_at_work + orders_loading == 0:
         return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы вернулись в главное меню"
+               f"Вы в главном меню"
 
     if orders_at_work + orders_not_at_work == 0 and orders_loading:
         return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы вернулись в главное меню\n " \
+               f"Вы в главном меню\n" \
                f"{KEYBOARD.get('ARROWS_BUTTON')} " \
                f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
     if orders_at_work + orders_loading == 0 and orders_not_at_work:
         return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы вернулись в главное меню\n " \
+               f"Вы в главном меню\n" \
                f"{KEYBOARD.get('RECYCLING_SYMBOL')} " \
                f"У вас <b>{orders_not_at_work}</b> заказов в ожидании\n"
     if orders_loading + orders_not_at_work == 0 and orders_at_work:
         return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы вернулись в главное меню\n " \
+               f"Вы в главном меню\n" \
                f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
                f"У вас <b>{orders_at_work}</b> заказов в работе\n"
 
     if orders_at_work and orders_not_at_work and orders_loading == 0:
         return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы вернулись в главное меню\n " \
+               f"Вы в главном меню\n" \
                f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
                f"У вас <b>{orders_at_work}</b> заказов в работе\n" \
                f"{KEYBOARD.get('RECYCLING_SYMBOL')} " \
                f"У вас <b>{orders_not_at_work}</b> заказов в ожидании\n"
     if orders_at_work and orders_loading and orders_not_at_work == 0:
         return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы вернулись в главное меню\n " \
+               f"Вы в главном меню\n" \
                f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
                f"У вас <b>{orders_at_work}</b> заказов в работе\n" \
                f"{KEYBOARD.get('ARROWS_BUTTON')} " \
                f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
     if orders_loading and orders_not_at_work and orders_at_work == 0:
         return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы вернулись в главное меню\n " \
+               f"Вы в главном меню\n" \
                f"{KEYBOARD.get('RECYCLING_SYMBOL')} " \
                f"У вас <b>{orders_not_at_work}</b> заказов в ожидании\n" \
                f"{KEYBOARD.get('ARROWS_BUTTON')} " \
@@ -515,7 +515,7 @@ def text_menu(orders_not_at_work, orders_at_work, orders_loading):
 
     if orders_at_work and orders_not_at_work and orders_loading:
         return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы вернулись в главное меню\n " \
+               f"Вы в главном меню\n " \
                f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
                f"У вас <b>{orders_at_work}</b> заказов в работе\n" \
                f"{KEYBOARD.get('RECYCLING_SYMBOL')} " \
