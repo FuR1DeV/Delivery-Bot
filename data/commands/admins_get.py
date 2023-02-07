@@ -2,7 +2,7 @@ import logging
 
 from data.models.admins import Admins
 from data.models.customers import Customers
-from data.models.performers import Performers
+from data.models.performers import Performers, PerformerPersonalData
 from data.models.orders import Orders, Reviews, Commission, CommissionPromo
 
 
@@ -30,6 +30,11 @@ async def admin_check_users(type_user, user_id):
     else:
         performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
         return performer
+
+
+async def admin_check_personal_data(user_id):
+    performer = await PerformerPersonalData.query.where(PerformerPersonalData.user_id == user_id).gino.first()
+    return performer
 
 
 async def admin_check_review(order_id):

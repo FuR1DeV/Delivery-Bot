@@ -720,6 +720,15 @@ class AdminControlChange:
                                    "Введите сумму для начисления",
                                    reply_markup=markup_admin.markup_clean)
             await states.ChangeUsers.add_money.set()
+        if message.text == "Просмотр личных данных":
+            async with state.proxy() as data:
+                performer = await admins_get.admin_check_personal_data(data.get("user_id"))
+            await bot.send_photo(message.from_user.id,
+                                 performer.selfie)
+            await bot.send_message(message.from_user.id,
+                                   f"Телефон - <b>{performer.telephone}</b>\n"
+                                   f"Имя - <b>{performer.real_first_name}</b>\n"
+                                   f"Фамилия - <b>{performer.real_last_name}</b>")
         if message.text == "Вернуться в главное меню":
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню",
@@ -735,8 +744,8 @@ class AdminControlChange:
                 await admins_set.admin_set_money(user_id, money)
             await bot.send_message(message.from_user.id,
                                    f"Успешно начислили {money} рублей для пользователя {user_id}",
-                                   reply_markup=markup_admin.admin_main())
-            await states.AdminStates.enter.set()
+                                   reply_markup=markup_admin.find_user(True))
+            await states.ChangeUsers.enter.set()
         else:
             await bot.send_message(message.from_user.id, "Нужно ввести целое число")
 

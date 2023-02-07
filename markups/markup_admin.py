@@ -149,7 +149,7 @@ def find_user(money_add):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     if money_add:
         keyboard.row("Заблокировать", "Разблокировать")
-        keyboard.row("Начислить сумму")
+        keyboard.row("Начислить сумму", "Просмотр личных данных")
         keyboard.row("Вернуться в главное меню")
     else:
         keyboard.row("Заблокировать", "Разблокировать")
