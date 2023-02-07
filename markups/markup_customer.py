@@ -451,7 +451,7 @@ def customer_type_orders(orders_not_at_work: int, orders_at_work: int, orders_lo
     if orders_at_work + orders_not_at_work == 0 and orders_loading:
         """Заказы Доставки пустые, а Грузчики есть"""
         keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки",
-                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчики {orders_loading}")
+                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчики ({orders_loading})")
     if orders_at_work + orders_not_at_work > 0 and orders_loading:
         """Заказы Доставки не пустые, и Грузчики не пустые"""
         keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки "
@@ -466,10 +466,7 @@ def customer_type_orders(orders_not_at_work: int, orders_at_work: int, orders_lo
     return keyboard
 
 
-def text_menu(orders_not_at_work, orders_at_work, orders_loading):
-    orders_not_at_work = len(orders_not_at_work)
-    orders_at_work = len(orders_at_work)
-    orders_loading = len(orders_loading)
+def text_menu(orders_not_at_work: int, orders_at_work: int, orders_loading: int):
 
     if orders_at_work + orders_not_at_work + orders_loading == 0:
         return f"{KEYBOARD.get('HOUSE')} " \

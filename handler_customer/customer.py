@@ -39,7 +39,7 @@ class CustomerMain:
             at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
             loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
             await bot.send_message(callback.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
         else:
             await bot.delete_message(callback.from_user.id, callback.message.message_id)
@@ -69,7 +69,7 @@ class CustomerMain:
         at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
         loading = await customers_get.customer_all_orders_loading(message.from_user.id)
         await bot.send_message(message.from_user.id,
-                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                               f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                reply_markup=markup_customer.main_menu())
         await customer_states.CustomerStart.customer_menu.set()
 
@@ -371,7 +371,7 @@ class CustomerMain:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
 
@@ -669,7 +669,7 @@ class CustomerMain:
         at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
         loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
-                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                               f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                reply_markup=markup_customer.main_menu())
         await customer_states.CustomerStart.customer_menu.set()
 
@@ -706,7 +706,7 @@ class CustomerMain:
         at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
         loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
-                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                               f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                reply_markup=markup_customer.main_menu())
         await customer_states.CustomerStart.customer_menu.set()
 
@@ -737,7 +737,7 @@ class CustomerProfile:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
         if "Статистика по заказам" in message.text:
@@ -773,7 +773,7 @@ class CustomerCreateTask:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
 
     @staticmethod
@@ -1106,7 +1106,7 @@ class CustomerCreateTask:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
             await state.finish()
         if message.text == "Загрузить Фото":
@@ -1185,7 +1185,7 @@ class CustomerCreateTask:
                 at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                 loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                        reply_markup=markup_customer.main_menu())
             except IndexError:
                 pass
@@ -1248,7 +1248,7 @@ class CustomerCreateTask:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
 
 
@@ -1733,7 +1733,7 @@ class CustomerCreateTaskComp:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await customer_states.CustomerCreateTaskComp.worth.set()
@@ -1811,7 +1811,7 @@ class CustomerCreateTaskComp:
                 at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                 loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                        reply_markup=markup_customer.main_menu())
             except IndexError:
                 pass
@@ -1874,7 +1874,7 @@ class CustomerCreateTaskComp:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
 
 
@@ -2084,7 +2084,7 @@ class CustomerCreateTaskLoading:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
         if message.text == "Загрузить Фото":
             await customer_states.CustomerCreateTaskLoading.photo.set()
@@ -2160,7 +2160,7 @@ class CustomerCreateTaskLoading:
                 at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                 loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                        reply_markup=markup_customer.main_menu())
             except IndexError:
                 pass
@@ -2221,7 +2221,7 @@ class CustomerCreateTaskLoading:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
 
 
@@ -2294,7 +2294,7 @@ class CustomerDetailsTasks:
                 at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                 loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             else:
@@ -2308,7 +2308,7 @@ class CustomerDetailsTasks:
                 at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                 loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             else:
@@ -2352,7 +2352,7 @@ class CustomerDetailsTasks:
                 at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                 loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             else:
@@ -2368,7 +2368,7 @@ class CustomerDetailsTasks:
                 at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                 loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             else:
@@ -2408,7 +2408,7 @@ class CustomerDetailsTasks:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
 
@@ -2430,7 +2430,7 @@ class CustomerDetailsTasks:
                     at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                     loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                     await bot.send_message(message.from_user.id,
-                                           f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                           f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                            reply_markup=markup_customer.main_menu())
         if "Редактировать заказ" in message.text:
             if orders:
@@ -2448,7 +2448,7 @@ class CustomerDetailsTasks:
                     at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                     loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                     await bot.send_message(message.from_user.id,
-                                           f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                           f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                            reply_markup=markup_customer.main_menu())
         if "Назад" in message.text:
             orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
@@ -2485,7 +2485,7 @@ class CustomerDetailsTasks:
                     at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                     loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                     await bot.send_message(message.from_user.id,
-                                           f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                           f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                            reply_markup=markup_customer.main_menu())
         if message.text == f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков":
             loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
@@ -2580,7 +2580,7 @@ class CustomerDetailsTasks:
         at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
         loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
-                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                               f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                reply_markup=markup_customer.main_menu())
         for i in order_loading[0].persons_list:
             await bot.send_message(i,
@@ -2605,7 +2605,7 @@ class CustomerDetailsTasks:
         at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
         loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
-                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                               f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                reply_markup=markup_customer.main_menu())
 
     @staticmethod
@@ -3130,7 +3130,7 @@ class CustomerDetailsTasksStatus:
                 at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                 loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             if status:
@@ -3179,7 +3179,7 @@ class CustomerDetailsTasksStatus:
                 at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
                 loading = await customers_get.customer_all_orders_loading(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
         if "Вернуться в детали заказа" in message.text:
@@ -3208,7 +3208,7 @@ class CustomerDetailsTasksStatus:
         at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
         loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
-                               f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                               f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                reply_markup=markup_customer.main_menu())
 
     @staticmethod
@@ -3316,7 +3316,7 @@ class CustomerHelp:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
         if message.text == "Вернуться главное меню":
@@ -3326,7 +3326,7 @@ class CustomerHelp:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
         if message.text != "Загрузить Фото" and message.text != "Загрузить Видео" \
@@ -3386,7 +3386,7 @@ class CustomerHistory:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
         else:
@@ -3494,7 +3494,7 @@ class CustomerHistory:
             at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
             loading = await customers_get.customer_all_orders_loading(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(not_at_work, at_work, loading)}",
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
                                    reply_markup=markup_customer.main_menu())
             await customer_states.CustomerStart.customer_menu.set()
 

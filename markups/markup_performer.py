@@ -53,7 +53,7 @@ def inline_approve_loading_yes_no(order_id):
     yes = InlineKeyboardButton(text='Да',
                                callback_data=f'yes_req_load_{order_id}')
     no = InlineKeyboardButton(text='Нет',
-                                   callback_data=f'no_req_load_{order_id}')
+                              callback_data=f'no_req_load_{order_id}')
     approve_.insert(yes)
     approve_.insert(no)
     return approve_
@@ -124,11 +124,26 @@ def get_order():
     return keyboard
 
 
-def performer_type_orders():
+def performer_type_orders(orders, orders_loading):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки {KEYBOARD.get('B_BUTTON')}",
-                 f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчика {KEYBOARD.get('ARROWS_BUTTON')}")
-    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    orders = len(orders)
+    orders_loading = len(orders_loading)
+    if orders and orders_loading:
+        keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки ({orders})",
+                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчика ({orders_loading})")
+        keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    if orders and not orders_loading:
+        keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки ({orders})",
+                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчика")
+        keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    if not orders and orders_loading:
+        keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки",
+                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчика ({orders_loading})")
+        keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    if not orders and not orders_loading:
+        keyboard.add(f"{KEYBOARD.get('A_BUTTON')} Заказы Доставки",
+                     f"{KEYBOARD.get('ARROWS_BUTTON')} Заказы Грузчика")
+        keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
     return keyboard
 
 
@@ -221,7 +236,8 @@ def details_task():
                  f"{KEYBOARD.get('CLIPBOARD')} Детали заказа")
     keyboard.row(f"{KEYBOARD.get('EX_QUEST_MARK')} Статус заказа",
                  f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Профиль заказчика")
-    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад",
+                 f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
     return keyboard
 
 
@@ -296,7 +312,7 @@ def buy_menu(is_url=True, url='', bill=''):
     if is_url:
         btn_url = InlineKeyboardButton(text="Ссылка на оплату", url=url)
         menu.insert(btn_url)
-    btn_check = InlineKeyboardButton(text="Проверить оплату", callback_data="check_"+bill)
+    btn_check = InlineKeyboardButton(text="Проверить оплату", callback_data="check_" + bill)
     btn_cancel = InlineKeyboardButton(text="Отмена", callback_data="cancel_pay")
     menu.insert(btn_check)
     menu.insert(btn_cancel)
@@ -324,3 +340,25 @@ def order_rating(order_id):
     rate.insert(btn_plus)
     rate.insert(btn_minus)
     return rate
+
+
+def text_menu(orders, orders_loading):
+    if not orders and not orders_loading:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы в главном меню"
+    if orders and orders_loading:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы в главном меню\n" \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
+               f"У вас <b>{orders}</b> заказов в работе\n" \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} " \
+               f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
+    if not orders and orders_loading:
+        return f"{KEYBOARD.get('HOUSE')} " \
+               f"Вы в главном меню\n" \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} " \
+               f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
+    if orders and not orders_loading:
+        return f"Вы в главном меню\n" \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
+               f"У вас <b>{orders}</b> заказов в работе\n"

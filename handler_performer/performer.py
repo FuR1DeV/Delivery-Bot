@@ -33,7 +33,11 @@ class PerformerMain:
             await bot.delete_message(callback.from_user.id, callback.message.message_id)
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(callback.from_user.id,
-                                   "Спасибо что пользуетесь нашим ботом!",
+                                   "Спасибо что пользуетесь нашим ботом!")
+            orders = await performers_get.performer_view_list_orders(callback.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
+            await bot.send_message(callback.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
         else:
             await bot.delete_message(callback.from_user.id, callback.message.message_id)
@@ -60,7 +64,11 @@ class PerformerMain:
     @staticmethod
     async def main(message: types.Message):
         await bot.send_message(message.from_user.id,
-                               f"{message.from_user.first_name} Вы в главном меню Исполнителя",
+                               f"{message.from_user.first_name} Вы в главном меню Исполнителя")
+        orders = await performers_get.performer_view_list_orders(message.from_user.id)
+        orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+        await bot.send_message(message.from_user.id,
+                               f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                reply_markup=markup_performer.main_menu())
         await performer_states.PerformerStart.performer_menu.set()
 
@@ -124,9 +132,11 @@ class PerformerMain:
                                        "Выберите тип Заказа",
                                        reply_markup=markup_performer.approve(performer.auto_send))
         if "Задачи в работе" in message.text:
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    "Выберите тип заказа",
-                                   reply_markup=markup_performer.performer_type_orders())
+                                   reply_markup=markup_performer.performer_type_orders(orders, orders_loading))
             await performer_states.PerformerStart.orders.set()
         if "Выполненные Задачи" in message.text:
             res = await performers_get.performer_all_completed_orders(message.from_user.id)
@@ -209,7 +219,7 @@ class PerformerMain:
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
                                            disable_web_page_preview=True)
                     keyboard.add(f"{icon} {i.order_id} {icon}")
-                keyboard.add(f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
+                keyboard.add(f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
                 await bot.send_message(message.from_user.id,
                                        f"Всего в работе {len(res)} задач\n"
                                        f"Выберите ID задачи чтобы их просмотреть или завершить",
@@ -265,7 +275,11 @@ class PerformerMain:
                                        "У вас нет взятых заказов для Грузчиков")
         if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню",
+                                   "Вы вернулись в главное меню")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
             await performer_states.PerformerStart.performer_menu.set()
 
@@ -377,9 +391,12 @@ class PerformerProfile:
         if "Главное меню" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню",
-                                   reply_markup=markup_performer.main_menu(),
-                                   )
+                                   "Вы вернулись в главное меню")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
+                                   reply_markup=markup_performer.main_menu())
         if "Вывести средства" in message.text:
             await bot.send_message(message.from_user.id,
                                    "Здесь будет реализована функция вывода средств")
@@ -712,7 +729,11 @@ class PerformerTasks:
         if "Вернуться в главное меню" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню Исполнителя",
+                                   "Вы вернулись в главное меню Исполнителя")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
         if "Грузчики" in message.text:
             res = await performers_get.performer_checks_all_orders_loading(message.from_user.id)
@@ -782,7 +803,11 @@ class PerformerTasks:
         if "Назад" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню Исполнителя",
+                                   "Вы вернулись в главное меню Исполнителя")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
         # if "Автоотправление сообщений":
         #     await bot.send_message(message.from_user.id,
@@ -939,7 +964,11 @@ class PerformerTasks:
                                reply_markup=markup_performer.inline_approve_main())
         await performer_states.PerformerStart.performer_menu.set()
         await bot.send_message(callback.from_user.id,
-                               f"Отклик отправлен! Ожидайте ответа Заказчика",
+                               f"Отклик отправлен! Ожидайте ответа Заказчика")
+        orders = await performers_get.performer_view_list_orders(callback.from_user.id)
+        orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                reply_markup=markup_performer.main_menu())
 
     @staticmethod
@@ -1010,7 +1039,11 @@ class PerformerTasks:
                                    reply_markup=markup_performer.inline_approve_proposal())
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
-                                   f"Отклик отправлен! Ожидайте ответа Заказчика",
+                                   f"Отклик отправлен! Ожидайте ответа Заказчика")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
         else:
             await bot.send_message(message.from_user.id, "Надо ввести целое число!")
@@ -1039,7 +1072,11 @@ class PerformerTasks:
                                                          datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
         await performer_states.PerformerStart.performer_menu.set()
         await bot.send_message(callback.from_user.id,
-                               "Вы вписались!",
+                               "Вы вписались!")
+        orders = await performers_get.performer_view_list_orders(callback.from_user.id)
+        orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                reply_markup=markup_performer.main_menu())
 
     @staticmethod
@@ -1091,7 +1128,11 @@ class PerformerTasks:
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "Запрос отправлен!\n"
-                                   "Вы находитесь в Главном меню",
+                                   "Вы находитесь в Главном меню")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
 
     @staticmethod
@@ -1102,11 +1143,13 @@ class PerformerTasks:
 class PerformerDetailsTasks:
     @staticmethod
     async def performer_details(message: types.Message, state: FSMContext):
-        if "Вернуться в главное меню" in message.text:
-            await performer_states.PerformerStart.performer_menu.set()
+        if "Назад" in message.text:
+            await performer_states.PerformerStart.orders.set()
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню",
-                                   reply_markup=markup_performer.main_menu())
+                                   "Выберите тип заказа",
+                                   reply_markup=markup_performer.performer_type_orders(orders, orders_loading))
         else:
             try:
                 res = await performers_get.performer_view_list_orders(message.from_user.id)
@@ -1134,9 +1177,11 @@ class PerformerDetailsTasks:
     async def performer_details_loading(message: types.Message, state: FSMContext):
         if "Назад" in message.text:
             await performer_states.PerformerStart.orders.set()
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню",
-                                   reply_markup=markup_performer.performer_type_orders())
+                                   reply_markup=markup_performer.performer_type_orders(orders, orders_loading))
         else:
             try:
                 """Когда пользователь нажимает кнопку заказа (order_id) здесь мы сохраняем order_id в памяти
@@ -1163,7 +1208,11 @@ class PerformerDetailsTasks:
             if order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "Вы вернулись в главное меню",
+                                       "Вы вернулись в главное меню")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
             else:
                 await bot.send_message(message.from_user.id,
@@ -1174,7 +1223,11 @@ class PerformerDetailsTasks:
             if order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "Вы вернулись в главное меню",
+                                       "Вы вернулись в главное меню")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
             else:
                 if order.image:
@@ -1213,7 +1266,11 @@ class PerformerDetailsTasks:
             if order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "Вы вернулись в главное меню",
+                                       "Вы вернулись в главное меню")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
             else:
                 loaders = [await performers_get.performer_select(v) for v in order.persons_list]
@@ -1245,7 +1302,11 @@ class PerformerDetailsTasks:
             if order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "Вы вернулись в главное меню",
+                                       "Вы вернулись в главное меню")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
             else:
                 await bot.send_message(message.from_user.id,
@@ -1272,9 +1333,11 @@ class PerformerDetailsTasks:
                                        f"{config.KEYBOARD.get('DASH') * 14}")
         if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await performer_states.PerformerStart.orders.set()
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню",
-                                   reply_markup=markup_performer.performer_type_orders())
+                                   reply_markup=markup_performer.performer_type_orders(orders, orders_loading))
 
     @staticmethod
     async def detail_task(message: types.Message, state: FSMContext):
@@ -1286,7 +1349,11 @@ class PerformerDetailsTasks:
             if end_order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "Вы вернулись в главное меню",
+                                       "Вы вернулись в главное меню")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
             else:
                 await bot.send_message(message.from_user.id,
@@ -1297,7 +1364,11 @@ class PerformerDetailsTasks:
             if end_order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "Вы вернулись в главное меню",
+                                       "Вы вернулись в главное меню")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
             else:
                 if order.image:
@@ -1338,7 +1409,11 @@ class PerformerDetailsTasks:
             if end_order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "Вы вернулись в главное меню",
+                                       "Вы вернулись в главное меню")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
             else:
                 arrive = await performers_get.performer_arrive_info(data.get("order_id"))
@@ -1358,7 +1433,11 @@ class PerformerDetailsTasks:
             if end_order is None:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
-                                       "Вы вернулись в главное меню",
+                                       "Вы вернулись в главное меню")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
             else:
                 await bot.send_message(message.from_user.id,
@@ -1386,7 +1465,11 @@ class PerformerDetailsTasks:
         if "Вернуться в главное меню" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню",
+                                   "Вы вернулись в главное меню")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
 
 
@@ -1398,7 +1481,11 @@ class PerformerDetailsTasksStatus:
                 status = await general_get.check_details_status(data.get("order_id"))
             if status is None:
                 await bot.send_message(message.from_user.id,
-                                       "Заказ закрыт",
+                                       "Заказ закрыт")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
                 await performer_states.PerformerStart.performer_menu.set()
             if status:
@@ -1417,7 +1504,11 @@ class PerformerDetailsTasksStatus:
                 status = await general_get.check_details_status(data.get("order_id"))
             if status is None:
                 await bot.send_message(message.from_user.id,
-                                       "Заказ закрыт",
+                                       "Заказ закрыт")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
                 await performer_states.PerformerStart.performer_menu.set()
             if status:
@@ -1461,7 +1552,11 @@ class PerformerDetailsTasksStatus:
                                            f"{config.KEYBOARD.get('CROSS_MARK')}")
             else:
                 await bot.send_message(message.from_user.id,
-                                       "Заказ закрыт",
+                                       "Заказ закрыт")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                        reply_markup=markup_performer.main_menu())
                 await performer_states.PerformerStart.performer_menu.set()
         if "Сообщить о прибытии" in message.text:
@@ -1512,7 +1607,11 @@ class PerformerDetailsTasksStatus:
                                    f"{config.KEYBOARD.get('CROSS_MARK') * 14}")
         await performer_states.PerformerStart.performer_menu.set()
         await bot.send_message(callback.from_user.id,
-                               "Вы отменили заказ!",
+                               "Вы отменили заказ!")
+        orders = await performers_get.performer_view_list_orders(callback.from_user.id)
+        orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                reply_markup=markup_performer.main_menu())
 
     @staticmethod
@@ -1634,12 +1733,20 @@ class PerformerHelp:
             await performer_states.PerformerHelp.upload_video.set()
         if message.text == "Завершить":
             await bot.send_message(message.from_user.id,
-                                   "Все сообщения в службу поддержки отправлены!",
+                                   "Все сообщения в службу поддержки отправлены!")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
             await performer_states.PerformerStart.performer_menu.set()
         if message.text == "Вернуться главное меню":
             await bot.send_message(message.from_user.id,
-                                   "Вы вошли в главное меню заказчика",
+                                   "Вы вошли в главное меню заказчика")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
             await performer_states.PerformerStart.performer_menu.set()
         if message.text != "Загрузить Фото" and message.text != "Загрузить Видео" \
@@ -1721,7 +1828,11 @@ class PerformerHistory:
         if "Вернуться в главное меню" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню",
+                                   "Вы вернулись в главное меню")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
         else:
             completed = await performers_get.performer_get_complete_order(message.text)
@@ -1791,7 +1902,11 @@ class PerformerHistory:
         if "Вернуться в главное меню" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню",
+                                   "Вы вернулись в главное меню")
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
 
     @staticmethod

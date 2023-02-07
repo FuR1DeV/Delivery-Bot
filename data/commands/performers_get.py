@@ -75,6 +75,7 @@ async def performer_checks_all_orders_with_category(user_id, performer_category,
 
 
 async def performer_loader_order(user_id):
+    """Исполнитель смотрит все свои заказы Погрузки/Разгрузки"""
     orders_loading = await OrdersLoading.query.where(OrdersLoading.order_end == None).gino.all()
     res_orders = [i for i in orders_loading if user_id in i.persons_list]
     return res_orders
