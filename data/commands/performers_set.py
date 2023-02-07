@@ -1,5 +1,5 @@
 import logging
-from data.models.performers import Performers
+from data.models.performers import Performers, PerformerPersonalData
 from data.models.orders import OrdersStatus, OrdersRating, Reviews, OrdersLoading
 from data.commands import performers_get, customers_get, general_get
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -14,6 +14,12 @@ async def performer_add(user_id, username, telephone, first_name, last_name):
     logger.info(f'Исполнитель {user_id} добавляется в БД')
     performer = Performers(user_id=user_id, username=username, telephone=telephone, first_name=first_name,
                            last_name=last_name)
+    await performer.create()
+
+
+async def performer_add_personal_data(user_id, telephone, real_first_name, real_last_name, selfie):
+    performer = PerformerPersonalData(user_id=user_id, telephone=telephone, real_first_name=real_first_name,
+                                      real_last_name=real_last_name, selfie=selfie)
     await performer.create()
 
 

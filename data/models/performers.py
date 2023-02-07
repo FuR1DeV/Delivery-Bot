@@ -24,3 +24,15 @@ class Performers(BaseModel):
     money_earned = Column(BigInteger, nullable=False, server_default="0")
 
     query: sql.select
+
+
+class PerformerPersonalData(BaseModel):
+    __tablename__ = "performers_personal_data"
+    id = Column(Integer, primary_key=True, nullable=False)
+    user_id = Column(BigInteger, nullable=False, unique=True)
+    telephone = Column(String, nullable=False)
+    real_first_name = Column(String, nullable=False)
+    real_last_name = Column(String, nullable=False)
+    selfie = Column(String, nullable=False)
+
+    query: sql.select

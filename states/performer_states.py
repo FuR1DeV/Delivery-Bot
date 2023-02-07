@@ -13,6 +13,7 @@ class PerformerHistory(StatesGroup):
 
 class PerformerStart(StatesGroup):
     start: State = State()
+    info_about_performer: State = State()
     performer_menu: State = State()
     orders: State = State()
 

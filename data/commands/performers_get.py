@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import and_, or_
 
 from data.models.orders import Orders, OrdersRating, OrdersStatus, OrdersLoading
-from data.models.performers import Performers
+from data.models.performers import Performers, PerformerPersonalData
 from data.models.admins import PrivateChat
 
 logger = logging.getLogger("bot.data.commands.performer_get_db")
@@ -14,6 +14,11 @@ logger = logging.getLogger("bot.data.commands.performer_get_db")
 async def performer_select(user_id):
     """Выбор Исполнителя"""
     performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    return performer
+
+
+async def performer_select_personal_data(user_id):
+    performer = await PerformerPersonalData.query.where(PerformerPersonalData.user_id == user_id).gino.first()
     return performer
 
 

@@ -24,6 +24,9 @@ def register_performer(disp: Dispatcher):
                                          text_contains='p_day_finish_')
     disp.register_message_handler(PerformerMain.orders,
                                   state=performer_states.PerformerStart.orders)
+    disp.register_message_handler(PerformerMain.info_about_performer_name,
+                                  content_types=['photo', 'text'],
+                                  state=performer_states.PerformerStart.info_about_performer)
 
     # def register_performer_profile(disp: Dispatcher):
     disp.register_message_handler(PerformerProfile.performer_profile,
