@@ -98,18 +98,6 @@ class PerformerTasks:
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
-        if "Автоотправление сообщений отключено" in message.text:
-            await performers_set.performer_change_auto_send(message.from_user.id)
-            performer = await performers_get.performer_select(message.from_user.id)
-            await bot.send_message(message.from_user.id,
-                                   "Теперь вы получаете автоматически сообщения о новых Заказах",
-                                   reply_markup=markup_performer.approve(performer.auto_send))
-        if "Автоотправление сообщений включено" in message.text:
-            await performers_set.performer_change_auto_send_close(message.from_user.id)
-            performer = await performers_get.performer_select(message.from_user.id)
-            await bot.send_message(message.from_user.id,
-                                   "Теперь вы НЕ получаете автоматически сообщения о новых Заказах",
-                                   reply_markup=markup_performer.approve(performer.auto_send))
 
     @staticmethod
     async def choose_category(callback: types.CallbackQuery, state: FSMContext):
@@ -324,10 +312,9 @@ class PerformerTasks:
     async def loading_request_approve(message: types.Message, state: FSMContext):
         if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             await performer_states.PerformerTasks.check_all_orders.set()
-            performer = await performers_get.performer_select(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    "Выберите тип Заказа",
-                                   reply_markup=markup_performer.approve(performer.auto_send))
+                                   reply_markup=markup_performer.approve())
         if message.text != f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             async with state.proxy() as data:
                 order_loading = data.get("order_loading")

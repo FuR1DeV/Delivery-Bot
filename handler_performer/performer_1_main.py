@@ -28,7 +28,7 @@ class PerformerMain:
                                    f"Поделитесь с нами вашим номером телефона!\n",
                                    reply_markup=keyboard)
             await performer_states.PerformerPhone.phone.set()
-        if not performer.ban and performer_p_d:
+        elif performer_p_d:
             await bot.delete_message(callback.from_user.id, callback.message.message_id)
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(callback.from_user.id,
@@ -38,10 +38,7 @@ class PerformerMain:
             await bot.send_message(callback.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
-        if performer.ban == 1:
-            await bot.delete_message(callback.from_user.id, callback.message.message_id)
-            await bot.send_message(callback.from_user.id, "Вы заблокированы! Обратитесь в техподдержку!")
-        if performer_p_d is None:
+        elif performer_p_d is None:
             await performer_states.PerformerStart.info_about_performer.set()
             await bot.send_message(callback.from_user.id,
                                    f"{callback.from_user.first_name} Спасибо что пользуетесь нашим ботом!\n"
@@ -52,6 +49,9 @@ class PerformerMain:
                                    "Введите Ваше реальное Имя\n"
                                    "Вводить только на русском языке.\n",
                                    reply_markup=markup_performer.markup_clean)
+        else:
+            await bot.delete_message(callback.from_user.id, callback.message.message_id)
+            await bot.send_message(callback.from_user.id, "Вы заблокированы! Обратитесь в техподдержку!")
 
     @staticmethod
     async def phone(message: types.Message, state: FSMContext):
@@ -175,7 +175,7 @@ class PerformerMain:
                 await performer_states.PerformerTasks.check_all_orders.set()
                 await bot.send_message(message.from_user.id,
                                        "Выберите тип Заказа",
-                                       reply_markup=markup_performer.approve(performer.auto_send))
+                                       reply_markup=markup_performer.approve())
         if "Задачи в работе" in message.text:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
@@ -511,6 +511,7 @@ class PerformerProfile:
                                                      datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                      time_d,
                                                      money)
+        await performers_set.performer_change_auto_send(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
                                "Вы активировали доп услугу\n"
                                "Теперь вы будете получать автоматически сообщения о новых заказах\n"

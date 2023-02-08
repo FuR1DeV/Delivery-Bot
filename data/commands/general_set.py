@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime
 
-from data.models.performers import Performers
+from bot import bot
+from data.models.performers import Performers, AutoSendJobOffer
 from data.models.customers import Customers
 from data.models.admins import Payment, PrivateChat
 from data.models.orders import Orders, Reviews, OrdersStatus, Commission, CommissionPromo, OrdersLoading
@@ -50,10 +51,19 @@ async def operation_commission(order):
 async def check_orders_status():
     orders_status = await OrdersStatus.query.gino.all()
     promo = await CommissionPromo.query.gino.all()
+    auto_send = await AutoSendJobOffer.query.gino.all()
+    for i in auto_send:
+        limitation = str(datetime.now() - datetime.strptime(i.end, '%d-%m-%Y, %H:%M:%S'))[:1]
+        if limitation != "-":
+            await delete_expired_auto_send(i.user_id)
+            await bot.send_message(i.user_id,
+                                   "<b>Закончилось время автоматического отправление предложений о работе!</b>")
     for i in promo:
-        limitation = str(datetime.now() - i.promo_time)[:1]
+        limitation = str(datetime.now() - datetime.strptime(i.promo_time, '%d-%m-%Y, %H:%M:%S'))[:1]
         if limitation != "-":
             await delete_expired_promo(i.user_id)
+            await bot.send_message(i.user_id,
+                                   "<b>Ваше промо со сниженной комиссией завершилось!</b>")
     for i in orders_status:
         if i.performer_status + i.customer_status == 2:
 
@@ -148,3 +158,8 @@ async def private_chat_change_count_word(user_id):
 async def delete_expired_promo(user_id):
     promo = await CommissionPromo.query.where(CommissionPromo.user_id == user_id).gino.first()
     await promo.delete()
+
+
+async def delete_expired_auto_send(user_id):
+    auto_send = await AutoSendJobOffer.query.where(AutoSendJobOffer.user_id == user_id).gino.first()
+    await auto_send.delete()
