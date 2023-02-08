@@ -1,9 +1,11 @@
 __all__ = ["register_customer"]
 
 from aiogram import Dispatcher
-from .customer import CustomerMain, CustomerCreateTaskLoading, CustomerCreateTask, CustomerProfile, \
-    CustomerCreateTaskComp, CustomerDetailsTasks, CustomerDetailsTasksChange, CustomerDetailsTasksStatus, CustomerHelp,\
-    CustomerHistory
+from .customer_1_main import CustomerMain, CustomerProfile
+from .customer_2_create_task import CustomerCreateTaskLoading, CustomerCreateTask, CustomerCreateTaskComp
+from .customer_3_details_task import CustomerDetailsTasks, CustomerDetailsTasksChange, CustomerDetailsTasksStatus
+from .customer_4_history import CustomerHistory
+from .customer_5_help import CustomerHelp
 from states import customer_states
 
 
