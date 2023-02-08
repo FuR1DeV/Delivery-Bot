@@ -187,54 +187,6 @@ class PerformerTasks:
                 await bot.send_message(callback.from_user.id,
                                        f"Вы поставили <b>{like}</b> этому заказу")
 
-    # @staticmethod
-    # async def get_order(message: types.Message, state: FSMContext):
-    #     res = await performers_get.performer_view_order(message.text)
-    #     if not res.in_work:
-    #         async with state.proxy() as data:
-    #             data["order_id"] = message.text
-    #             data["price"] = res.price
-    #         if res.image:
-    #             await bot.send_photo(message.from_user.id, res.image)
-    #         if res.video:
-    #             await bot.send_video(message.from_user.id, res.video)
-    #         await bot.send_message(message.from_user.id,
-    #                                f"{config.KEYBOARD.get('DASH') * 14}\n"
-    #                                f"<b>Детали заказа</b>\n"
-    #                                f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
-    #                                f"Категория - <b>{res.category_delivery}</b>\n"
-    #                                f"{config.KEYBOARD.get('A_BUTTON')} "
-    #                                f"Откуда - <a href='https://yandex.ru/maps/?text="
-    #                                f"{'+'.join(res.geo_position_from.split())}'>{res.geo_position_from}</a>\n"
-    #                                f"{config.KEYBOARD.get('B_BUTTON')} "
-    #                                f"Куда - <a href='https://yandex.ru/maps/?text="
-    #                                f"{'+'.join(res.geo_position_to.split())}'>{res.geo_position_to}</a>\n"
-    #                                f"{config.KEYBOARD.get('INFORMATION')} "
-    #                                f"Название - <b>{res.title}</b>\n"
-    #                                f"{config.KEYBOARD.get('CLIPBOARD')} "
-    #                                f"Описание - <b>{res.description}</b>\n"
-    #                                f"{config.KEYBOARD.get('DOLLAR')} "
-    #                                f"Цена - <b>{res.price}</b>\n"
-    #                                f"{config.KEYBOARD.get('MONEY_BAG')} "
-    #                                f"Ценность этого товара - <b>{res.order_worth}</b>\n"
-    #                                f"{config.KEYBOARD.get('ID_BUTTON')} "
-    #                                f"ID заказа - <b>{res.order_id}</b>\n"
-    #                                f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-    #                                f"Заказ создан: <b>{res.order_create}</b>\n"
-    #                                f"{config.KEYBOARD.get('BAR_CHART')} "
-    #                                f"Рейтинг заказа | <b>{res.order_rating}</b>\n"
-    #                                f"{config.KEYBOARD.get('DASH') * 14}\n",
-    #                                disable_web_page_preview=True)
-    #         await bot.send_message(message.from_user.id,
-    #                                "Вы хотите взять эту задачу ?",
-    #                                reply_markup=markup_performer.inline_approve())
-    #         await performer_states.PerformerTasks.approve_or_decline.set()
-    #     else:
-    #         await performer_states.PerformerStart.performer_menu.set()
-    #         await bot.send_message(message.from_user.id,
-    #                                "Заказа не существует! или его уже кто то взял!",
-    #                                reply_markup=markup_performer.main_menu())
-
     @staticmethod
     async def order_request(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
@@ -259,22 +211,6 @@ class PerformerTasks:
         await bot.send_message(callback.from_user.id,
                                f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                reply_markup=markup_performer.main_menu())
-
-    @staticmethod
-    async def approve_order(callback: types.CallbackQuery):
-        pass
-
-    @staticmethod
-    async def approve_order_with_new_price(callback: types.CallbackQuery):
-        pass
-
-    # @staticmethod
-    # async def decline_order(callback: types.CallbackQuery):
-    #     await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    #     await bot.send_message(callback.from_user.id,
-    #                            'Вы отказались от задачи',
-    #                            reply_markup=markup_performer.main_menu())
-    #     await performer_states.PerformerStart.performer_menu.set()
 
     @staticmethod
     async def proposal(callback: types.CallbackQuery, state: FSMContext):

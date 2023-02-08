@@ -10,6 +10,7 @@ from states import performer_states
 
 
 def register_performer(disp: Dispatcher):
+    # performer_main
     disp.register_message_handler(PerformerMain.phone, content_types=['contact'],
                                   state=performer_states.PerformerPhone.phone)
     disp.register_callback_query_handler(PerformerMain.hi_performer, text='performer')
@@ -30,7 +31,7 @@ def register_performer(disp: Dispatcher):
                                   content_types=['photo', 'text'],
                                   state=performer_states.PerformerStart.info_about_performer)
 
-    # def register_performer_profile(disp: Dispatcher):
+    # performer_profile
     disp.register_message_handler(PerformerProfile.performer_profile,
                                   state=performer_states.PerformerProfile.my_profile)
     disp.register_message_handler(PerformerProfile.performer_profile_change_status,
@@ -46,27 +47,17 @@ def register_performer(disp: Dispatcher):
                                          text='cancel_pay',
                                          state=performer_states.PerformerProfile.pay)
 
-    # def register_performer_tasks(disp: Dispatcher):
+    # performer_tasks
     disp.register_message_handler(PerformerTasks.check_all_orders,
                                   state=performer_states.PerformerTasks.check_all_orders)
-    # disp.register_message_handler(PerformerTasks.get_order,
-    #                               state=performer_states.PerformerTasks.get_order)
     disp.register_callback_query_handler(PerformerTasks.order_request,
                                          state=["*"],
                                          text_contains='order_request_')
-    disp.register_callback_query_handler(PerformerTasks.approve_order, state=["*"],
-                                         text='performer_get')
-    # disp.register_callback_query_handler(PerformerTasks.decline_order,
-    #                                      state=["*"],
-    #                                      text='performer_decline')
     disp.register_callback_query_handler(PerformerTasks.proposal,
                                          state=["*"],
                                          text_contains='order_proposal_')
     disp.register_message_handler(PerformerTasks.proposal_price,
                                   state=performer_states.PerformerTasks.proposal)
-    disp.register_callback_query_handler(PerformerTasks.approve_order_with_new_price,
-                                         state=["*"],
-                                         text='performer_get_with_new_price')
     disp.register_callback_query_handler(PerformerTasks.choose_category,
                                          state=performer_states.PerformerTasks.check_all_orders,
                                          text_contains="cat_")
@@ -88,7 +79,7 @@ def register_performer(disp: Dispatcher):
     disp.register_message_handler(PerformerTasks.loading_request_approve,
                                   state=performer_states.PerformerTasks.loading_request)
 
-    # def register_performer_details_tasks(disp: Dispatcher):
+    # performer_details_tasks
     disp.register_message_handler(PerformerDetailsTasks.performer_details,
                                   state=performer_states.PerformerDetailsTasks.details_tasks)
     disp.register_message_handler(PerformerDetailsTasks.detail_task,
@@ -98,7 +89,7 @@ def register_performer(disp: Dispatcher):
     disp.register_message_handler(PerformerDetailsTasks.performer_details_loading_enter,
                                   state=performer_states.PerformerDetailsTasks.enter_loading_task)
 
-    # def register_performer_details_tasks_status(disp: Dispatcher):
+    # performer_details_tasks_status
     disp.register_message_handler(PerformerDetailsTasksStatus.details_status,
                                   state=performer_states.PerformerDetailsTasksStatus.enter_status)
     disp.register_callback_query_handler(PerformerDetailsTasksStatus.cancel_order,
@@ -118,7 +109,7 @@ def register_performer(disp: Dispatcher):
     disp.register_message_handler(PerformerDetailsTasksStatus.review,
                                   state=performer_states.PerformerDetailsTasksStatus.review)
 
-    # def register_performer_help(disp: Dispatcher):
+    # performer_help
     disp.register_message_handler(PerformerHelp.performer_help,
                                   content_types=['text'],
                                   state=performer_states.PerformerHelp.help)
@@ -132,7 +123,7 @@ def register_performer(disp: Dispatcher):
                                          text='private_chat',
                                          state=performer_states.PerformerHelp.help)
 
-    # def register_performer_history(disp: Dispatcher):
+    # performer_history
     disp.register_message_handler(PerformerHistory.history, state=performer_states.PerformerHistory.enter_history)
     disp.register_message_handler(PerformerHistory.order_history,
                                   state=performer_states.PerformerHistory.order_history)
