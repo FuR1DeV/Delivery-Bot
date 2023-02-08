@@ -690,7 +690,7 @@ class AdminCommission:
                                            reply_markup=markup_admin.commission_set())
                     await admins_set.set_commission_for_promo(data.get('user_id'),
                                                               comm,
-                                                              date)
+                                                              date.strftime("%d-%m-%Y, %H:%M:%S"))
                     await states.Commission.commission_set.set()
             if exists is None:
                 await bot.send_message(callback.from_user.id,
@@ -700,7 +700,7 @@ class AdminCommission:
                                        reply_markup=markup_admin.commission_set())
                 await admins_set.set_commission_for_promo(data.get('user_id'),
                                                           comm,
-                                                          date)
+                                                          date.strftime("%d-%m-%Y, %H:%M:%S"))
                 await states.Commission.commission_set.set()
 
 
