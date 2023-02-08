@@ -35,8 +35,9 @@ class PerformerHelp:
                                    "Все сообщения в службу поддержки отправлены!")
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            promo = await performers_get.check_commission_promo(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
                                    reply_markup=markup_performer.main_menu())
             await performer_states.PerformerStart.performer_menu.set()
         if message.text == "Вернуться главное меню":
@@ -44,8 +45,9 @@ class PerformerHelp:
                                    "Вы вошли в главное меню заказчика")
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            promo = await performers_get.check_commission_promo(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
                                    reply_markup=markup_performer.main_menu())
             await performer_states.PerformerStart.performer_menu.set()
         if message.text != "Загрузить Фото" and message.text != "Загрузить Видео" \

@@ -35,8 +35,9 @@ class PerformerMain:
                                    "Спасибо что пользуетесь нашим ботом!")
             orders = await performers_get.performer_view_list_orders(callback.from_user.id)
             orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
+            promo = await performers_get.check_commission_promo(callback.from_user.id)
             await bot.send_message(callback.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
                                    reply_markup=markup_performer.main_menu())
         elif performer_p_d is None:
             await performer_states.PerformerStart.info_about_performer.set()
@@ -112,8 +113,9 @@ class PerformerMain:
                                f"{message.from_user.first_name} Вы в главном меню Исполнителя")
         orders = await performers_get.performer_view_list_orders(message.from_user.id)
         orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+        promo = await performers_get.check_commission_promo(message.from_user.id)
         await bot.send_message(message.from_user.id,
-                               f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
+                               f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
                                reply_markup=markup_performer.main_menu())
         await performer_states.PerformerStart.performer_menu.set()
 
@@ -134,6 +136,7 @@ class PerformerMain:
                 status = "На машине"
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
             await performer_states.PerformerProfile.my_profile.set()
+            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"Ваш профиль <b>Исполнителя</b>:\n"
@@ -149,7 +152,7 @@ class PerformerMain:
                                    f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile())
+                                   reply_markup=markup_performer.performer_profile(auto_send))
         if "Помощь" in message.text:
             await performer_states.PerformerHelp.help.set()
             user_status_chat = await performers_get.check_private_chat_status(message.from_user.id)
@@ -167,10 +170,11 @@ class PerformerMain:
             performer_money = performer.performer_money
             if performer_money < 50:
                 await performer_states.PerformerProfile.my_profile.set()
+                auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        "<b>Баланс должен быть не ниже 50 рублей!</b>\n"
                                        "<b>Пополните ваш баланс</b>",
-                                       reply_markup=markup_performer.performer_profile())
+                                       reply_markup=markup_performer.performer_profile(auto_send))
             if performer_money >= 50:
                 await performer_states.PerformerTasks.check_all_orders.set()
                 await bot.send_message(message.from_user.id,
@@ -321,8 +325,9 @@ class PerformerMain:
         if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню":
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            promo = await performers_get.check_commission_promo(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
                                    reply_markup=markup_performer.main_menu())
             await performer_states.PerformerStart.performer_menu.set()
 
@@ -435,8 +440,9 @@ class PerformerProfile:
             await performer_states.PerformerStart.performer_menu.set()
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            promo = await performers_get.check_commission_promo(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
                                    reply_markup=markup_performer.main_menu())
         if "Автоотправление предложений" in message.text:
             money = 25
@@ -512,10 +518,12 @@ class PerformerProfile:
                                                      time_d,
                                                      money)
         await performers_set.performer_change_auto_send(callback.from_user.id)
+        auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
                                "Вы активировали доп услугу\n"
                                "Теперь вы будете получать автоматически сообщения о новых заказах\n"
-                               f"Действует до <b>{time_d}</b>")
+                               f"Действует до <b>{time_d}</b>",
+                               reply_markup=markup_performer.performer_profile(auto_send))
 
     @staticmethod
     async def performer_profile_change_status(message: types.Message):
@@ -530,6 +538,7 @@ class PerformerProfile:
             status = "Пешеход"
             icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
             await performer_states.PerformerProfile.my_profile.set()
+            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"Ваш профиль <b>Исполнителя</b>:\n"
@@ -549,7 +558,7 @@ class PerformerProfile:
                                    f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile())
+                                   reply_markup=markup_performer.performer_profile(auto_send))
         if message.text == f"{config.KEYBOARD.get('AUTOMOBILE')} Я на транспорте":
             await performer_states.PerformerProfile.change_status_transport.set()
             await bot.send_message(message.from_user.id,
@@ -569,6 +578,7 @@ class PerformerProfile:
                 status = "На машине"
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
             await performer_states.PerformerProfile.my_profile.set()
+            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"Ваш профиль <b>Исполнителя</b>:\n"
@@ -588,7 +598,7 @@ class PerformerProfile:
                                    f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile())
+                                   reply_markup=markup_performer.performer_profile(auto_send))
 
     @staticmethod
     async def transport(message: types.Message):
@@ -603,6 +613,7 @@ class PerformerProfile:
             status = "На машине"
             icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
             await performer_states.PerformerProfile.my_profile.set()
+            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"Ваш профиль <b>Исполнителя</b>:\n"
@@ -622,7 +633,7 @@ class PerformerProfile:
                                    f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile())
+                                   reply_markup=markup_performer.performer_profile(auto_send))
         if message.text == f"{config.KEYBOARD.get('KICK_SCOOTER')} Я на самокате":
             await performers_set.performer_set_self_status(message.from_user.id,
                                                            "scooter",
@@ -634,6 +645,7 @@ class PerformerProfile:
             status = "На самокате"
             icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
             await performer_states.PerformerProfile.my_profile.set()
+            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"Ваш профиль <b>Исполнителя</b>:\n"
@@ -653,7 +665,7 @@ class PerformerProfile:
                                    f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile())
+                                   reply_markup=markup_performer.performer_profile(auto_send))
         if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             res = await performers_get.performer_select(message.from_user.id)
             status = None
@@ -668,6 +680,7 @@ class PerformerProfile:
                 status = "На машине"
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
             await performer_states.PerformerProfile.my_profile.set()
+            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    f"Ваш профиль <b>Исполнителя</b>:\n"
@@ -687,15 +700,16 @@ class PerformerProfile:
                                    f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile())
+                                   reply_markup=markup_performer.performer_profile(auto_send))
 
     @staticmethod
     async def pay(message: types.Message):
         if f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в Мой профиль" == message.text:
             await performer_states.PerformerProfile.my_profile.set()
+            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в Мой профиль",
-                                   reply_markup=markup_performer.performer_profile())
+                                   reply_markup=markup_performer.performer_profile(auto_send))
         if f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в Мой профиль" != message.text:
             if message.text.isdigit() and int(message.text) >= 50:
                 try:
@@ -732,9 +746,10 @@ class PerformerProfile:
                 await performers_set.set_money(callback.from_user.id, int(info.money))
                 await general_set.delete_payment(callback.from_user.id)
                 await bot.delete_message(callback.from_user.id, callback.message.message_id)
+                auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
                 await bot.send_message(callback.from_user.id,
                                        "Ваш счёт пополнен!\n",
-                                       reply_markup=markup_performer.performer_profile())
+                                       reply_markup=markup_performer.performer_profile(auto_send))
                 await state.finish()
                 res = await performers_get.performer_select(callback.from_user.id)
                 if res.performer_category == "pedestrian":
@@ -746,6 +761,7 @@ class PerformerProfile:
                 else:
                     status = "На скутере"
                     icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+                auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
                 await bot.send_message(callback.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
                                        f"Ваш профиль <b>Исполнителя</b>:\n"
@@ -765,7 +781,7 @@ class PerformerProfile:
                                        f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                        f"{icon} Ваша категория: <b>{status}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}",
-                                       reply_markup=markup_performer.performer_profile())
+                                       reply_markup=markup_performer.performer_profile(auto_send))
                 await performer_states.PerformerProfile.my_profile.set()
             else:
                 await bot.send_message(callback.from_user.id,
@@ -779,7 +795,8 @@ class PerformerProfile:
     async def cancel(callback: types.CallbackQuery, state: FSMContext):
         await general_set.delete_payment(callback.from_user.id)
         await state.finish()
+        auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
                                "Вы отменили пополнение баланса\n",
-                               reply_markup=markup_performer.performer_profile())
+                               reply_markup=markup_performer.performer_profile(auto_send))
         await performer_states.PerformerProfile.my_profile.set()

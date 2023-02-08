@@ -674,33 +674,26 @@ class AdminCommission:
             date = datetime.now() + timedelta(hours=int(data.get('time')))
             exists = await admins_get.check_commission_promo(data.get('user_id'))
             if exists:
-                limitation = str(datetime.now() - exists.promo_time)[:1]
-                if limitation == "-":
-                    await bot.send_message(callback.from_user.id,
-                                           f"Вы уже установили промо!\n"
-                                           f"Сейчас действует <b>{exists.percent}</b> \n"
-                                           f"до <b>{exists.promo_time.strftime('%d-%m-%Y, %H:%M:%S')}</b>",
-                                           reply_markup=markup_admin.commission_set())
-                    await states.Commission.commission_set.set()
-                if limitation != "-":
-                    await bot.send_message(callback.from_user.id,
-                                           f"Отлично! Теперь у пользователя <b>{data.get('user_id')}</b>\n"
-                                           f"Комиссия <b>{comm}</b>\n"
-                                           f"на время <b>{data.get('time')}</b> часа",
-                                           reply_markup=markup_admin.commission_set())
-                    await admins_set.set_commission_for_promo(data.get('user_id'),
-                                                              comm,
-                                                              date.strftime("%d-%m-%Y, %H:%M:%S"))
-                    await states.Commission.commission_set.set()
-            if exists is None:
                 await bot.send_message(callback.from_user.id,
-                                       f"Отлично! Теперь у пользователя <b>{data.get('user_id')}</b> "
+                                       f"Вы уже установили промо!\n"
+                                       f"Сейчас действует <b>{exists.percent}</b> \n"
+                                       f"до <b>{exists.promo_time}</b>",
+                                       reply_markup=markup_admin.commission_set())
+                await states.Commission.commission_set.set()
+            else:
+                user_id = data.get('user_id')
+                await bot.send_message(callback.from_user.id,
+                                       f"Отлично! Теперь у пользователя <b>{user_id}</b> "
                                        f"Комиссия <b>{comm}</b> "
                                        f"на время <b>{data.get('time')}</b> часа",
                                        reply_markup=markup_admin.commission_set())
-                await admins_set.set_commission_for_promo(data.get('user_id'),
+                await admins_set.set_commission_for_promo(user_id,
                                                           comm,
                                                           date.strftime("%d-%m-%Y, %H:%M:%S"))
+                await bot.send_message(user_id,
+                                       "Теперь у вас действует промо\n"
+                                       f"Комиссия <b>{comm}</b> "
+                                       f"на время <b>{data.get('time')}</b> часа")
                 await states.Commission.commission_set.set()
 
 

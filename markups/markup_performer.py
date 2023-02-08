@@ -200,10 +200,14 @@ def photo_or_video_help(chat_info):
     return keyboard
 
 
-def performer_profile():
+def performer_profile(auto_send):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"{KEYBOARD.get('OUTBOX_TRAY')} Автоотправление предложений",
-                 f"{KEYBOARD.get('INBOX_TRAY')} Пополнить баланс")
+    if auto_send:
+        keyboard.row(f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Автоотправление предложений",
+                     f"{KEYBOARD.get('INBOX_TRAY')} Пополнить баланс")
+    else:
+        keyboard.row(f"{KEYBOARD.get('CROSS_MARK')} Автоотправление предложений",
+                     f"{KEYBOARD.get('INBOX_TRAY')} Пополнить баланс")
     keyboard.row(f"{KEYBOARD.get('BAR_CHART')} Статистика",
                  f"{KEYBOARD.get('PERSON_RUNNING')}{KEYBOARD.get('AUTOMOBILE')} Статус категории")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Главное меню")
@@ -345,23 +349,36 @@ def auto_send_pay(money: int):
     return private_chat
 
 
-def text_menu(orders, orders_loading):
-    if not orders and not orders_loading:
-        return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы в главном меню"
-    if orders and orders_loading:
-        return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы в главном меню\n" \
-               f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
-               f"У вас <b>{orders}</b> заказов в работе\n" \
-               f"{KEYBOARD.get('ARROWS_BUTTON')} " \
-               f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
-    if not orders and orders_loading:
-        return f"{KEYBOARD.get('HOUSE')} " \
-               f"Вы в главном меню\n" \
-               f"{KEYBOARD.get('ARROWS_BUTTON')} " \
-               f"У вас <b>{orders_loading}</b> заказов для Грузчиков"
-    if orders and not orders_loading:
-        return f"Вы в главном меню\n" \
-               f"{KEYBOARD.get('HAMMER_AND_PICK')} " \
-               f"У вас <b>{orders}</b> заказов в работе\n"
+def text_menu(orders, orders_loading, promo):
+    if not orders and not orders_loading and not promo:
+        return f"{KEYBOARD.get('HOUSE')} Вы в главном меню"
+    if not orders and not orders_loading and promo:
+        return f"{KEYBOARD.get('HOUSE')} Вы в главном меню\n" \
+               f"{KEYBOARD.get('GLOWING_STAR')} У вас действует промо!\n" \
+               f"Комиссия <b>{promo.percent}</b> до <b>{promo.promo_time}</b> часа"
+    if orders and orders_loading and not promo:
+        return f"{KEYBOARD.get('HOUSE')} Вы в главном меню\n" \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} У вас <b>{orders}</b> заказов в работе\n" \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} У вас <b>{orders_loading}</b> заказов для Грузчиков"
+    if orders and orders_loading and promo:
+        return f"{KEYBOARD.get('HOUSE')} Вы в главном меню\n" \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} У вас <b>{orders}</b> заказов в работе\n" \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} У вас <b>{orders_loading}</b> заказов для Грузчиков\n" \
+               f"{KEYBOARD.get('GLOWING_STAR')} У вас действует промо!\n" \
+               f"Комиссия <b>{promo.percent}</b> до <b>{promo.promo_time}</b> часа"
+    if not orders and orders_loading and not promo:
+        return f"{KEYBOARD.get('HOUSE')} Вы в главном меню\n" \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} У вас <b>{orders_loading}</b> заказов для Грузчиков"
+    if not orders and orders_loading and promo:
+        return f"{KEYBOARD.get('HOUSE')} Вы в главном меню\n" \
+               f"{KEYBOARD.get('ARROWS_BUTTON')} У вас <b>{orders_loading}</b> заказов для Грузчиков\n" \
+               f"{KEYBOARD.get('GLOWING_STAR')} У вас действует промо!\n" \
+               f"Комиссия <b>{promo.percent}</b> до <b>{promo.promo_time}</b> часа"
+    if orders and not orders_loading and not promo:
+        return f"{KEYBOARD.get('HOUSE')} Вы в главном меню\n" \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} У вас <b>{orders}</b> заказов в работе"
+    if orders and not orders_loading and promo:
+        return f"{KEYBOARD.get('HOUSE')} Вы в главном меню\n" \
+               f"{KEYBOARD.get('HAMMER_AND_PICK')} У вас <b>{orders}</b> заказов в работе\n" \
+               f"{KEYBOARD.get('GLOWING_STAR')} У вас действует промо!\n" \
+               f"Комиссия <b>{promo.percent}</b> до <b>{promo.promo_time}</b> часа"
