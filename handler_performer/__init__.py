@@ -2,8 +2,10 @@ __all__ = ["register_performer"]
 
 from aiogram import Dispatcher
 
-from .performer import PerformerMain, PerformerProfile, PerformerTasks, PerformerDetailsTasks, \
-    PerformerDetailsTasksStatus, PerformerHelp, PerformerHistory
+from .performer_1_main import PerformerMain, PerformerProfile
+from .performer_2_tasks import PerformerTasks, PerformerDetailsTasks, PerformerDetailsTasksStatus
+from .performer_3_history import PerformerHistory
+from .performer_4_help import PerformerHelp
 from states import performer_states
 
 
