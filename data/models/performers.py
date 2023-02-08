@@ -36,3 +36,13 @@ class PerformerPersonalData(BaseModel):
     selfie = Column(String, nullable=False)
 
     query: sql.select
+
+
+class AutoSendJobOffer(BaseModel):
+    __tablename__ = "auto_send_job_offer"
+    id = Column(Integer, primary_key=True, nullable=False)
+    user_id = Column(BigInteger, nullable=False, unique=True)
+    start = Column(String, nullable=False)
+    end = Column(String, nullable=False)
+
+    query: sql.select

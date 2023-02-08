@@ -46,6 +46,9 @@ def register_performer(disp: Dispatcher):
     disp.register_callback_query_handler(PerformerProfile.cancel,
                                          text='cancel_pay',
                                          state=performer_states.PerformerProfile.pay)
+    disp.register_callback_query_handler(PerformerProfile.auto_send_job_offer,
+                                         text_contains='auto_send_pay_',
+                                         state=["*"])
 
     # performer_tasks
     disp.register_message_handler(PerformerTasks.check_all_orders,

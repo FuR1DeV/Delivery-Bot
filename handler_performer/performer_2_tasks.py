@@ -98,10 +98,6 @@ class PerformerTasks:
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
-        # if "Автоотправление сообщений":
-        #     await bot.send_message(message.from_user.id,
-        #                            "Да!",
-        #                            reply_markup=markup_performer.auto_send_message())
         if "Автоотправление сообщений отключено" in message.text:
             await performers_set.performer_change_auto_send(message.from_user.id)
             performer = await performers_get.performer_select(message.from_user.id)
@@ -114,9 +110,6 @@ class PerformerTasks:
             await bot.send_message(message.from_user.id,
                                    "Теперь вы НЕ получаете автоматически сообщения о новых Заказах",
                                    reply_markup=markup_performer.approve(performer.auto_send))
-
-    # @staticmethod
-    # async def
 
     @staticmethod
     async def choose_category(callback: types.CallbackQuery, state: FSMContext):

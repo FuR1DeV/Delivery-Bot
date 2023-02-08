@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import and_, or_
 
 from data.models.orders import Orders, OrdersRating, OrdersStatus, OrdersLoading
-from data.models.performers import Performers, PerformerPersonalData
+from data.models.performers import Performers, PerformerPersonalData, AutoSendJobOffer
 from data.models.admins import PrivateChat
 
 logger = logging.getLogger("bot.data.commands.performer_get_db")
@@ -170,3 +170,8 @@ async def performer_trying_change_self_category(user_id):
 async def performer_arrive_info(order_id):
     arrive = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
     return arrive.performer_arrive
+
+
+async def performer_auto_send_check(user_id):
+    performer = await AutoSendJobOffer.query.where(AutoSendJobOffer.user_id == user_id).gino.first()
+    return performer

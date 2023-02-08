@@ -1,5 +1,5 @@
 import logging
-from data.models.performers import Performers, PerformerPersonalData
+from data.models.performers import Performers, PerformerPersonalData, AutoSendJobOffer
 from data.models.orders import OrdersStatus, OrdersRating, Reviews, OrdersLoading
 from data.commands import performers_get, customers_get, general_get
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -146,3 +146,10 @@ async def performer_change_auto_send(user_id):
 async def performer_change_auto_send_close(user_id):
     performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
     await performer.update(auto_send=0).apply()
+
+
+async def performer_auto_send_pay(user_id, start, end, money):
+    auto_send = AutoSendJobOffer(user_id=user_id, start=start, end=end)
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    await performer.update(performer_money=performer.performer_money - int(money)).apply()
+    await auto_send.create()

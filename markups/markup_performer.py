@@ -206,7 +206,7 @@ def photo_or_video_help(chat_info):
 
 def performer_profile():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"{KEYBOARD.get('OUTBOX_TRAY')} Вывести средства",
+    keyboard.row(f"{KEYBOARD.get('OUTBOX_TRAY')} Автоотправление предложений",
                  f"{KEYBOARD.get('INBOX_TRAY')} Пополнить баланс")
     keyboard.row(f"{KEYBOARD.get('BAR_CHART')} Статистика",
                  f"{KEYBOARD.get('PERSON_RUNNING')}{KEYBOARD.get('AUTOMOBILE')} Статус категории")
@@ -340,6 +340,13 @@ def order_rating(order_id):
     rate.insert(btn_plus)
     rate.insert(btn_minus)
     return rate
+
+
+def auto_send_pay(money: int):
+    btn = InlineKeyboardButton(text=f"Заплатить {money}", callback_data=f'auto_send_pay_{money}')
+    private_chat = InlineKeyboardMarkup(row_width=1)
+    private_chat.insert(btn)
+    return private_chat
 
 
 def text_menu(orders, orders_loading):

@@ -438,9 +438,20 @@ class PerformerProfile:
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading))}",
                                    reply_markup=markup_performer.main_menu())
-        if "Вывести средства" in message.text:
-            await bot.send_message(message.from_user.id,
-                                   "Здесь будет реализована функция вывода средств")
+        if "Автоотправление предложений" in message.text:
+            money = 25
+            performer = await performers_get.performer_auto_send_check(message.from_user.id)
+            if not performer:
+                await bot.send_message(message.from_user.id,
+                                       "Подключить платную услугу\n"
+                                       "Автоотправление предложений о работе\n"
+                                       f"Стоимость данной услуги {money} рублей за 24 часа",
+                                       reply_markup=markup_performer.auto_send_pay(money))
+
+            else:
+                await bot.send_message(message.from_user.id,
+                                       f"У вас уже действует <b>Автоотправление предложений</b>\n"
+                                       f"Время окончания - <b>{performer.end}</b>")
         if "Статус категории" in message.text:
             res = await performers_get.performer_trying_change_self_category(message.from_user.id)
             if res:
@@ -490,6 +501,20 @@ class PerformerProfile:
                                    f"<b>{performer[0].canceled_orders}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}\n"
                                    )
+
+    @staticmethod
+    async def auto_send_job_offer(callback: types.CallbackQuery):
+        money = callback.data[14:]
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        time_d = (datetime.now() + timedelta(hours=24)).strftime('%d-%m-%Y, %H:%M:%S')
+        await performers_set.performer_auto_send_pay(callback.from_user.id,
+                                                     datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
+                                                     time_d,
+                                                     money)
+        await bot.send_message(callback.from_user.id,
+                               "Вы активировали доп услугу\n"
+                               "Теперь вы будете получать автоматически сообщения о новых заказах\n"
+                               f"Действует до <b>{time_d}</b>")
 
     @staticmethod
     async def performer_profile_change_status(message: types.Message):
