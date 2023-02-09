@@ -42,8 +42,12 @@ logger = logging.getLogger("bot.main")
 @dp.message_handler(commands='start', state='*')
 async def start(message: types.Message, state: FSMContext):
     await bot.send_message(message.from_user.id,
-                           f'Добро пожаловать в Telegram Bot который поможет найти исполнителя '
-                           f'или подзаработать', reply_markup=markup_start.markup_clean)
+                           f'<b>Добро пожаловать в Telegram Bot который поможет найти исполнителя '
+                           f'или подзаработать</b>\n'
+                           f'<i>Владелец бота - Самозанятый Туртугешев В.Т.</i>\n'
+                           f'<i>ИНН Самозанятого - 190119467709</i>\n'
+                           f'<i>Телефон - +7 923 592 9997</i>',
+                           reply_markup=markup_start.markup_clean)
     await state.finish()
     await bot.send_message(message.from_user.id,
                            f'Ты заказчик или исполнитель {message.from_user.first_name} ?',
