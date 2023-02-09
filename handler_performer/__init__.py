@@ -30,6 +30,11 @@ def register_performer(disp: Dispatcher):
     disp.register_message_handler(PerformerMain.info_about_performer_name,
                                   content_types=['photo', 'text'],
                                   state=performer_states.PerformerStart.info_about_performer)
+    disp.register_message_handler(PerformerMain.jobs_offers,
+                                  state=performer_states.PerformerJobsOffers.enter)
+    disp.register_callback_query_handler(PerformerMain.approve_jobs_offers,
+                                         text_contains="jobs-",
+                                         state=["*"])
 
     # performer_profile
     disp.register_message_handler(PerformerProfile.performer_profile,

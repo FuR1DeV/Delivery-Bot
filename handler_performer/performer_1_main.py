@@ -153,18 +153,6 @@ class PerformerMain:
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
-        if "Помощь" in message.text:
-            await performer_states.PerformerHelp.help.set()
-            user_status_chat = await performers_get.check_private_chat_status(message.from_user.id)
-            if user_status_chat is None:
-                user_status_chat = False
-            else:
-                async with state.proxy() as data:
-                    data["user_status_chat"] = user_status_chat.user_id
-            await bot.send_message(message.from_user.id,
-                                   "Опишите вашу проблему, можете прикрепить фото или видео\n"
-                                   "Когда закончите сможете вернуться в главное меню",
-                                   reply_markup=markup_performer.photo_or_video_help(user_status_chat))
         if "Доступные Задачи" in message.text:
             performer = await performers_get.performer_select(message.from_user.id)
             performer_money = performer.performer_money
@@ -207,6 +195,23 @@ class PerformerMain:
                 await performer_states.PerformerStart.performer_menu.set()
                 await bot.send_message(message.from_user.id,
                                        "У вас еще нет завершенных заказов!")
+        if "Помощь" in message.text:
+            await performer_states.PerformerHelp.help.set()
+            user_status_chat = await performers_get.check_private_chat_status(message.from_user.id)
+            if user_status_chat is None:
+                user_status_chat = False
+            else:
+                async with state.proxy() as data:
+                    data["user_status_chat"] = user_status_chat.user_id
+            await bot.send_message(message.from_user.id,
+                                   "Опишите вашу проблему, можете прикрепить фото или видео\n"
+                                   "Когда закончите сможете вернуться в главное меню",
+                                   reply_markup=markup_performer.photo_or_video_help(user_status_chat))
+        if "Смены" in message.text:
+            await performer_states.PerformerJobsOffers.enter.set()
+            await bot.send_message(message.from_user.id,
+                                   "Выберите нужную смену",
+                                   reply_markup=markup_performer.jobs_offers())
 
     @staticmethod
     async def orders(message: types.Message):
@@ -431,6 +436,98 @@ class PerformerMain:
                                    "Выберите ID задачи чтобы войти в детали заказа",
                                    reply_markup=keyboard)
             await performer_states.PerformerHistory.enter_history.set()
+
+    @staticmethod
+    async def jobs_offers(message: types.Message):
+        if "12 часов" in message.text:
+            job = await performers_get.check_job_sale("twelve")
+            exist = await performers_get.performer_check_jobs_offers(message.from_user.id)
+            if exist:
+                await bot.send_message(message.from_user.id,
+                                       f"<b>Внимание!</b>\n"
+                                       f"<b>У вас уже есть смена!</b>\n"
+                                       f"<b>Действует до <i>{exist.end}</i></b>\n"
+                                       f"<b>Все равно хотите купить новую ?</b>",
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "twelve"))
+            if not exist:
+                await bot.send_message(message.from_user.id,
+                                       "Вы покупаете смену на 12 часов\n"
+                                       "За это время с вас не будет списываться комиссия",
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "twelve"))
+        if "1 день" in message.text:
+            job = await performers_get.check_job_sale("day")
+            exist = await performers_get.performer_check_jobs_offers(message.from_user.id)
+            if exist:
+                await bot.send_message(message.from_user.id,
+                                       f"<b>Внимание!</b>\n"
+                                       f"<b>У вас уже есть смена!</b>\n"
+                                       f"<b>Действует до <i>{exist.end}</i></b>\n"
+                                       f"<b>Все равно хотите купить новую ?</b>",
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "day"))
+            if not exist:
+                await bot.send_message(message.from_user.id,
+                                       "Вы покупаете смену на 1 день (24 часа)\n"
+                                       "За это время с вас не будет списываться комиссия",
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "day"))
+        if "3 дня" in message.text:
+            job = await performers_get.check_job_sale("3_day")
+            exist = await performers_get.performer_check_jobs_offers(message.from_user.id)
+            if exist:
+                await bot.send_message(message.from_user.id,
+                                       f"<b>Внимание!</b>\n"
+                                       f"<b>У вас уже есть смена!</b>\n"
+                                       f"<b>Действует до <i>{exist.end}</i></b>\n"
+                                       f"<b>Все равно хотите купить новую ?</b>",
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "3_day"))
+            if not exist:
+                await bot.send_message(message.from_user.id,
+                                       "Вы покупаете смену на 3 дня (72 часа)\n"
+                                       "За это время с вас не будет списываться комиссия",
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "3_day"))
+        if "1 неделя" in message.text:
+            job = await performers_get.check_job_sale("week")
+            exist = await performers_get.performer_check_jobs_offers(message.from_user.id)
+            if exist:
+                await bot.send_message(message.from_user.id,
+                                       f"<b>Внимание!</b>\n"
+                                       f"<b>У вас уже есть смена!</b>\n"
+                                       f"<b>Действует до <i>{exist.end}</i></b>\n"
+                                       f"<b>Все равно хотите купить новую ?</b>",
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "week"))
+            if not exist:
+                await bot.send_message(message.from_user.id,
+                                       "Вы покупаете смену на 1 неделю (168 часов)\n"
+                                       "За это время с вас не будет списываться комиссия",
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "week"))
+        if "Вернуться в главное меню" in message.text:
+            orders = await performers_get.performer_view_list_orders(message.from_user.id)
+            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+            promo = await performers_get.check_commission_promo(message.from_user.id)
+            await bot.send_message(message.from_user.id,
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
+                                   reply_markup=markup_performer.main_menu())
+            await performer_states.PerformerStart.performer_menu.set()
+
+    @staticmethod
+    async def approve_jobs_offers(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        time = callback.data.split('-')[1]
+        if time == "twelve":
+            time = 12
+        if time == "day":
+            time = 24
+        if time == "3_day":
+            time = 72
+        if time == "week":
+            time = 168
+        price = callback.data.split('-')[2]
+        time_d = (datetime.now() + timedelta(hours=time)).strftime('%d-%m-%Y, %H:%M:%S')
+        await performers_set.performer_jobs_pay(callback.from_user.id,
+                                                datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
+                                                time_d,
+                                                int(price))
+        await bot.send_message(callback.from_user.id,
+                               f"Вы купили смену на {time} часа")
 
 
 class PerformerProfile:

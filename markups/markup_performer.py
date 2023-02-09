@@ -108,19 +108,37 @@ def inline_cancel_task():
     return cancel_
 
 
+def inline_jobs_offers(money: int, jobs):
+    btn = InlineKeyboardButton(text=f"Купить за {money}", callback_data=f'jobs-{jobs}-{money}')
+    private_chat = InlineKeyboardMarkup(row_width=1)
+    private_chat.insert(btn)
+    return private_chat
+
+
 def main_menu():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Мой профиль",
                  f"{KEYBOARD.get('HAMMER_AND_PICK')} Доступные Задачи")
     keyboard.row(f"{KEYBOARD.get('WRENCH')} Задачи в работе",
                  f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Выполненные Задачи")
-    keyboard.row(f"{KEYBOARD.get('SOS_BUTTON')} Помощь")
+    keyboard.row(f"{KEYBOARD.get('SOS_BUTTON')} Помощь",
+                 f"{KEYBOARD.get('STOPWATCH')} Смены")
     return keyboard
 
 
 def get_order():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    return keyboard
+
+
+def jobs_offers():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(f"{KEYBOARD.get('TRACTOR')} 12 часов",
+                 f"{KEYBOARD.get('RACING_CAR')} 1 день")
+    keyboard.add(f"{KEYBOARD.get('AIRPLANE')} 3 дня",
+                 f"{KEYBOARD.get('ROCKET')} 1 неделя")
+    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
     return keyboard
 
 

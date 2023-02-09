@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import and_, or_
 
 from data.models.orders import Orders, OrdersRating, OrdersStatus, OrdersLoading, CommissionPromo
-from data.models.performers import Performers, PerformerPersonalData, AutoSendJobOffer, JobsSales
+from data.models.performers import Performers, PerformerPersonalData, AutoSendJobOffer, JobsSales, JobsOffers
 from data.models.admins import PrivateChat
 
 logger = logging.getLogger("bot.data.commands.performer_get_db")
@@ -185,3 +185,8 @@ async def check_commission_promo(user_id):
 async def check_job_sale(job):
     job = await JobsSales.query.where(JobsSales.jobs == job).gino.first()
     return job
+
+
+async def performer_check_jobs_offers(user_id):
+    exist = await JobsOffers.query.where(JobsOffers.user_id == user_id).gino.first()
+    return exist

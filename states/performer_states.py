@@ -55,3 +55,7 @@ class PerformerDetailsTasksStatus(StatesGroup):
     enter_status: State = State()
     rating: State = State()
     review: State = State()
+
+
+class PerformerJobsOffers(StatesGroup):
+    enter: State = State()

@@ -175,6 +175,7 @@ async def create_jobs_sales():
             "auto_send": "25",
             "twelve": "50",
             "day": "75",
+            "3_day": "180",
             "week": "400"
         }
         for k, v in cat.items():

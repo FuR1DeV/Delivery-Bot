@@ -28,6 +28,12 @@ PRIVATE_CHAT_LINK = 'http://t.me/+CLLM8RBkM2o2YzIy'
 KEYBOARD = {
     'DASH': emojize(':minus:'),
     'PLUS': emojize(':plus:'),
+    'SUN': emojize(':sun:'),
+    'ROCKET': emojize(':rocket:'),
+    'AIRPLANE': emojize(':airplane:'),
+    'RACING_CAR': emojize(':racing_car:'),
+    'TRACTOR': emojize(':tractor:'),
+    'TWELVE_O’CLOCK': emojize(':twelve_o’clock:'),
     'THUMBS_UP': emojize(':thumbs_up:'),
     'THUMBS_DOWN': emojize(':thumbs_down:'),
     'SMILING_FACE_WITH_SUNGLASSES': emojize(':smiling_face_with_sunglasses:'),
