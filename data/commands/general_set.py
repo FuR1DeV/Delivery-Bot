@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from bot import bot
-from data.models.performers import Performers, AutoSendJobOffer
+from data.models.performers import Performers, AutoSendJobOffer, JobsSales
 from data.models.customers import Customers
 from data.models.admins import Payment, PrivateChat
 from data.models.orders import Orders, Reviews, OrdersStatus, Commission, CommissionPromo, OrdersLoading
@@ -113,26 +113,6 @@ async def order_rating_change_minus(order_id):
     await order.update(order_rating=order_rate).apply()
 
 
-async def create_commission():
-    """Создается БД комиссий с дефолтными значениями"""
-    commission_query = await Commission.query.gino.all()
-    if commission_query:
-        return
-    else:
-        cat = {
-            "performers": "3.7",
-            "Цветы": "2.1",
-            "Подарки": "2.2",
-            "Кондитерка": "2.3",
-            "Документы": "2.4",
-            "Погрузка/Разгрузка": "2.5",
-            "Другое": "2.6"
-        }
-        for k, v in cat.items():
-            commission = Commission(category=k, commission=v)
-            await commission.create()
-
-
 async def delete_order_expired(order_id):
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
     logger.info(f'Система удаляет заказ {order_id}. Время заказа истекло')
@@ -163,3 +143,40 @@ async def delete_expired_promo(user_id):
 async def delete_expired_auto_send(user_id):
     auto_send = await AutoSendJobOffer.query.where(AutoSendJobOffer.user_id == user_id).gino.first()
     await auto_send.delete()
+
+
+async def create_commission():
+    """Создается БД комиссий с дефолтными значениями"""
+    commission_query = await Commission.query.gino.all()
+    if commission_query:
+        return
+    else:
+        cat = {
+            "performers": "3.7",
+            "Цветы": "2.1",
+            "Подарки": "2.2",
+            "Кондитерка": "2.3",
+            "Документы": "2.4",
+            "Погрузка/Разгрузка": "2.5",
+            "Другое": "2.6"
+        }
+        for k, v in cat.items():
+            commission = Commission(category=k, commission=v)
+            await commission.create()
+
+
+async def create_jobs_sales():
+    """Создается БД смен с дефолтными значениями"""
+    sales = await JobsSales.query.gino.all()
+    if sales:
+        return
+    else:
+        cat = {
+            "auto_send": "25",
+            "twelve": "50",
+            "day": "75",
+            "week": "400"
+        }
+        for k, v in cat.items():
+            jobs = JobsSales(jobs=k, value=int(v))
+            await jobs.create()

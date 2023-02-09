@@ -5,6 +5,7 @@ class AdminStates(StatesGroup):
     enter: State = State()
     loading_db: State = State()
     orders: State = State()
+    jobs: State = State()
 
 
 class Orders(StatesGroup):

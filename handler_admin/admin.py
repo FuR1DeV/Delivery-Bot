@@ -33,6 +33,11 @@ class AdminMain:
                                    "Выгрузка БД Заказчиков и Исполнителей",
                                    reply_markup=markup_admin.loading_db())
             await states.AdminStates.loading_db.set()
+        if message.text == "Смены":
+            await bot.send_message(message.from_user.id,
+                                   "Установка кол-во денег на смены",
+                                   reply_markup=markup_admin.jobs_sales())
+            await states.AdminStates.jobs.set()
         if message.text == "Управление Заказчиками":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете посмотреть информацию о Заказчике",
@@ -1050,3 +1055,43 @@ class AdminControl:
                 await bot.send_message(message.from_user.id,
                                        "Если хотите заблокировать пользователя или начислить сумму, "
                                        "то вам нужно воспользоваться поиском по ID (Скопируйте нужный вам ID)")
+
+
+class AdminJobs:
+
+    @staticmethod
+    async def jobs(message: types.Message, state: FSMContext):
+        if message.text.isdigit():
+            async with state.proxy() as data:
+                await admins_set.jobs_sales(data.get("jobs"), int(message.text))
+                await bot.send_message(message.from_user.id,
+                                       "Вы успешно изменили кол-во денег",
+                                       reply_markup=markup_admin.jobs_sales())
+        if message.text == "Автоотправление сообщений":
+            async with state.proxy() as data:
+                data["jobs"] = "auto_send"
+            await bot.send_message(message.from_user.id,
+                                   "Введите кол-во денег",
+                                   reply_markup=markup_admin.back())
+        if message.text == "Смена на 12 часов":
+            async with state.proxy() as data:
+                data["jobs"] = "twelve"
+            await bot.send_message(message.from_user.id,
+                                   "Вы успешно установили кол-во денег",
+                                   reply_markup=markup_admin.back())
+        if message.text == "Смена на 1 день":
+            async with state.proxy() as data:
+                data["jobs"] = "day"
+            await bot.send_message(message.from_user.id,
+                                   "Вы успешно установили кол-во денег",
+                                   reply_markup=markup_admin.back())
+        if message.text == "Смена на 1 неделю":
+            async with state.proxy() as data:
+                data["jobs"] = "week"
+            await bot.send_message(message.from_user.id,
+                                   "Вы успешно установили кол-во денег",
+                                   reply_markup=markup_admin.back())
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_admin.admin_main())

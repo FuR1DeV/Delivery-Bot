@@ -9,7 +9,7 @@ def admin_main():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("Комиссия", "Просмотр Заказов")
     keyboard.row("Управление Заказчиками", "Управление Исполнителями")
-    keyboard.row("Выгрузка БД Заказчиков и Исполнителей")
+    keyboard.row("Выгрузка БД Заказчиков и Исполнителей", "Смены")
     keyboard.row("Выход")
     return keyboard
 
@@ -167,5 +167,13 @@ def block():
 def loading_db():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("Загрузить БД Заказчиков", "Загрузить БД Исполнителей")
+    keyboard.row("Назад")
+    return keyboard
+
+
+def jobs_sales():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row("Автоотправление сообщений", "Смена на 12 часов")
+    keyboard.row("Смена на 1 день", "Смена на 1 неделю")
     keyboard.row("Назад")
     return keyboard

@@ -445,14 +445,14 @@ class PerformerProfile:
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
                                    reply_markup=markup_performer.main_menu())
         if "Автоотправление предложений" in message.text:
-            money = 25
+            job = await performers_get.check_job_sale("auto_send")
             performer = await performers_get.performer_auto_send_check(message.from_user.id)
             if not performer:
                 await bot.send_message(message.from_user.id,
                                        "Подключить платную услугу\n"
                                        "Автоотправление предложений о работе\n"
-                                       f"Стоимость данной услуги {money} рублей за 24 часа",
-                                       reply_markup=markup_performer.auto_send_pay(money))
+                                       f"Стоимость данной услуги {job.value} рублей за 24 часа",
+                                       reply_markup=markup_performer.auto_send_pay(job.value))
 
             else:
                 await bot.send_message(message.from_user.id,

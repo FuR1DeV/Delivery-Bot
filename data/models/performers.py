@@ -46,3 +46,12 @@ class AutoSendJobOffer(BaseModel):
     end = Column(String, nullable=False)
 
     query: sql.select
+
+
+class JobsSales(BaseModel):
+    __tablename__ = "jobs_sales"
+    id = Column(Integer, primary_key=True, nullable=False)
+    jobs = Column(String, nullable=False)
+    value = Column(Integer, nullable=False)
+
+    query: sql.select

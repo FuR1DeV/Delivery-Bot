@@ -2,7 +2,7 @@ __all__ = ["register_admin_handler"]
 
 from aiogram import Dispatcher
 
-from .admin import AdminMain, AdminOrders, AdminStats, AdminCommission, AdminControlChange, AdminControl
+from .admin import AdminMain, AdminOrders, AdminStats, AdminCommission, AdminControlChange, AdminControl, AdminJobs
 from states import states
 
 
@@ -48,3 +48,5 @@ def register_admin_handler(disp: Dispatcher):
     disp.register_message_handler(AdminControl.find_id, state=states.AboutUsers.find_id)
     disp.register_message_handler(AdminControl.find_first_name, state=states.AboutUsers.find_first_name)
     disp.register_message_handler(AdminControl.find_username, state=states.AboutUsers.find_username)
+
+    disp.register_message_handler(AdminJobs.jobs, state=states.AdminStates.jobs)

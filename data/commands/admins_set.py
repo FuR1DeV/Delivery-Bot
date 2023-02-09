@@ -1,7 +1,7 @@
 import logging
 
 from data.models.customers import Customers
-from data.models.performers import Performers
+from data.models.performers import Performers, JobsSales
 from data.models.admins import Admins
 from data.models.orders import Commission, CommissionPromo
 
@@ -74,3 +74,18 @@ async def set_commission_for_promo(user_id, percent, promo_time):
                 f'комиссия - {percent}, время - {promo_time}')
     commission = CommissionPromo(user_id=user_id, percent=percent, promo_time=promo_time)
     await commission.create()
+
+
+async def jobs_sales(jobs, value):
+    if jobs == "auto_send":
+        auto_send = await JobsSales.query.where(JobsSales.jobs == "auto_send").gino.first()
+        await auto_send.update(value=value).apply()
+    if jobs == "twelve":
+        twelve = await JobsSales.query.where(JobsSales.jobs == "twelve").gino.first()
+        await twelve.update(value=value).apply()
+    if jobs == "day":
+        day = await JobsSales.query.where(JobsSales.jobs == "day").gino.first()
+        await day.update(value=value).apply()
+    if jobs == "week":
+        week = await JobsSales.query.where(JobsSales.jobs == "week").gino.first()
+        await week.update(value=value).apply()
