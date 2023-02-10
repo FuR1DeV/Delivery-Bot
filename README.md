@@ -3,15 +3,7 @@
 Telegram bot for delivery
 ------------------------------------
 
-### pip
-##### pip install aiogram
-##### pip install requests
-##### pip install python-dotenv
-##### pip install emoji
-##### pip install psycopg2
-##### pip install geopy
-##### pip install pyqiwip2p
-##### pip install aioschedule
+### pip install -r requirements.txt
 
 ### Description
 ##### Создаём файл .env, куда вписываем хост (HOST), имя юзера бд(POSTGRESQL_USER), пароль от бд (POSTGRESQL_PASSWORD) и название бд (DATABASE) токен бота (BOT_TOKEN) а так же ADMIN_ID в таком виде id, сейчас вписан айди разработчика этого бота
