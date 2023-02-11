@@ -451,12 +451,12 @@ class PerformerMain:
                                        f"<b>У вас уже есть смена!</b>\n"
                                        f"<b>Действует до <i>{exist.end}</i></b>\n"
                                        f"<b>Все равно хотите купить новую ?</b>",
-                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "twelve"))
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "twelve", True))
             if not exist:
                 await bot.send_message(message.from_user.id,
                                        "Вы покупаете смену на 12 часов\n"
                                        "За это время с вас не будет списываться комиссия",
-                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "twelve"))
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "twelve", False))
         if "1 день" in message.text:
             job = await performers_get.check_job_sale("day")
             exist = await performers_get.performer_check_jobs_offers(message.from_user.id)
@@ -466,12 +466,12 @@ class PerformerMain:
                                        f"<b>У вас уже есть смена!</b>\n"
                                        f"<b>Действует до <i>{exist.end}</i></b>\n"
                                        f"<b>Все равно хотите купить новую ?</b>",
-                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "day"))
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "day", True))
             if not exist:
                 await bot.send_message(message.from_user.id,
                                        "Вы покупаете смену на 1 день (24 часа)\n"
                                        "За это время с вас не будет списываться комиссия",
-                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "day"))
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "day", False))
         if "3 дня" in message.text:
             job = await performers_get.check_job_sale("3_day")
             exist = await performers_get.performer_check_jobs_offers(message.from_user.id)
@@ -481,12 +481,12 @@ class PerformerMain:
                                        f"<b>У вас уже есть смена!</b>\n"
                                        f"<b>Действует до <i>{exist.end}</i></b>\n"
                                        f"<b>Все равно хотите купить новую ?</b>",
-                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "3_day"))
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "3_day", True))
             if not exist:
                 await bot.send_message(message.from_user.id,
                                        "Вы покупаете смену на 3 дня (72 часа)\n"
                                        "За это время с вас не будет списываться комиссия",
-                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "3_day"))
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "3_day", False))
         if "1 неделя" in message.text:
             job = await performers_get.check_job_sale("week")
             exist = await performers_get.performer_check_jobs_offers(message.from_user.id)
@@ -496,12 +496,12 @@ class PerformerMain:
                                        f"<b>У вас уже есть смена!</b>\n"
                                        f"<b>Действует до <i>{exist.end}</i></b>\n"
                                        f"<b>Все равно хотите купить новую ?</b>",
-                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "week"))
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "week", True))
             if not exist:
                 await bot.send_message(message.from_user.id,
                                        "Вы покупаете смену на 1 неделю (168 часов)\n"
                                        "За это время с вас не будет списываться комиссия",
-                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "week"))
+                                       reply_markup=markup_performer.inline_jobs_offers(job.value, "week", False))
         if "Вернуться в главное меню" in message.text:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)

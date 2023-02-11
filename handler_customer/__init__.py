@@ -36,6 +36,8 @@ def register_customer(disp: Dispatcher):
                                   state=customer_states.CustomerStart.orders)
     disp.register_callback_query_handler(CustomerMain.refresh_loading,
                                          state=["*"], text="refresh_loading")
+    disp.register_callback_query_handler(CustomerMain.cancel,
+                                         state=["*"], text="perf_cancel")
 
     # def register_customer_profile(disp: Dispatcher):
     disp.register_message_handler(CustomerProfile.customer_profile,

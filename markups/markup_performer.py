@@ -110,10 +110,13 @@ def inline_cancel_task():
     return cancel_
 
 
-def inline_jobs_offers(money: int, jobs):
+def inline_jobs_offers(money: int, jobs, exist):
     btn = InlineKeyboardButton(text=f"Купить за {money}", callback_data=f'jobs-{jobs}-{money}')
-    private_chat = InlineKeyboardMarkup(row_width=1)
+    private_chat = InlineKeyboardMarkup()
     private_chat.insert(btn)
+    if exist:
+        btn1 = InlineKeyboardButton(text=f"Нет", callback_data=f'perf_cancel')
+        private_chat.insert(btn1)
     return private_chat
 
 
@@ -126,7 +129,7 @@ def main_menu(jobs):
         keyboard.row(f"{KEYBOARD.get('WRENCH')} Задачи в работе",
                      f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Выполненные Задачи")
         keyboard.row(f"{KEYBOARD.get('SOS_BUTTON')} Помощь",
-                     f"{KEYBOARD.get('STOPWATCH')} Смены ({str(time_left)[:5]})")
+                     f"{KEYBOARD.get('STOPWATCH')} Смены ({str(time_left)[:-7]})")
     else:
         keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Мой профиль",
                      f"{KEYBOARD.get('HAMMER_AND_PICK')} Доступные Задачи")

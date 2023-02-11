@@ -16,9 +16,8 @@ async def db_test():
     pass
     await db.set_bind(config.POSTGRES_URI)
     jobs = await performers_get.performer_check_jobs_offers(5761065854)
-    # print(jobs.end)
     time_left = datetime.strptime(jobs.end, '%d-%m-%Y, %H:%M:%S') - datetime.now()
-    print(str(time_left)[:5])
+    print(str(time_left)[:-7])
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(db_test())

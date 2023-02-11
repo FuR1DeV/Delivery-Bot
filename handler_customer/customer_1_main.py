@@ -725,6 +725,10 @@ class CustomerMain:
         await bot.send_message(callback.data[15:],
                                "Заказчик <b>подтвердил</b> получение информации о вашем прибытии")
 
+    @staticmethod
+    async def cancel(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+
 
 class CustomerProfile:
     @staticmethod
