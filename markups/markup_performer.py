@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
 
@@ -115,14 +117,23 @@ def inline_jobs_offers(money: int, jobs):
     return private_chat
 
 
-def main_menu():
+def main_menu(jobs):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Мой профиль",
-                 f"{KEYBOARD.get('HAMMER_AND_PICK')} Доступные Задачи")
-    keyboard.row(f"{KEYBOARD.get('WRENCH')} Задачи в работе",
-                 f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Выполненные Задачи")
-    keyboard.row(f"{KEYBOARD.get('SOS_BUTTON')} Помощь",
-                 f"{KEYBOARD.get('STOPWATCH')} Смены")
+    if jobs:
+        time_left = datetime.strptime(jobs.end, '%d-%m-%Y, %H:%M:%S') - datetime.now()
+        keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Мой профиль",
+                     f"{KEYBOARD.get('HAMMER_AND_PICK')} Доступные Задачи")
+        keyboard.row(f"{KEYBOARD.get('WRENCH')} Задачи в работе",
+                     f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Выполненные Задачи")
+        keyboard.row(f"{KEYBOARD.get('SOS_BUTTON')} Помощь",
+                     f"{KEYBOARD.get('STOPWATCH')} Смены ({str(time_left)[:5]})")
+    else:
+        keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Мой профиль",
+                     f"{KEYBOARD.get('HAMMER_AND_PICK')} Доступные Задачи")
+        keyboard.row(f"{KEYBOARD.get('WRENCH')} Задачи в работе",
+                     f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Выполненные Задачи")
+        keyboard.row(f"{KEYBOARD.get('SOS_BUTTON')} Помощь",
+                     f"{KEYBOARD.get('STOPWATCH')} Смены")
     return keyboard
 
 

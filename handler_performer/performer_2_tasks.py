@@ -24,9 +24,10 @@ class PerformerTasks:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
+            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu())
+                                   reply_markup=markup_performer.main_menu(jobs))
         if "Грузчики" in message.text:
             res = await performers_get.performer_checks_all_orders_loading(message.from_user.id)
             if res:
@@ -97,9 +98,10 @@ class PerformerTasks:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
+            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu())
+                                   reply_markup=markup_performer.main_menu(jobs))
 
     @staticmethod
     async def choose_category(callback: types.CallbackQuery, state: FSMContext):
@@ -192,9 +194,10 @@ class PerformerTasks:
         orders = await performers_get.performer_view_list_orders(callback.from_user.id)
         orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
         promo = await performers_get.check_commission_promo(callback.from_user.id)
+        jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
                                f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                               reply_markup=markup_performer.main_menu())
+                               reply_markup=markup_performer.main_menu(jobs))
 
     @staticmethod
     async def proposal(callback: types.CallbackQuery, state: FSMContext):
@@ -252,9 +255,10 @@ class PerformerTasks:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
+            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu())
+                                   reply_markup=markup_performer.main_menu(jobs))
         else:
             await bot.send_message(message.from_user.id, "Надо ввести целое число!")
 
@@ -286,9 +290,10 @@ class PerformerTasks:
         orders = await performers_get.performer_view_list_orders(callback.from_user.id)
         orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
         promo = await performers_get.check_commission_promo(callback.from_user.id)
+        jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
                                f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                               reply_markup=markup_performer.main_menu())
+                               reply_markup=markup_performer.main_menu(jobs))
 
     @staticmethod
     async def loading_request(callback: types.CallbackQuery, state: FSMContext):
@@ -342,9 +347,10 @@ class PerformerTasks:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
+            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu())
+                                   reply_markup=markup_performer.main_menu(jobs))
 
     @staticmethod
     async def loading_request_decline(callback: types.CallbackQuery):
@@ -421,9 +427,10 @@ class PerformerDetailsTasks:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
             else:
                 await bot.send_message(message.from_user.id,
                                        f"Вот его номер телефона {customer.telephone}\n"
@@ -435,9 +442,10 @@ class PerformerDetailsTasks:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
             else:
                 if order.image:
                     await bot.send_photo(message.from_user.id, order.image)
@@ -477,9 +485,10 @@ class PerformerDetailsTasks:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
             else:
                 loaders = [await performers_get.performer_select(v) for v in order.persons_list]
                 for i in loaders:
@@ -512,9 +521,10 @@ class PerformerDetailsTasks:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
             else:
                 await bot.send_message(message.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -558,9 +568,10 @@ class PerformerDetailsTasks:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
             else:
                 await bot.send_message(message.from_user.id,
                                        f"Вот его номер телефона {customer.telephone}\n"
@@ -572,9 +583,10 @@ class PerformerDetailsTasks:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
             else:
                 if order.image:
                     await bot.send_photo(message.from_user.id, order.image)
@@ -616,9 +628,10 @@ class PerformerDetailsTasks:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
             else:
                 arrive = await performers_get.performer_arrive_info(data.get("order_id"))
                 await performer_states.PerformerDetailsTasksStatus.enter_status.set()
@@ -639,9 +652,10 @@ class PerformerDetailsTasks:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
             else:
                 await bot.send_message(message.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -670,9 +684,10 @@ class PerformerDetailsTasks:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
+            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu())
+                                   reply_markup=markup_performer.main_menu(jobs))
         if "Назад" in message.text:
             await performer_states.PerformerStart.orders.set()
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
@@ -694,9 +709,10 @@ class PerformerDetailsTasksStatus:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
                 await performer_states.PerformerStart.performer_menu.set()
             if status:
                 if status.performer_status:
@@ -718,9 +734,10 @@ class PerformerDetailsTasksStatus:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
                 await performer_states.PerformerStart.performer_menu.set()
             if status:
                 if status.performer_status:
@@ -767,9 +784,10 @@ class PerformerDetailsTasksStatus:
                 orders = await performers_get.performer_view_list_orders(message.from_user.id)
                 orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
                 await bot.send_message(message.from_user.id,
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(jobs))
                 await performer_states.PerformerStart.performer_menu.set()
         if "Сообщить о прибытии" in message.text:
             async with state.proxy() as data:
@@ -823,9 +841,10 @@ class PerformerDetailsTasksStatus:
         orders = await performers_get.performer_view_list_orders(callback.from_user.id)
         orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
         promo = await performers_get.check_commission_promo(callback.from_user.id)
+        jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
                                f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                               reply_markup=markup_performer.main_menu())
+                               reply_markup=markup_performer.main_menu(jobs))
 
     @staticmethod
     async def no_cancel_order(callback: types.CallbackQuery, state: FSMContext):

@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from bot import bot
-from data.models.performers import Performers, AutoSendJobOffer, JobsSales
+from data.models.performers import Performers, AutoSendJobOffer, JobsSales, JobsOffers
 from data.models.customers import Customers
 from data.models.admins import Payment, PrivateChat
 from data.models.orders import Orders, Reviews, OrdersStatus, Commission, CommissionPromo, OrdersLoading
@@ -34,14 +34,18 @@ async def operation_commission(order):
     res_commission_for_performer = ((int(order.price) *
                                      float(commission_for_performer.commission)) / 100) + res_commission_category
     """Взимаем комиссию с Заказчика"""
-    """Временные промо со сниженным процентом"""
     performer = await Performers.query.where(Performers.user_id == order.in_work).gino.first()
     customer = await Customers.query.where(Customers.user_id == order.user_id).gino.first()
     money = float(performer.performer_money) - res_commission_for_performer
     promo = await general_get.check_commission_promo(order.in_work)
+    jobs = await general_get.check_jobs(order.in_work)
+    """Временные промо со сниженным процентом"""
+    """Если есть Промо, то переменная money будет заново вычислена"""
     if promo:
         res_commission_for_performer = ((int(order.price) * float(promo.percent)) / 100)
         money = float(performer.performer_money) - res_commission_for_performer
+    if jobs:
+        money = performer.performer_money
     await performer.update(performer_money=round(money, 2),
                            completed_orders=performer.completed_orders + 1,
                            money_earned=performer.money_earned + order.price).apply()
@@ -52,6 +56,13 @@ async def check_orders_status():
     orders_status = await OrdersStatus.query.gino.all()
     promo = await CommissionPromo.query.gino.all()
     auto_send = await AutoSendJobOffer.query.gino.all()
+    jobs = await JobsOffers.query.gino.all()
+    for i in jobs:
+        limitation = str(datetime.now() - datetime.strptime(i.end, '%d-%m-%Y, %H:%M:%S'))[:1]
+        if limitation != "-":
+            await delete_expired_jobs(i.user_id)
+            await bot.send_message(i.user_id,
+                                   "<b>Закончилось время смены!</b>")
     for i in auto_send:
         limitation = str(datetime.now() - datetime.strptime(i.end, '%d-%m-%Y, %H:%M:%S'))[:1]
         if limitation != "-":
@@ -143,6 +154,11 @@ async def delete_expired_promo(user_id):
 async def delete_expired_auto_send(user_id):
     auto_send = await AutoSendJobOffer.query.where(AutoSendJobOffer.user_id == user_id).gino.first()
     await auto_send.delete()
+
+
+async def delete_expired_jobs(user_id):
+    jobs = await JobsOffers.query.where(JobsOffers.user_id == user_id).gino.first()
+    await jobs.delete()
 
 
 async def create_commission():

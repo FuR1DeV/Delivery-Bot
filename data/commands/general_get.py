@@ -1,6 +1,6 @@
 import logging
 from data.models.customers import Customers
-from data.models.performers import Performers
+from data.models.performers import Performers, JobsOffers
 from data.models.admins import Payment, PrivateChat
 from data.models.orders import Orders, OrdersStatus, Commission, Reviews, CommissionPromo, OrdersLoading
 
@@ -92,3 +92,8 @@ async def check_private_chat_count_word(user_id):
 async def check_commission_promo(user_id):
     promo = await CommissionPromo.query.where(CommissionPromo.user_id == user_id).gino.first()
     return promo
+
+
+async def check_jobs(user_id):
+    jobs = await JobsOffers.query.where(JobsOffers.user_id == user_id).gino.first()
+    return jobs

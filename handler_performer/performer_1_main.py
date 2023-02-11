@@ -36,9 +36,10 @@ class PerformerMain:
             orders = await performers_get.performer_view_list_orders(callback.from_user.id)
             orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
             promo = await performers_get.check_commission_promo(callback.from_user.id)
+            jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
             await bot.send_message(callback.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu())
+                                   reply_markup=markup_performer.main_menu(jobs))
         elif performer_p_d is None:
             await performer_states.PerformerStart.info_about_performer.set()
             await bot.send_message(callback.from_user.id,
@@ -105,7 +106,7 @@ class PerformerMain:
                 await bot.send_message(message.from_user.id,
                                        "Регистрация завершена!\n"
                                        "Вы находитесь в главном меню!",
-                                       reply_markup=markup_performer.main_menu())
+                                       reply_markup=markup_performer.main_menu(None))
 
     @staticmethod
     async def main(message: types.Message):
@@ -114,9 +115,10 @@ class PerformerMain:
         orders = await performers_get.performer_view_list_orders(message.from_user.id)
         orders_loading = await performers_get.performer_loader_order(message.from_user.id)
         promo = await performers_get.check_commission_promo(message.from_user.id)
+        jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
         await bot.send_message(message.from_user.id,
                                f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                               reply_markup=markup_performer.main_menu())
+                               reply_markup=markup_performer.main_menu(jobs))
         await performer_states.PerformerStart.performer_menu.set()
 
     @staticmethod
@@ -331,9 +333,10 @@ class PerformerMain:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
+            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu())
+                                   reply_markup=markup_performer.main_menu(jobs))
             await performer_states.PerformerStart.performer_menu.set()
 
     @staticmethod
@@ -503,9 +506,10 @@ class PerformerMain:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
+            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu())
+                                   reply_markup=markup_performer.main_menu(jobs))
             await performer_states.PerformerStart.performer_menu.set()
 
     @staticmethod
@@ -538,9 +542,10 @@ class PerformerProfile:
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
+            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
             await bot.send_message(message.from_user.id,
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu())
+                                   reply_markup=markup_performer.main_menu(jobs))
         if "Автоотправление предложений" in message.text:
             job = await performers_get.check_job_sale("auto_send")
             performer = await performers_get.performer_auto_send_check(message.from_user.id)
