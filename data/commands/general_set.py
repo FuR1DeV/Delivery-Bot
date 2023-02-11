@@ -40,7 +40,7 @@ async def operation_commission(order):
     promo = await general_get.check_commission_promo(order.in_work)
     jobs = await general_get.check_jobs(order.in_work)
     """Временные промо со сниженным процентом"""
-    """Если есть Промо, то переменная money будет заново вычислена"""
+    """Если есть Промо или Смена, то в переменную money будет записано новое значение"""
     if promo:
         res_commission_for_performer = ((int(order.price) * float(promo.percent)) / 100)
         money = float(performer.performer_money) - res_commission_for_performer

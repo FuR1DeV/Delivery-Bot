@@ -981,7 +981,8 @@ class CustomerCreateTaskComp:
                                        f"{config.KEYBOARD.get('MONEY_BAG')} "
                                        f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}",
-                                       disable_web_page_preview=True)
+                                       disable_web_page_preview=True,
+                                       reply_markup=markup_performer.inline_order_request(order_id))
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
@@ -1059,7 +1060,8 @@ class CustomerCreateTaskComp:
                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
                                            f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
-                                           disable_web_page_preview=True)
+                                           disable_web_page_preview=True,
+                                           reply_markup=markup_performer.inline_order_request(data.get("order_id")))
                 await state.finish()
                 await customer_states.CustomerStart.customer_menu.set()
                 await bot.send_message(message.from_user.id,
@@ -1122,7 +1124,8 @@ class CustomerCreateTaskComp:
                                        f"{config.KEYBOARD.get('MONEY_BAG')} "
                                        f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}",
-                                       disable_web_page_preview=True)
+                                       disable_web_page_preview=True,
+                                       reply_markup=markup_performer.inline_order_request(data.get("order_id")))
             await state.finish()
             await customer_states.CustomerStart.customer_menu.set()
             await bot.send_message(message.from_user.id,
