@@ -48,5 +48,6 @@ def register_admin_handler(disp: Dispatcher):
     disp.register_message_handler(AdminControl.find_id, state=states.AboutUsers.find_id)
     disp.register_message_handler(AdminControl.find_first_name, state=states.AboutUsers.find_first_name)
     disp.register_message_handler(AdminControl.find_username, state=states.AboutUsers.find_username)
+    disp.register_message_handler(AdminControl.find_telephone, state=states.AboutUsers.find_telephone)
 
     disp.register_message_handler(AdminJobs.jobs, state=states.AdminStates.jobs)

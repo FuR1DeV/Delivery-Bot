@@ -2,7 +2,7 @@ import logging
 
 from data.models.admins import Admins
 from data.models.customers import Customers
-from data.models.performers import Performers, PerformerPersonalData
+from data.models.performers import Performers, PerformerPersonalData, JobsSales
 from data.models.orders import Orders, Reviews, Commission, CommissionPromo
 
 
@@ -63,6 +63,16 @@ async def admin_check_users_username(type_user: str, username):
         return performer
 
 
+async def admin_check_users_telephone(type_user: str, telephone):
+    logger.info('Админ ищет пользователя в БД по telephone')
+    if type_user == "customers":
+        customer = await Customers.query.where(Customers.telephone.like(f"%{telephone}%")).gino.all()
+        return customer
+    else:
+        performer = await Performers.query.where(Performers.telephone.like(f"%{telephone}%")).gino.all()
+        return performer
+
+
 async def admin_check_commission():
     logger.info(f'Админ проверяет комиссию')
     commission = await Commission.query.gino.all()
@@ -73,3 +83,8 @@ async def check_commission_promo(user_id):
     logger.info(f'Проверяется промо комиссия')
     commission = await CommissionPromo.query.where(CommissionPromo.user_id == user_id).gino.first()
     return commission
+
+
+async def check_jobs_sales():
+    jobs = await JobsSales.query.gino.all()
+    return jobs

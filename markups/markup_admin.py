@@ -10,7 +10,6 @@ def admin_main():
     keyboard.row("Комиссия", "Просмотр Заказов")
     keyboard.row("Управление Заказчиками", "Управление Исполнителями")
     keyboard.row("Выгрузка БД Заказчиков и Исполнителей", "Смены")
-    keyboard.row("Выход")
     return keyboard
 
 
@@ -139,7 +138,8 @@ def about_customers():
 
 def about_performers():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row("По ID", "По имени", "По username")
+    keyboard.row("По ID", "По имени")
+    keyboard.row("По username", "По телефону")
     keyboard.row("Просмотреть всех Исполнителей")
     keyboard.row("Назад")
     return keyboard
@@ -148,7 +148,7 @@ def about_performers():
 def find_user(money_add):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     if money_add:
-        keyboard.row("Заблокировать", "Разблокировать")
+        keyboard.row("Заблокировать", "Разблокировать", "Просмотр профиля")
         keyboard.row("Начислить сумму", "Просмотр личных данных")
         keyboard.row("Вернуться в главное меню")
     else:
@@ -175,5 +175,6 @@ def jobs_sales():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("Автоотправление сообщений", "Смена на 12 часов")
     keyboard.row("Смена на 1 день", "Смена на 1 неделю")
+    keyboard.row("Просмотреть все значения")
     keyboard.row("Назад")
     return keyboard

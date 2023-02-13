@@ -34,6 +34,7 @@ class AboutUsers(StatesGroup):
     find_id: State = State()
     find_first_name: State = State()
     find_username: State = State()
+    find_telephone: State = State()
 
 
 class ChangeUsers(StatesGroup):
