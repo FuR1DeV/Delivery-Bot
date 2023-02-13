@@ -159,8 +159,8 @@ class CustomerCreateTask:
             await customer_states.CustomerCreateTask.geo_position_to.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись на шаг назад\n"
-                                   "Здесь вы сможете указать конечную точку Заказа",
-                                   reply_markup=markup_customer.back())
+                                   "Здесь вы можете указать <b>Точку B</b> (Конечная точка)",
+                                   reply_markup=markup_customer.send_my_geo_2())
         else:
             if len(message.text) > 255:
                 await bot.send_message(message.from_user.id,
@@ -748,11 +748,19 @@ class CustomerCreateTaskComp:
     @staticmethod
     async def description_comp(message: types.Message, state: FSMContext):
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            await customer_states.CustomerCreateTaskComp.description.set()
-            await bot.send_message(message.from_user.id,
-                                   "Вы вернулись на шаг назад\n"
-                                   "Здесь вы сможете <b>ввести описание Заказа</b>",
-                                   reply_markup=markup_customer.back())
+            async with state.proxy() as data:
+                if data.get("method") == "custom":
+                    await customer_states.CustomerCreateTaskComp.geo_position_to_custom.set()
+                    await bot.send_message(message.from_user.id,
+                                           "Вернулись на шаг назад\n"
+                                           "Здесь вы сможете ввести вручную <b>Точку B</b>",
+                                           reply_markup=markup_customer.back())
+                if data.get("method") == "maps":
+                    await customer_states.CustomerCreateTaskComp.geo_position_to.set()
+                    await bot.send_message(message.from_user.id,
+                                           "Вернулись на шаг назад\n"
+                                           "Здесь вы сможете ввести <b>Точку B</b>",
+                                           reply_markup=markup_customer.open_site())
         else:
             if len(message.text) > 255:
                 await bot.send_message(message.from_user.id,
