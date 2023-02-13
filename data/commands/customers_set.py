@@ -16,14 +16,14 @@ async def customer_add(user_id, username, telephone, first_name, last_name):
     await customer.create()
 
 
-async def customer_add_order(user_id, geo_position_from, geo_position_to, title, price, description,
+async def customer_add_order(user_id, geo_position_from, geo_position_to, price, description,
                              image, video, order_id, order_create, category_delivery, performer_category,
                              order_expired, order_worth):
     logger.info(f'Заказчик {user_id} добавляет заказ {order_id}')
-    order = Orders(user_id=user_id, geo_position_from=geo_position_from, geo_position_to=geo_position_to, title=title,
-                   price=price, description=description, image=image, video=video, order_id=order_id,
-                   order_create=order_create, category_delivery=category_delivery,
-                   performer_category=performer_category, order_expired=order_expired, order_worth=order_worth)
+    order = Orders(user_id=user_id, geo_position_from=geo_position_from, geo_position_to=geo_position_to, price=price,
+                   description=description, image=image, video=video, order_id=order_id, order_create=order_create,
+                   category_delivery=category_delivery, performer_category=performer_category,
+                   order_expired=order_expired, order_worth=order_worth)
     customer = await Customers.query.where(Customers.user_id == user_id).gino.first()
     create = customer.created_orders + 1
     await customer.update(created_orders=create).apply()
@@ -108,8 +108,6 @@ async def customer_change_order(order_id, change, result):
     logger.info(f'Заказчик редактирует {change}, заказ - {order_id}')
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
     order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
-    if change == "title":
-        await order.update(title=result).apply()
     if change == "description":
         if order:
             await order.update(description=result).apply()

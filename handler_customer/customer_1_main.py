@@ -243,8 +243,6 @@ class CustomerMain:
                                            f"{config.KEYBOARD.get('B_BUTTON')} "
                                            f"Куда - <a href='https://yandex.ru/maps/?text="
                                            f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                           f"{config.KEYBOARD.get('INFORMATION')} "
-                                           f"Название - <b>{i.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{i.description}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
@@ -323,8 +321,6 @@ class CustomerMain:
                                            f"{config.KEYBOARD.get('B_BUTTON')} "
                                            f"Куда - <a href='https://yandex.ru/maps/?text="
                                            f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                           f"{config.KEYBOARD.get('INFORMATION')} "
-                                           f"Название - <b>{i.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{i.description}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
@@ -423,8 +419,6 @@ class CustomerMain:
                                        f"{config.KEYBOARD.get('B_BUTTON')} "
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                       f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{i.title}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{i.description}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -612,8 +606,6 @@ class CustomerMain:
                                        f"{config.KEYBOARD.get('B_BUTTON')} "
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                       f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{i.title}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{i.description}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -637,7 +629,6 @@ class CustomerMain:
                     data[i.order_id] = {
                         'Откуда': i.geo_position_from,
                         'Куда': i.geo_position_to,
-                        'Название': i.title,
                         'ID заказа': i.order_id,
                         'ID исполнителя': i.in_work,
                         'Бюджет': i.price,

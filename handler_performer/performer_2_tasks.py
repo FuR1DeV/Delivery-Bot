@@ -67,18 +67,17 @@ class PerformerTasks:
                 await bot.send_message(message.from_user.id,
                                        "Пока заказов для грузчиков нет")
         if "Доставка" in message.text:
-            performer_c = await performers_get.performer_select(message.from_user.id)
-            performer_category = performer_c.performer_category
+            performer = await performers_get.performer_select(message.from_user.id)
             async with state.proxy() as data:
-                data["performer_category"] = performer_category
+                data["performer_category"] = performer.performer_category
             p_c = None
-            if performer_category == "car":
+            if performer.performer_category == "car":
                 p_c = "Исполнителя на Машине"
-            if performer_category == "scooter":
+            if performer.performer_category == "scooter":
                 p_c = "Исполнителя на Самокате"
-            elif performer_category == "pedestrian":
+            elif performer.performer_category == "pedestrian":
                 p_c = "Пешехода"
-            res = await performers_get.performer_checks_all_orders(message.from_user.id, performer_category)
+            res = await performers_get.performer_checks_all_orders(message.from_user.id, performer.performer_category)
             await bot.send_message(message.from_user.id,
                                    f"Выводим весь список задач для <b>{p_c}</b>")
             finished_categories = InlineKeyboardMarkup()
@@ -143,8 +142,6 @@ class PerformerTasks:
                                    f"{config.KEYBOARD.get('B_BUTTON')} "
                                    f"Куда - <a href='https://yandex.ru/maps/?text="
                                    f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                   f"{config.KEYBOARD.get('INFORMATION')} "
-                                   f"Название - <b>{i.title}</b>\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
                                    f"Описание - <b>{i.description}</b>\n"
                                    f"{config.KEYBOARD.get('DOLLAR')} "
@@ -221,8 +218,6 @@ class PerformerTasks:
                                    f"{config.KEYBOARD.get('B_BUTTON')} "
                                    f"Куда - <a href='https://yandex.ru/maps/?text="
                                    f"{'+'.join(res[0].geo_position_to.split())}'>{res[0].geo_position_to}</a>\n"
-                                   f"{config.KEYBOARD.get('INFORMATION')} "
-                                   f"Название - <b>{res[0].title}</b>\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
                                    f"Описание - <b>{res[0].description}</b>\n"
                                    f"{config.KEYBOARD.get('DOLLAR')} "
@@ -621,8 +616,6 @@ class PerformerDetailsTasks:
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(order.geo_position_to.split())}'>"
                                        f"{order.geo_position_to}</a>\n"
-                                       f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{order.title}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{order.description}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "

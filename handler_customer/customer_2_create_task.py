@@ -149,46 +149,23 @@ class CustomerCreateTask:
     async def approve_geo_to(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
-                               "Отлично! Введите название заказа",
+                               "Отлично! Опишите что нужно сделать",
                                reply_markup=markup_customer.back())
-        await customer_states.CustomerCreateTask.title.set()
-
-    @staticmethod
-    async def title(message: types.Message, state: FSMContext):
-        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            await customer_states.CustomerCreateTask.geo_position_to.set()
-            await bot.send_message(message.from_user.id,
-                                   "Вы вернулись на шаг назад\n"
-                                   "Здесь вы можете указать <b>Точку B</b> (Конечная точка)",
-                                   reply_markup=markup_customer.send_my_geo_2())
-        else:
-            if len(message.text) > 100:
-                await bot.send_message(message.from_user.id,
-                                       "Вы ввели слишком длинное название!"
-                                       "Ограничение в названии заказа 100 символов!",
-                                       reply_markup=markup_customer.back())
-            else:
-                async with state.proxy() as data:
-                    data["title"] = message.text
-                await customer_states.CustomerCreateTask.next()
-                await bot.send_message(message.from_user.id,
-                                       "Введите, что нужно сделать\n"
-                                       "<b>Описание Заказа</b>",
-                                       reply_markup=markup_customer.back())
+        await customer_states.CustomerCreateTask.description.set()
 
     @staticmethod
     async def description(message: types.Message, state: FSMContext):
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            await customer_states.CustomerCreateTask.title.set()
+            await customer_states.CustomerCreateTask.geo_position_to.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись на шаг назад\n"
-                                   "Здесь вы сможете ввести <b>название Заказа</b>",
+                                   "Здесь вы сможете указать конечную точку Заказа",
                                    reply_markup=markup_customer.back())
         else:
             if len(message.text) > 255:
                 await bot.send_message(message.from_user.id,
-                                       "Вы ввели слишком длинное название!"
-                                       "Ограничение в названии заказа 255 символов!",
+                                       "Вы ввели слишком длинное описание!"
+                                       "Ограничение в описании заказа 255 символов!",
                                        reply_markup=markup_customer.back())
             else:
                 async with state.proxy() as data:
@@ -322,7 +299,6 @@ class CustomerCreateTask:
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from"),
                                                        data.get("geo_data_to"),
-                                                       data.get("title"),
                                                        int(data.get("price")),
                                                        data.get("description"),
                                                        None, None,
@@ -333,11 +309,13 @@ class CustomerCreateTask:
                                                        data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                        int(data.get("order_worth")))
             await general_set.add_review(order_id)
-            performers = await general_get.all_performers_auto_send()
+            performers = await general_get.all_performers_auto_send(data.get("performer_category"))
             for i in performers:
                 await bot.send_message(i.user_id,
                                        "Новый заказ!\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
+                                       f"Категория - <b>{data.get('category_delivery')}</b>\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
                                        f"Откуда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(data.get('geo_data_from').split())}'>"
@@ -346,8 +324,6 @@ class CustomerCreateTask:
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(data.get('geo_data_to').split())}'>"
                                        f"{data.get('geo_data_to')}</a>\n"
-                                       f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{data.get('title')}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{data.get('description')}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -400,7 +376,6 @@ class CustomerCreateTask:
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from"),
                                                        data.get("geo_data_to"),
-                                                       data.get("title"),
                                                        int(data.get("price")),
                                                        data.get("description"),
                                                        data.get("photo"), None,
@@ -411,11 +386,13 @@ class CustomerCreateTask:
                                                        data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                        int(data.get("order_worth")))
                 await general_set.add_review(data.get("order_id"))
-                performers = await general_get.all_performers_auto_send()
+                performers = await general_get.all_performers_auto_send(data.get("performer_category"))
                 for i in performers:
                     await bot.send_message(i.user_id,
                                            "Новый заказ!\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
+                                           f"Категория - <b>{data.get('category_delivery')}</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
                                            f"Откуда - <a href='https://yandex.ru/maps/?text="
                                            f"{'+'.join(data.get('geo_data_from').split())}'>"
@@ -424,8 +401,6 @@ class CustomerCreateTask:
                                            f"Куда - <a href='https://yandex.ru/maps/?text="
                                            f"{'+'.join(data.get('geo_data_to').split())}'>"
                                            f"{data.get('geo_data_to')}</a>\n"
-                                           f"{config.KEYBOARD.get('INFORMATION')} "
-                                           f"Название - <b>{data.get('title')}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{data.get('description')}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
@@ -463,7 +438,6 @@ class CustomerCreateTask:
             await customers_set.customer_add_order(message.from_user.id,
                                                    data.get("geo_data_from"),
                                                    data.get("geo_data_to"),
-                                                   data.get("title"),
                                                    int(data.get("price")),
                                                    data.get("description"),
                                                    None, data.get("video"),
@@ -474,11 +448,13 @@ class CustomerCreateTask:
                                                    data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                    int(data.get("order_worth")))
             await general_set.add_review(data.get("order_id"))
-            performers = await general_get.all_performers_auto_send()
+            performers = await general_get.all_performers_auto_send(data.get("performer_category"))
             for i in performers:
                 await bot.send_message(i.user_id,
                                        "Новый заказ!\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
+                                       f"Категория - <b>{data.get('category_delivery')}</b>\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
                                        f"Откуда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(data.get('geo_data_from').split())}'>"
@@ -487,8 +463,6 @@ class CustomerCreateTask:
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(data.get('geo_data_to').split())}'>"
                                        f"{data.get('geo_data_to')}</a>\n"
-                                       f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{data.get('title')}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{data.get('description')}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -669,9 +643,9 @@ class CustomerCreateTaskComp:
             data["method"] = 'custom'
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
-                               "Отлично! Введите название заказа",
+                               "Отлично! Опишите что нужно сделать",
                                reply_markup=markup_customer.back())
-        await customer_states.CustomerCreateTaskComp.title.set()
+        await customer_states.CustomerCreateTaskComp.description.set()
 
     @staticmethod
     async def geo_position_from_comp(message: types.Message, state: FSMContext):
@@ -767,53 +741,23 @@ class CustomerCreateTaskComp:
             data["method"] = 'maps'
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
-                               "Отлично! Введите название заказа",
+                               "Отлично! Опишите что нужно сделать",
                                reply_markup=markup_customer.back())
-        await customer_states.CustomerCreateTaskComp.title.set()
-
-    @staticmethod
-    async def title_comp(message: types.Message, state: FSMContext):
-        if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            async with state.proxy() as data:
-                if data.get("method") == "custom":
-                    await customer_states.CustomerCreateTaskComp.geo_position_to_custom.set()
-                    await bot.send_message(message.from_user.id,
-                                           "Вернулись на шаг назад\n"
-                                           "Здесь вы сможете ввести вручную <b>Точку B</b>",
-                                           reply_markup=markup_customer.back())
-                if data.get("method") == "maps":
-                    await customer_states.CustomerCreateTaskComp.geo_position_to.set()
-                    await bot.send_message(message.from_user.id,
-                                           "Вернулись на шаг назад\n"
-                                           "Здесь вы сможете ввести <b>Точку B</b>",
-                                           reply_markup=markup_customer.open_site())
-        else:
-            if len(message.text) > 100:
-                await bot.send_message(message.from_user.id,
-                                       "Вы ввели слишком длинное название!"
-                                       "Ограничение в названии заказа 100 символов!",
-                                       reply_markup=markup_customer.back())
-            else:
-                async with state.proxy() as data:
-                    data["title"] = message.text
-                await customer_states.CustomerCreateTaskComp.next()
-                await bot.send_message(message.from_user.id,
-                                       "Введите, что нужно сделать",
-                                       reply_markup=markup_customer.back())
+        await customer_states.CustomerCreateTaskComp.description.set()
 
     @staticmethod
     async def description_comp(message: types.Message, state: FSMContext):
         if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            await customer_states.CustomerCreateTaskComp.title.set()
+            await customer_states.CustomerCreateTaskComp.description.set()
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись на шаг назад\n"
-                                   "Здесь вы сможете ввести <b>название Заказа</b>",
+                                   "Здесь вы сможете <b>ввести описание Заказа</b>",
                                    reply_markup=markup_customer.back())
         else:
             if len(message.text) > 255:
                 await bot.send_message(message.from_user.id,
-                                       "Вы ввели слишком длинное название!"
-                                       "Ограничение в названии заказа 255 символов!",
+                                       "Вы ввели слишком длинное описание!"
+                                       "Ограничение в описании заказа 255 символов!",
                                        reply_markup=markup_customer.back())
             else:
                 async with state.proxy() as data:
@@ -898,9 +842,7 @@ class CustomerCreateTaskComp:
                 async with state.proxy() as data:
                     data['order_expired'] = date
                 await bot.send_message(message.from_user.id,
-                                       "<b>Определите примерную ценность вашего товара</b>\n"
-                                       "<b>Если ценности нет напишите 0</b>\n"
-                                       "<b>(Допустим у вас категория 'Погрузка/Разгрузка)'</b>)",
+                                       "<b>Определите примерную ценность вашего товара</b>\n",
                                        reply_markup=markup_customer.back())
                 await customer_states.CustomerCreateTaskComp.next()
             else:
@@ -948,7 +890,6 @@ class CustomerCreateTaskComp:
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from_comp"),
                                                        data.get("geo_data_to_comp"),
-                                                       data.get("title"),
                                                        int(data.get("price")),
                                                        data.get("description"),
                                                        None, None,
@@ -959,11 +900,13 @@ class CustomerCreateTaskComp:
                                                        data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                        int(data.get("order_worth")))
             await general_set.add_review(order_id)
-            performers = await general_get.all_performers_auto_send()
+            performers = await general_get.all_performers_auto_send(data.get("performer_category"))
             for i in performers:
                 await bot.send_message(i.user_id,
                                        "Новый заказ!\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
+                                       f"Категория - <b>{data.get('category_delivery')}</b>\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
                                        f"Откуда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(data.get('geo_data_from_comp').split())}'>"
@@ -972,8 +915,6 @@ class CustomerCreateTaskComp:
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(data.get('geo_data_to_comp').split())}'>"
                                        f"{data.get('geo_data_to_comp')}</a>\n"
-                                       f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{data.get('title')}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{data.get('description')}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -1027,7 +968,6 @@ class CustomerCreateTaskComp:
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from_comp"),
                                                        data.get("geo_data_to_comp"),
-                                                       data.get("title"),
                                                        int(data.get("price")),
                                                        data.get("description"),
                                                        data.get("photo"), None,
@@ -1038,11 +978,13 @@ class CustomerCreateTaskComp:
                                                        data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                        int(data.get("order_worth")))
                 await general_set.add_review(data.get("order_id"))
-                performers = await general_get.all_performers_auto_send()
+                performers = await general_get.all_performers_auto_send(data.get("performer_category"))
                 for i in performers:
                     await bot.send_message(i.user_id,
                                            "Новый заказ!\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
+                                           f"Категория - <b>{data.get('category_delivery')}</b>\n"
                                            f"{config.KEYBOARD.get('A_BUTTON')} "
                                            f"Откуда - <a href='https://yandex.ru/maps/?text="
                                            f"{'+'.join(data.get('geo_data_from_comp').split())}'>"
@@ -1051,8 +993,6 @@ class CustomerCreateTaskComp:
                                            f"Куда - <a href='https://yandex.ru/maps/?text="
                                            f"{'+'.join(data.get('geo_data_to_comp').split())}'>"
                                            f"{data.get('geo_data_to_comp')}</a>\n"
-                                           f"{config.KEYBOARD.get('INFORMATION')} "
-                                           f"Название - <b>{data.get('title')}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{data.get('description')}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
@@ -1091,7 +1031,6 @@ class CustomerCreateTaskComp:
             await customers_set.customer_add_order(message.from_user.id,
                                                    data.get("geo_data_from_comp"),
                                                    data.get("geo_data_to_comp"),
-                                                   data.get("title"),
                                                    int(data.get("price")),
                                                    data.get("description"),
                                                    None, data.get("video"),
@@ -1102,11 +1041,13 @@ class CustomerCreateTaskComp:
                                                    data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                    int(data.get("order_worth")))
             await general_set.add_review(data.get("order_id"))
-            performers = await general_get.all_performers_auto_send()
+            performers = await general_get.all_performers_auto_send(data.get("performer_category"))
             for i in performers:
                 await bot.send_message(i.user_id,
                                        "Новый заказ!\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
+                                       f"Категория - <b>{data.get('category_delivery')}</b>\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
                                        f"Откуда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(data.get('geo_data_from_comp').split())}'>"
@@ -1115,8 +1056,6 @@ class CustomerCreateTaskComp:
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(data.get('geo_data_to_comp').split())}'>"
                                        f"{data.get('geo_data_to_comp')}</a>\n"
-                                       f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{data.get('title')}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{data.get('description')}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -1215,7 +1154,7 @@ class CustomerCreateTaskLoading:
             if len(message.text) > 255:
                 await bot.send_message(message.from_user.id,
                                        "Вы ввели слишком длинное описание!"
-                                       "Ограничение в названии заказа 255 символов!",
+                                       "Ограничение в описании заказа 255 символов!",
                                        reply_markup=markup_customer.back())
             else:
                 async with state.proxy() as data:
@@ -1315,7 +1254,7 @@ class CustomerCreateTaskLoading:
                                                                datetime.now().strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("people"))
-                performers = await general_get.all_performers_auto_send()
+                performers = await general_get.all_performers_auto_send("loading")
                 for i in performers:
                     await bot.send_message(i.user_id,
                                            f"Новый заказ! От заказчика {message.from_user.id}\n"
@@ -1391,7 +1330,7 @@ class CustomerCreateTaskLoading:
                                                                data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                                data.get("people"))
                 await general_set.add_review(data.get("order_id"))
-                performers = await general_get.all_performers_auto_send()
+                performers = await general_get.all_performers_auto_send("loading")
                 for i in performers:
                     await bot.send_message(i.user_id,
                                            f"Новый заказ! От заказчика {message.from_user.id}\n"
@@ -1452,7 +1391,7 @@ class CustomerCreateTaskLoading:
                                                            data.get("order_expired").strftime('%d-%m-%Y, %H:%M:%S'),
                                                            data.get("people"))
             await general_set.add_review(data.get("order_id"))
-            performers = await general_get.all_performers_auto_send()
+            performers = await general_get.all_performers_auto_send("loading")
             for i in performers:
                 await bot.send_message(i.user_id,
                                        f"Новый заказ! От заказчика {message.from_user.id}\n"

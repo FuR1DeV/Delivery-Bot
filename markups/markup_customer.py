@@ -393,11 +393,10 @@ def help_customer():
 
 def details_task_change():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"{KEYBOARD.get('INFORMATION')} Название",
-                 f"{KEYBOARD.get('INFORMATION')} Описание")
+    keyboard.row(f"{KEYBOARD.get('INFORMATION')} Описание",
+                 f"{KEYBOARD.get('DOLLAR')} Цену")
     keyboard.row(f"{KEYBOARD.get('A_BUTTON')} Откуда забрать",
                  f"{KEYBOARD.get('B_BUTTON')} Куда доставить")
-    keyboard.row(f"{KEYBOARD.get('DOLLAR')} Цену")
     keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Разблокировать заказ / Назад")
     return keyboard
 

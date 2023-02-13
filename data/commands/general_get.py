@@ -1,4 +1,7 @@
 import logging
+
+from sqlalchemy import and_, or_
+
 from data.models.customers import Customers
 from data.models.performers import Performers, JobsOffers
 from data.models.admins import Payment, PrivateChat
@@ -21,10 +24,30 @@ async def all_performers():
     return performers
 
 
-async def all_performers_auto_send():
+async def all_performers_auto_send(category):
     logger.info(f'Функция выгрузки всех Исполнителей с автоматической отправкой')
-    performers = await Performers.query.where(Performers.auto_send == 1).gino.all()
-    return performers
+    if category == "car":
+        performers = await Performers.query.where(and_(Performers.auto_send == 1,
+                                                       Performers.performer_money > 49,
+                                                       Performers.performer_category == "car")).gino.all()
+        return performers
+    if category == "scooter":
+        performers = await Performers.query.where(and_(Performers.auto_send == 1,
+                                                       Performers.performer_money > 49,
+                                                       or_(Performers.performer_category == "car",
+                                                           Performers.performer_category == "scooter"))).gino.all()
+        return performers
+    if category == "pedestrian":
+        performers = await Performers.query.where(and_(Performers.auto_send == 1,
+                                                       Performers.performer_money > 49,
+                                                       or_(Performers.performer_category == "car",
+                                                           Performers.performer_category == "scooter",
+                                                           Performers.performer_category == "pedestrian",))).gino.all()
+        return performers
+    if category == "loading":
+        performers = await Performers.query.where(and_(Performers.auto_send == 1,
+                                                       Performers.performer_money > 49)).gino.all()
+        return performers
 
 
 async def all_orders():

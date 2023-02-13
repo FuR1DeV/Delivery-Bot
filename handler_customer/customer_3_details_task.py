@@ -117,8 +117,6 @@ class CustomerDetailsTasks:
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(res_order.geo_position_to.split())}'>"
                                        f"{res_order.geo_position_to}</a>\n"
-                                       f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{res_order.title}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{res_order.description}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -456,17 +454,6 @@ class CustomerDetailsTasksChange:
             order_id = data.get("order_id")
             order_tuple = await customers_get.customer_view_order(order_id)
             order, data["order_type"] = order_tuple[0], order_tuple[1]
-        if "Название" in message.text:
-            async with state.proxy() as data:
-                data["change"] = "title"
-                data["len"] = 100
-            await bot.send_message(message.from_user.id,
-                                   f'Название вашего заказа - "{order.title}"',
-                                   reply_markup=markup_customer.markup_clean)
-            await bot.send_message(message.from_user.id,
-                                   f"Введите чтобы поменять Название",
-                                   reply_markup=markup_customer.back())
-            await customer_states.CustomerChangeOrder.change.set()
         if "Описание" in message.text:
             async with state.proxy() as data:
                 data["change"] = "description"
@@ -577,7 +564,6 @@ class CustomerDetailsTasksChange:
                     await customer_states.CustomerChangeOrder.enter.set()
             if len(message.text) > len_:
                 await bot.send_message(message.from_user.id, "Слишком длинное предложение\n"
-                                                             "Ограничение на название заказа - 100 символов\n"
                                                              "Ограничение на описание заказа - 255 символов")
 
     @staticmethod

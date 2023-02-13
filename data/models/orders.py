@@ -9,7 +9,6 @@ class Orders(BaseModel):
     user_id = Column(BigInteger, nullable=False)
     geo_position_from = Column(String, nullable=False)
     geo_position_to = Column(String, nullable=False)
-    title = Column(String, nullable=False)
     price = Column(DECIMAL, nullable=False)
     description = Column(String, nullable=False)
     image = Column(String)

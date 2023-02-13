@@ -114,12 +114,12 @@ class AdminOrders:
             res = await general_get.all_orders()
             with open("logs/table_orders.csv", "w", newline='', encoding="Windows-1251") as file:
                 writer = csv.writer(file)
-                writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price",
+                writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "price",
                                  "description", "image", "video", "performer_id", "completed", "order_id",
                                  "order_create", "order_get", "order_end", "category_delivery",
                                  "block", "performer_category", "order_expired", "order_worth", "order_rating"])
                 for i in res:
-                    writer.writerow([i.id, i.user_id, i.geo_position_from, i.geo_position_to, i.title, i.price,
+                    writer.writerow([i.id, i.user_id, i.geo_position_from, i.geo_position_to, i.price,
                                      i.description, i.image, i.video, i.in_work, i.completed, i.order_id,
                                      i.order_create, i.order_get, i.order_end, i.category_delivery,
                                      i.block, i.performer_category, i.order_expired, i.order_worth, i.order_rating])
@@ -189,8 +189,6 @@ class AdminOrders:
                                    f"{config.KEYBOARD.get('B_BUTTON')} "
                                    f"Куда - <a href='https://yandex.ru/maps/?text="
                                    f"{'+'.join(res.geo_position_to.split())}'>{res.geo_position_to}</a>\n"
-                                   f"{config.KEYBOARD.get('INFORMATION')} "
-                                   f"Название - <b>{res.title}</b>\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
                                    f"Описание - <b>{res.description}</b>\n"
                                    f"{config.KEYBOARD.get('DOLLAR')} "
@@ -328,8 +326,6 @@ class AdminOrders:
                                    f"{config.KEYBOARD.get('B_BUTTON')} "
                                    f"Куда - <a href='https://yandex.ru/maps/?text="
                                    f"{'+'.join(order.geo_position_to.split())}'>{order.geo_position_to}</a>\n"
-                                   f"{config.KEYBOARD.get('INFORMATION')} "
-                                   f"Название - <b>{order.title}</b>\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
                                    f"Описание - <b>{order.description}</b>\n"
                                    f"{config.KEYBOARD.get('DOLLAR')} "
@@ -367,12 +363,12 @@ class AdminOrders:
             with open(f"logs/table_order_{order.order_id}.csv", "w", newline='', encoding="Windows-1251") as file:
                 writer = csv.writer(file)
                 writer.writerow(['Table order'])
-                writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "title", "price",
+                writer.writerow(["id", "user_id", "geo_position_from", "geo_position_to", "price",
                                  "description", "image", "video", "performer_id", "completed", "order_id",
                                  "order_create", "order_get", "order_end", "category_delivery",
                                  "performer_category", "order_expired", "order_worth", "order_rating"])
                 writer.writerow([order.id, order.user_id, order.geo_position_from, order.geo_position_to,
-                                 order.title, order.price, order.description, order.image, order.video,
+                                 order.price, order.description, order.image, order.video,
                                  order.in_work, order.completed, order.order_id, order.order_create,
                                  order.order_get, order.order_end, order.category_delivery,
                                  order.performer_category, order.order_expired, order.order_worth,

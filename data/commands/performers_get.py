@@ -38,13 +38,29 @@ async def check_private_chat_status(user_id):
 
 async def performer_checks_all_orders(user_id, performer_category):
     """Исполнитель смотрит все заказы"""
-    orders = await Orders.query.where(and_(Orders.in_work == 0,
-                                           Orders.block == 0,
-                                           Orders.order_get == None,
-                                           Orders.user_id != user_id,
-                                           or_(Orders.performer_category == performer_category,
-                                               Orders.performer_category == 'any'))).gino.all()
-    return orders
+    if performer_category == "car":
+        orders = await Orders.query.where(and_(Orders.in_work == 0,
+                                               Orders.block == 0,
+                                               Orders.order_get == None,
+                                               Orders.user_id != user_id)).gino.all()
+        return orders
+    if performer_category == "scooter":
+        orders = await Orders.query.where(and_(Orders.in_work == 0,
+                                               Orders.block == 0,
+                                               Orders.order_get == None,
+                                               Orders.user_id != user_id,
+                                               or_(Orders.performer_category == 'scooter',
+                                                   Orders.performer_category == 'pedestrian',
+                                                   Orders.performer_category == 'any'))).gino.all()
+        return orders
+    if performer_category == "pedestrian":
+        orders = await Orders.query.where(and_(Orders.in_work == 0,
+                                               Orders.block == 0,
+                                               Orders.order_get == None,
+                                               Orders.user_id != user_id,
+                                               or_(Orders.performer_category == 'pedestrian',
+                                                   Orders.performer_category == 'any'))).gino.all()
+        return orders
 
 
 async def performer_checks_all_orders_loading(user_id):
@@ -69,14 +85,36 @@ async def performer_check_order_loading_relevance(user_id, order_id):
 
 async def performer_checks_all_orders_with_category(user_id, performer_category, category_delivery):
     """Исполнитель смотрит все заказы с определенной категорией"""
-    orders = await Orders.query.where(and_(Orders.in_work == 0,
-                                           Orders.block == 0,
-                                           Orders.order_get == None,
-                                           Orders.user_id != user_id,
-                                           or_(Orders.performer_category == performer_category,
-                                               Orders.performer_category == 'any'),
-                                           Orders.category_delivery == category_delivery)).gino.all()
-    return orders
+    if performer_category == "car":
+        orders = await Orders.query.where(and_(Orders.in_work == 0,
+                                               Orders.block == 0,
+                                               Orders.order_get == None,
+                                               Orders.user_id != user_id,
+                                               or_(Orders.performer_category == "car",
+                                                   Orders.performer_category == 'scooter',
+                                                   Orders.performer_category == 'pedestrian',
+                                                   Orders.performer_category == 'any'),
+                                               Orders.category_delivery == category_delivery)).gino.all()
+        return orders
+    if performer_category == "scooter":
+        orders = await Orders.query.where(and_(Orders.in_work == 0,
+                                               Orders.block == 0,
+                                               Orders.order_get == None,
+                                               Orders.user_id != user_id,
+                                               or_(Orders.performer_category == 'scooter',
+                                                   Orders.performer_category == 'pedestrian',
+                                                   Orders.performer_category == 'any'),
+                                               Orders.category_delivery == category_delivery)).gino.all()
+        return orders
+    if performer_category == "pedestrian":
+        orders = await Orders.query.where(and_(Orders.in_work == 0,
+                                               Orders.block == 0,
+                                               Orders.order_get == None,
+                                               Orders.user_id != user_id,
+                                               or_(Orders.performer_category == 'pedestrian',
+                                                   Orders.performer_category == 'any'),
+                                               Orders.category_delivery == category_delivery)).gino.all()
+        return orders
 
 
 async def performer_loader_order(user_id):

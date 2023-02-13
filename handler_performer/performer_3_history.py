@@ -52,8 +52,6 @@ class PerformerHistory:
                                    f"Откуда <b>{order.geo_position_from}</b>\n"
                                    f"{config.KEYBOARD.get('B_BUTTON')} "
                                    f"Куда <b>{order.geo_position_to}</b>\n"
-                                   f"{config.KEYBOARD.get('INFORMATION')} "
-                                   f"Название <b>{order.title}</b>\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
                                    f"Описание <b>{order.description}</b>\n"
                                    f"{config.KEYBOARD.get('DOLLAR')} "

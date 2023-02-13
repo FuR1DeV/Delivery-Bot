@@ -60,8 +60,6 @@ def register_customer(disp: Dispatcher):
     disp.register_callback_query_handler(CustomerCreateTask.approve_geo_to,
                                          text="approve_geo_to",
                                          state=customer_states.CustomerCreateTask.geo_position_to)
-    disp.register_message_handler(CustomerCreateTask.title,
-                                  state=customer_states.CustomerCreateTask.title)
     disp.register_message_handler(CustomerCreateTask.description,
                                   state=customer_states.CustomerCreateTask.description)
     disp.register_message_handler(CustomerCreateTask.price,
@@ -92,8 +90,6 @@ def register_customer(disp: Dispatcher):
     disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_comp,
                                          text="approve_geo_to_comp",
                                          state=customer_states.CustomerCreateTaskComp.geo_position_to)
-    disp.register_message_handler(CustomerCreateTaskComp.title_comp,
-                                  state=customer_states.CustomerCreateTaskComp.title)
     disp.register_message_handler(CustomerCreateTaskComp.description_comp,
                                   state=customer_states.CustomerCreateTaskComp.description)
     disp.register_message_handler(CustomerCreateTaskComp.price_comp,

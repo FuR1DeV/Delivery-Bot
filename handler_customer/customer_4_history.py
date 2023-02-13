@@ -80,8 +80,6 @@ class CustomerHistory:
                                    f"{config.KEYBOARD.get('B_BUTTON')} "
                                    f"Куда - <a href='https://yandex.ru/maps/?text="
                                    f"{'+'.join(order.geo_position_to.split())}'>{order.geo_position_to}</a>\n"
-                                   f"{config.KEYBOARD.get('INFORMATION')} "
-                                   f"Название - <b>{order.title}</b>\n"
                                    f"{config.KEYBOARD.get('CLIPBOARD')} "
                                    f"Описание - <b>{order.description}</b>\n"
                                    f"{config.KEYBOARD.get('DOLLAR')} "

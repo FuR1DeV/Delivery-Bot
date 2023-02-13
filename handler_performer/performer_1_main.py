@@ -256,8 +256,6 @@ class PerformerMain:
                                            f"{config.KEYBOARD.get('B_BUTTON')} "
                                            f"Куда - <a href='https://yandex.ru/maps/?text="
                                            f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                           f"{config.KEYBOARD.get('INFORMATION')} "
-                                           f"Название - <b>{i.title}</b>\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{i.description}</b>\n"
                                            f"{config.KEYBOARD.get('DOLLAR')} "
@@ -418,8 +416,6 @@ class PerformerMain:
                                        f"{config.KEYBOARD.get('B_BUTTON')} "
                                        f"Куда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(i.geo_position_to.split())}'>{i.geo_position_to}</a>\n"
-                                       f"{config.KEYBOARD.get('INFORMATION')} "
-                                       f"Название - <b>{i.title}</b>\n"
                                        f"{config.KEYBOARD.get('CLIPBOARD')} "
                                        f"Описание - <b>{i.description}</b>\n"
                                        f"{config.KEYBOARD.get('DOLLAR')} "
@@ -429,7 +425,6 @@ class PerformerMain:
                 keyboard.add(f"{i.order_id}")
                 async with state.proxy() as data:
                     data[i.order_id] = {
-                        'Название': i.title,
                         'ID заказа': i.order_id,
                         'ID исполнителя': i.in_work,
                         'Бюджет': i.price,
