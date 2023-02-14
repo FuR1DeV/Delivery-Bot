@@ -9,7 +9,6 @@ from states import states
 def register_admin_handler(disp: Dispatcher):
     disp.register_message_handler(AdminMain.admin_main, state=states.AdminStates.enter)
     disp.register_message_handler(AdminMain.loading_db, state=states.AdminStates.loading_db)
-    disp.register_message_handler(AdminMain.orders, state=states.AdminStates.orders)
 
     # def register_orders_handler(disp: Dispatcher):
     disp.register_message_handler(AdminOrders.enter_orders, state=states.Orders.enter)
@@ -42,6 +41,7 @@ def register_admin_handler(disp: Dispatcher):
     # def register_control_change_handler(disp: Dispatcher):
     disp.register_message_handler(AdminControlChange.change_main, state=states.ChangeUsers.enter)
     disp.register_message_handler(AdminControlChange.add_money, state=states.ChangeUsers.add_money)
+    disp.register_message_handler(AdminControlChange.change_rating, state=states.ChangeUsers.rating)
 
     # def register_control_handler(disp: Dispatcher):
     disp.register_message_handler(AdminControl.control, state=states.AboutUsers.enter)

@@ -25,9 +25,9 @@ class AdminMain:
             await states.Commission.commission.set()
         if message.text == "Просмотр Заказов":
             await bot.send_message(message.from_user.id,
-                                   "Здесь вы сможете просмотреть все заказы, статистику, и отзывы",
-                                   reply_markup=markup_admin.orders_stat())
-            await states.AdminStates.orders.set()
+                                   "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
+                                   reply_markup=markup_admin.enter_id())
+            await states.Orders.enter.set()
         if message.text == "Выгрузка БД Заказчиков и Исполнителей":
             await bot.send_message(message.from_user.id,
                                    "Выгрузка БД Заказчиков и Исполнителей",
@@ -52,24 +52,11 @@ class AdminMain:
             await states.AboutUsers.enter.set()
             async with state.proxy() as data:
                 data["type_user"] = "performers"
-
-    @staticmethod
-    async def orders(message: types.Message):
-        if message.text == "Просмотр заказов":
-            await bot.send_message(message.from_user.id,
-                                   "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
-                                   reply_markup=markup_admin.enter_id())
-            await states.Orders.enter.set()
         if message.text == "Статистика":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы можете просмотреть статистику",
                                    reply_markup=markup_admin.statistics())
             await states.Statistics.enter.set()
-        if message.text == "Назад":
-            await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню Администратора",
-                                   reply_markup=markup_admin.admin_main())
-            await states.AdminStates.enter.set()
 
     @staticmethod
     async def loading_db(message: types.Message):
@@ -139,8 +126,8 @@ class AdminOrders:
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Вы в главном меню",
-                                   reply_markup=markup_admin.orders_stat())
-            await states.AdminStates.orders.set()
+                                   reply_markup=markup_admin.admin_main())
+            await states.AdminStates.enter.set()
 
     @staticmethod
     async def order(message: types.Message, state: FSMContext):
@@ -428,8 +415,8 @@ class AdminStats:
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
-                                   reply_markup=markup_admin.orders_stat())
-            await states.AdminStates.orders.set()
+                                   reply_markup=markup_admin.admin_main())
+            await states.AdminStates.enter.set()
 
 
 class AdminCommission:
@@ -734,6 +721,11 @@ class AdminControlChange:
                                    "Введите сумму для начисления",
                                    reply_markup=markup_admin.markup_clean)
             await states.ChangeUsers.add_money.set()
+        if message.text == "Рейтинг":
+            await bot.send_message(message.from_user.id,
+                                   "Введите желаемый рейтинг",
+                                   reply_markup=markup_admin.markup_clean)
+            await states.ChangeUsers.rating.set()
         if message.text == "Просмотр личных данных":
             async with state.proxy() as data:
                 performer = await admins_get.admin_check_personal_data(data.get("user_id"))
@@ -762,6 +754,20 @@ class AdminControlChange:
             await states.ChangeUsers.enter.set()
         else:
             await bot.send_message(message.from_user.id, "Нужно ввести целое число")
+
+    @staticmethod
+    async def change_rating(message: types.Message, state: FSMContext):
+        try:
+            async with state.proxy() as data:
+                user_id = data.get("user_id")
+                rating = float(message.text)
+                await admins_set.admin_set_rating(user_id, rating)
+            await bot.send_message(message.from_user.id,
+                                   f"Успешно обновили рейтинг {rating} для пользователя {user_id}",
+                                   reply_markup=markup_admin.find_user(True))
+            await states.ChangeUsers.enter.set()
+        except ValueError:
+            await bot.send_message(message.from_user.id, "Нужно ввести дробное число")
 
 
 class AdminControl:

@@ -7,7 +7,7 @@ markup_clean = ReplyKeyboardRemove()
 
 def admin_main():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row("Комиссия", "Просмотр Заказов")
+    keyboard.row("Комиссия", "Просмотр Заказов", "Статистика")
     keyboard.row("Управление Заказчиками", "Управление Исполнителями")
     keyboard.row("Выгрузка БД Заказчиков и Исполнителей", "Смены")
     return keyboard
@@ -88,13 +88,6 @@ def back():
     return keyboard
 
 
-def orders_stat():
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row("Просмотр заказов", "Статистика")
-    keyboard.row("Назад")
-    return keyboard
-
-
 def statistics():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("По заказчикам", "По исполнителям")
@@ -145,11 +138,11 @@ def about_performers():
     return keyboard
 
 
-def find_user(money_add):
+def find_user(performer):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    if money_add:
+    if performer:
         keyboard.row("Заблокировать", "Разблокировать", "Просмотр профиля")
-        keyboard.row("Начислить сумму", "Просмотр личных данных")
+        keyboard.row("Начислить сумму", "Рейтинг", "Просмотр личных данных")
         keyboard.row("Вернуться в главное меню")
     else:
         keyboard.row("Заблокировать", "Разблокировать")

@@ -41,6 +41,12 @@ async def admin_set_money(user_id, money):
     await performer.update(performer_money=performer.performer_money + money).apply()
 
 
+async def admin_set_rating(user_id, rating):
+    logger.info(f'Админ обновляет рейтинг {rating} для {user_id}')
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
+    await performer.update(performer_rating=rating).apply()
+
+
 async def admin_set_commission_for_performer(res):
     logger.info('Админ устанавливает комиссию для Исполнителя')
     commission = await Commission.query.where(Commission.category == "performers").gino.first()

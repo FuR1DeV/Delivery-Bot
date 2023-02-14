@@ -42,6 +42,7 @@ class ChangeUsers(StatesGroup):
     add_money: State = State()
     change_first_name: State = State()
     change_last_name: State = State()
+    rating: State = State()
 
 
 class Statistics(StatesGroup):
