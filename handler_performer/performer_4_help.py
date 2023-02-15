@@ -14,12 +14,11 @@ class PerformerHelp:
 
     @staticmethod
     async def performer_help(message: types.Message):
-        PerformerHelp.logger.debug(f"Функция отправки сообщения от исполнителя {message.from_user.id} в тех поддержку")
-        if message.text == "Закрытый чат курьеров":
-            await bot.send_message(message.from_user.id,
-                                   "Вы хотите вступить в закрытый чат курьеров\n"
-                                   "С вашего баланса спишется <b>300 рублей</b>",
-                                   reply_markup=markup_performer.private_chat_pay())
+        # if message.text == "Закрытый чат курьеров":
+        #     await bot.send_message(message.from_user.id,
+        #                            "Вы хотите вступить в закрытый чат курьеров\n"
+        #                            "С вашего баланса спишется <b>300 рублей</b>",
+        #                            reply_markup=markup_performer.private_chat_pay())
         if message.text == "Загрузить Фото":
             await bot.send_message(message.from_user.id,
                                    "Загрузите фото",
@@ -59,7 +58,9 @@ class PerformerHelp:
                                    f"Имя исполнителя {message.from_user.first_name}\n"
                                    f"ID исполнителя {message.from_user.id}\n"
                                    f"Сообщение от исполнителя - <b>{message.text}</b>\n")
-            await bot.send_message(message.from_user.id, "Сообщение доставлено в техподдержку!")
+            await bot.send_message(message.from_user.id,
+                                   "Сообщение доставлено в техподдержку!",
+                                   reply_markup=markup_performer.photo_or_video_help(True))
 
     @staticmethod
     async def performer_upload_photo(message: types.Message, state: FSMContext):

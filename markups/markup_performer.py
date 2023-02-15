@@ -226,8 +226,8 @@ def approve():
 def photo_or_video_help(chat_info):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(f"Загрузить Фото", f"Загрузить Видео")
-    if not chat_info:
-        keyboard.add(f"Закрытый чат курьеров")
+    # if not chat_info:
+    #     keyboard.add(f"Закрытый чат курьеров")
     keyboard.add(f"Вернуться главное меню")
     return keyboard
 
