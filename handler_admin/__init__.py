@@ -2,13 +2,15 @@ __all__ = ["register_admin_handler"]
 
 from aiogram import Dispatcher
 
-from .admin import AdminMain, AdminOrders, AdminStats, AdminCommission, AdminControlChange, AdminControl, AdminJobs
+from .admin import AdminMain, AdminOrders, AdminStats, AdminCommission, \
+    AdminControlChange, AdminControl, AdminJobs, AdminAdvert
 from states import states
 
 
 def register_admin_handler(disp: Dispatcher):
     disp.register_message_handler(AdminMain.admin_main, state=states.AdminStates.enter)
     disp.register_message_handler(AdminMain.loading_db, state=states.AdminStates.loading_db)
+    disp.register_message_handler(AdminMain.user_control, state=states.AdminStates.control)
 
     # def register_orders_handler(disp: Dispatcher):
     disp.register_message_handler(AdminOrders.enter_orders, state=states.Orders.enter)
@@ -51,3 +53,5 @@ def register_admin_handler(disp: Dispatcher):
     disp.register_message_handler(AdminControl.find_telephone, state=states.AboutUsers.find_telephone)
 
     disp.register_message_handler(AdminJobs.jobs, state=states.AdminStates.jobs)
+
+    disp.register_message_handler(AdminAdvert.ad, state=states.Advert.enter)

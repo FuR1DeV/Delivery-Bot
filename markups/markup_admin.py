@@ -7,9 +7,9 @@ markup_clean = ReplyKeyboardRemove()
 
 def admin_main():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row("Комиссия", "Просмотр Заказов", "Статистика")
-    keyboard.row("Управление Заказчиками", "Управление Исполнителями")
-    keyboard.row("Выгрузка БД Заказчиков и Исполнителей", "Смены")
+    keyboard.row("Комиссия", "Просмотр Заказов")
+    keyboard.row("Управление пользователями", "Объявления")
+    keyboard.row("Статистика", "Смены")
     return keyboard
 
 
@@ -169,5 +169,13 @@ def jobs_sales():
     keyboard.row("Автоотправление сообщений", "Смена на 12 часов")
     keyboard.row("Смена на 1 день", "Смена на 1 неделю")
     keyboard.row("Просмотреть все значения")
+    keyboard.row("Назад")
+    return keyboard
+
+
+def user_control():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row("Управление Заказчиками", "Управление Исполнителями")
+    keyboard.row("Выгрузка БД Заказчиков и Исполнителей")
     keyboard.row("Назад")
     return keyboard

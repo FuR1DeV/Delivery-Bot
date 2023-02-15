@@ -6,6 +6,7 @@ class AdminStates(StatesGroup):
     loading_db: State = State()
     orders: State = State()
     jobs: State = State()
+    control: State = State()
 
 
 class Orders(StatesGroup):
@@ -46,4 +47,8 @@ class ChangeUsers(StatesGroup):
 
 
 class Statistics(StatesGroup):
+    enter: State = State()
+
+
+class Advert(StatesGroup):
     enter: State = State()

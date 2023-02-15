@@ -16,7 +16,7 @@ from states import states
 
 class AdminMain:
     @staticmethod
-    async def admin_main(message: types.Message, state: FSMContext):
+    async def admin_main(message: types.Message):
         if message.text == "Комиссия":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете изменить комиссию для Заказчиков и для Исполнителей "
@@ -28,16 +28,31 @@ class AdminMain:
                                    "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
                                    reply_markup=markup_admin.enter_id())
             await states.Orders.enter.set()
-        if message.text == "Выгрузка БД Заказчиков и Исполнителей":
+        if message.text == "Управление пользователями":
             await bot.send_message(message.from_user.id,
-                                   "Выгрузка БД Заказчиков и Исполнителей",
-                                   reply_markup=markup_admin.loading_db())
-            await states.AdminStates.loading_db.set()
+                                   "Вы вошли в управление пользователями",
+                                   reply_markup=markup_admin.user_control())
+            await states.AdminStates.control.set()
         if message.text == "Смены":
             await bot.send_message(message.from_user.id,
                                    "Установка кол-во денег на смены",
                                    reply_markup=markup_admin.jobs_sales())
             await states.AdminStates.jobs.set()
+        if message.text == "Статистика":
+            await bot.send_message(message.from_user.id,
+                                   "Здесь вы можете просмотреть статистику",
+                                   reply_markup=markup_admin.statistics())
+            await states.Statistics.enter.set()
+        if message.text == "Объявления":
+            pass
+
+    @staticmethod
+    async def user_control(message: types.Message, state: FSMContext):
+        if message.text == "Выгрузка БД Заказчиков и Исполнителей":
+            await bot.send_message(message.from_user.id,
+                                   "Выгрузка БД Заказчиков и Исполнителей",
+                                   reply_markup=markup_admin.loading_db())
+            await states.AdminStates.loading_db.set()
         if message.text == "Управление Заказчиками":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете посмотреть информацию о Заказчике",
@@ -52,11 +67,11 @@ class AdminMain:
             await states.AboutUsers.enter.set()
             async with state.proxy() as data:
                 data["type_user"] = "performers"
-        if message.text == "Статистика":
+        if message.text == "Назад":
             await bot.send_message(message.from_user.id,
-                                   "Здесь вы можете просмотреть статистику",
-                                   reply_markup=markup_admin.statistics())
-            await states.Statistics.enter.set()
+                                   "Вы вернулись в главное меню Администратора",
+                                   reply_markup=markup_admin.admin_main())
+            await states.AdminStates.enter.set()
 
     @staticmethod
     async def loading_db(message: types.Message):
@@ -84,9 +99,9 @@ class AdminMain:
             await bot.send_document(chat_id=message.from_user.id, document=table_performers)
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню Администратора",
-                                   reply_markup=markup_admin.admin_main())
-            await states.AdminStates.enter.set()
+                                   "Вы вернулись в управление Пользователями",
+                                   reply_markup=markup_admin.user_control())
+            await states.AdminStates.control.set()
 
 
 class AdminOrders:
@@ -819,9 +834,9 @@ class AdminControl:
             await states.AboutUsers.find_telephone.set()
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в главное меню Администратора",
-                                   reply_markup=markup_admin.admin_main())
-            await states.AdminStates.enter.set()
+                                   "Вы вернулись в управление Пользователями",
+                                   reply_markup=markup_admin.user_control())
+            await states.AdminStates.control.set()
 
     @staticmethod
     async def find_id(message: types.Message, state: FSMContext):
@@ -1231,3 +1246,10 @@ class AdminJobs:
                                    "Вы вернулись в главное меню",
                                    reply_markup=markup_admin.admin_main())
             await states.AdminStates.enter.set()
+
+
+class AdminAdvert:
+
+    @staticmethod
+    async def ad(message: types.Message, state: FSMContext):
+        pass
