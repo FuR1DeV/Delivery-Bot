@@ -179,3 +179,10 @@ def user_control():
     keyboard.row("Выгрузка БД Заказчиков и Исполнителей")
     keyboard.row("Назад")
     return keyboard
+
+
+def advert():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row("Для Заказчиков", "Для Исполнителей")
+    keyboard.row("Назад")
+    return keyboard

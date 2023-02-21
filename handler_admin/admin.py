@@ -44,7 +44,10 @@ class AdminMain:
                                    reply_markup=markup_admin.statistics())
             await states.Statistics.enter.set()
         if message.text == "Объявления":
-            pass
+            await bot.send_message(message.from_user.id,
+                                   "Для кого будем кидать объявление ?",
+                                   reply_markup=markup_admin.advert())
+            await states.Advert.enter.set()
 
     @staticmethod
     async def user_control(message: types.Message, state: FSMContext):
@@ -1251,5 +1254,57 @@ class AdminJobs:
 class AdminAdvert:
 
     @staticmethod
-    async def ad(message: types.Message, state: FSMContext):
-        pass
+    async def ad(message: types.Message):
+        if message.text == "Для Заказчиков":
+            await bot.send_message(message.from_user.id,
+                                   "Введите сообщение",
+                                   reply_markup=markup_admin.back())
+            await states.Advert.customers.set()
+        if message.text == "Для Исполнителей":
+            await bot.send_message(message.from_user.id,
+                                   "Введите сообщение",
+                                   reply_markup=markup_admin.back())
+            await states.Advert.performers.set()
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись в главное меню",
+                                   reply_markup=markup_admin.admin_main())
+            await states.AdminStates.enter.set()
+
+    @staticmethod
+    async def ad_customers(message: types.Message):
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад",
+                                   reply_markup=markup_admin.advert())
+            await states.Advert.enter.set()
+        else:
+            customers = await general_get.all_customers()
+            for i in customers:
+                await bot.send_message(i.user_id,
+                                       "<b>От Администрации</b>\n"
+                                       "<b>Объявление для Заказчиков!</b>\n"
+                                       f"{message.text}")
+            await bot.send_message(message.from_user.id,
+                                   "Сообщение доставлено!",
+                                   reply_markup=markup_admin.advert())
+            await states.Advert.enter.set()
+
+    @staticmethod
+    async def ad_performers(message: types.Message):
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы вернулись на шаг назад",
+                                   reply_markup=markup_admin.advert())
+            await states.Advert.enter.set()
+        else:
+            performers = await general_get.all_performers()
+            for i in performers:
+                await bot.send_message(i.user_id,
+                                       "<b>От Администрации</b>\n"
+                                       "<b>Объявление для Исполнителей!</b>\n"
+                                       f"{message.text}")
+            await bot.send_message(message.from_user.id,
+                                   "Сообщение доставлено!",
+                                   reply_markup=markup_admin.advert())
+            await states.Advert.enter.set()

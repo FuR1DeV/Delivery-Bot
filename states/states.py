@@ -52,3 +52,5 @@ class Statistics(StatesGroup):
 
 class Advert(StatesGroup):
     enter: State = State()
+    customers: State = State()
+    performers: State = State()

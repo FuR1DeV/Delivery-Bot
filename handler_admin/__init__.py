@@ -55,3 +55,5 @@ def register_admin_handler(disp: Dispatcher):
     disp.register_message_handler(AdminJobs.jobs, state=states.AdminStates.jobs)
 
     disp.register_message_handler(AdminAdvert.ad, state=states.Advert.enter)
+    disp.register_message_handler(AdminAdvert.ad_customers, state=states.Advert.customers)
+    disp.register_message_handler(AdminAdvert.ad_performers, state=states.Advert.performers)
