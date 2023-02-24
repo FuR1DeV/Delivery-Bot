@@ -86,5 +86,9 @@ async def check_commission_promo(user_id):
 
 
 async def check_jobs_sales():
-    jobs = await JobsSales.query.gino.all()
-    return jobs
+    auto_send = await JobsSales.query.where(JobsSales.jobs == "auto_send").gino.first()
+    twelve = await JobsSales.query.where(JobsSales.jobs == "twelve").gino.first()
+    day = await JobsSales.query.where(JobsSales.jobs == "day").gino.first()
+    three_day = await JobsSales.query.where(JobsSales.jobs == "3_day").gino.first()
+    week = await JobsSales.query.where(JobsSales.jobs == "week").gino.first()
+    return [auto_send, twelve, day, three_day, week]

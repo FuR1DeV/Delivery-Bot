@@ -92,8 +92,8 @@ async def jobs_sales(jobs, value):
     if jobs == "day":
         day = await JobsSales.query.where(JobsSales.jobs == "day").gino.first()
         await day.update(value=value).apply()
-    if jobs == "3-day":
-        day = await JobsSales.query.where(JobsSales.jobs == "3-day").gino.first()
+    if jobs == "3_day":
+        day = await JobsSales.query.where(JobsSales.jobs == "3_day").gino.first()
         await day.update(value=value).apply()
     if jobs == "week":
         week = await JobsSales.query.where(JobsSales.jobs == "week").gino.first()

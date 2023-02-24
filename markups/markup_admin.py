@@ -167,8 +167,8 @@ def loading_db():
 def jobs_sales():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("Автоотправление сообщений", "Смена на 12 часов")
-    keyboard.row("Смена на 1 день", "Смена на 1 неделю")
-    keyboard.row("Просмотреть все значения")
+    keyboard.row("Смена на 1 день", "Смена на 3 дня")
+    keyboard.row("Смена на 1 неделю", "Просмотреть все значения")
     keyboard.row("Назад")
     return keyboard
 

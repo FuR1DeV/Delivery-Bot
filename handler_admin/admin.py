@@ -1210,7 +1210,7 @@ class AdminJobs:
             async with state.proxy() as data:
                 await admins_set.jobs_sales(data.get("jobs"), int(message.text))
                 await bot.send_message(message.from_user.id,
-                                       "Вы успешно изменили кол-во денег",
+                                       "Вы успешно изменили стоимость смены",
                                        reply_markup=markup_admin.jobs_sales())
         if message.text == "Просмотреть все значения":
             res = await admins_get.check_jobs_sales()
@@ -1235,6 +1235,12 @@ class AdminJobs:
         if message.text == "Смена на 1 день":
             async with state.proxy() as data:
                 data["jobs"] = "day"
+            await bot.send_message(message.from_user.id,
+                                   "Введите кол-во денег",
+                                   reply_markup=markup_admin.back())
+        if message.text == "Смена на 3 дня":
+            async with state.proxy() as data:
+                data["jobs"] = "3_day"
             await bot.send_message(message.from_user.id,
                                    "Введите кол-во денег",
                                    reply_markup=markup_admin.back())
