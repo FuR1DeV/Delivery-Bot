@@ -594,8 +594,8 @@ class PerformerProfile:
                                    "<b>ПРОЧТИТЕ УСЛОВИЯ ПОПОЛНЕНИЯ СЧЁТА!</b>\n"
                                    "<b>2% ОТ СУММЫ ПОПОЛНЕНИЯ И ПЛЮС ФИКСИРОВАННАЯ КОМИССИЯ 30 РУБЛЕЙ</b>\n"
                                    "<i>Допустим вы положили на счёт <b>500</b> рублей, "
-                                   "с вашей карты спишется <b>2%</b> от суммы, то есть <b>10</b> рублей "
-                                   "и плюс <b>30</b> рублей фиксированная ставка.</i>\n"
+                                   "с вашей карты спишется <b>500</b> плюс <b>2%</b> от суммы, "
+                                   "то есть <b>10</b> рублей и плюс <b>30</b> рублей фиксированная ставка.</i>\n"
                                    "<b>ПО ИТОГУ ВАМ НА СЧЁТ ЗАЧИСЛИТСЯ 540 РУБЛЕЙ!</b>")
             await performer_states.PerformerProfile.pay.set()
         if "Статистика" in message.text:
@@ -815,7 +815,7 @@ class PerformerProfile:
                                    reply_markup=markup_performer.performer_profile(auto_send))
 
     @staticmethod
-    async def pay(message: types.Message):
+    async def pay(message: types.Message, state: FSMContext):
         if f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в Мой профиль" == message.text:
             res = await performers_get.performer_select(message.from_user.id)
             status = None
@@ -854,23 +854,21 @@ class PerformerProfile:
                                        "<b>Автоотправление сообщений о новых заказах отключено!</b>")
         if f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в Мой профиль" != message.text:
             if message.text.isdigit() and int(message.text) >= 500:
-                try:
-                    message_money = int(message.text)
-                    if message_money >= 1:
-                        comment = f"Выставлен счёт для {message.from_user.first_name}_{randint(1, 10000)}"
-                        bill = config.P2P.bill(amount=message_money, lifetime=5, comment=comment)
-                        await general_set.add_payment(message.from_user.id, message_money, bill.bill_id)
-                        await bot.send_message(message.from_user.id,
-                                               f"Вам нужно отправить <b>{message_money}</b> руб на наш счёт QIWI\n"
-                                               f"{comment}",
-                                               reply_markup=markup_performer.buy_menu(url=bill.pay_url,
-                                                                                      bill=bill.bill_id))
-                    else:
-                        await bot.send_message(message.from_user.id,
-                                               "Минимальная сумма для пополнения 1 руб.",
-                                               reply_markup=markup_performer.cancel_pay())
-                except ValueError:
-                    await bot.send_message(message.from_user.id, "Введите целое число")
+                message_money = int(message.text)
+                comment = f"Выставлен счёт для {message.from_user.first_name}_{randint(1, 10000)}"
+                bill = config.P2P.bill(amount=message_money, lifetime=5, comment=comment)
+                async with state.proxy() as data:
+                    data["message_money"] = message_money
+                    data["comment"] = comment
+                    data["url"] = bill.pay_url
+                await general_set.add_payment(message.from_user.id, message_money, bill.bill_id)
+                await bot.send_message(message.from_user.id,
+                                       f"Вам нужно отправить <b>{message_money}</b> руб на наш счёт QIWI\n"
+                                       f"{comment}\n"
+                                       f"После успешной оплаты ваш счёт будет пополнен на "
+                                       f"<b>{message_money + (message_money * 2 / 100) + 30}</b> руб.",
+                                       reply_markup=markup_performer.buy_menu(url=bill.pay_url,
+                                                                              bill=bill.bill_id))
             else:
                 await bot.send_message(message.from_user.id,
                                        "Пополнение баланса должно быть не меньше <b>500</b> рублей!")
@@ -926,9 +924,16 @@ class PerformerProfile:
                                        reply_markup=markup_performer.performer_profile(auto_send))
                 await performer_states.PerformerProfile.my_profile.set()
             else:
+                await bot.delete_message(callback.from_user.id, callback.message.message_id)
                 await bot.send_message(callback.from_user.id,
-                                       "Платёж не прошел",
-                                       reply_markup=markup_performer.buy_menu(False, bill=bill))
+                                       f"<b>Платёж не прошел</b>\n\n"
+                                       f"Вам нужно отправить <b>{data.get('message_money')}</b> руб на наш счёт QIWI\n"
+                                       f"{data.get('comment')}\n"
+                                       f"После успешной оплаты ваш счёт будет пополнен на "
+                                       f"<b>{data.get('message_money') + (data.get('message_money') * 2 / 100) + 30}"
+                                       f"</b> руб.",
+                                       reply_markup=markup_performer.buy_menu(url=data.get('url'),
+                                                                              bill=bill))
         else:
             await bot.send_message(callback.from_user.id, "Счёт не найден")
             await state.finish()
@@ -938,6 +943,7 @@ class PerformerProfile:
         await general_set.delete_payment(callback.from_user.id, "No Bill ID")
         await state.finish()
         auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
                                "Вы отменили пополнение баланса\n",
                                reply_markup=markup_performer.performer_profile(auto_send))

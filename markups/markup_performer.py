@@ -351,6 +351,13 @@ def buy_menu(is_url=True, url='', bill=''):
     return menu
 
 
+def buy_menu_second(url):
+    menu = InlineKeyboardMarkup(row_width=1)
+    btn_url = InlineKeyboardButton(text="Ссылка на оплату", url=url)
+    menu.insert(btn_url)
+    return menu
+
+
 def cancel_pay():
     cancel_btn = InlineKeyboardButton(text="Отмена", callback_data='cancel_pay')
     cancel_menu = InlineKeyboardMarkup(row_width=1)
