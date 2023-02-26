@@ -57,16 +57,22 @@ class AdminMain:
                                    reply_markup=markup_admin.loading_db())
             await states.AdminStates.loading_db.set()
         if message.text == "Управление Заказчиками":
+            customers = await general_get.all_customers()
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете посмотреть информацию о Заказчике",
                                    reply_markup=markup_admin.about_customers())
+            await bot.send_message(message.from_user.id,
+                                   f"Всего Заказчиков - {len(customers)}")
             await states.AboutUsers.enter.set()
             async with state.proxy() as data:
                 data["type_user"] = "customers"
         if message.text == "Управление Исполнителями":
+            performers = await general_get.all_performers()
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете посмотреть информацию о Исполнителе",
                                    reply_markup=markup_admin.about_performers())
+            await bot.send_message(message.from_user.id,
+                                   f"Всего Исполнителей - {len(performers)}")
             await states.AboutUsers.enter.set()
             async with state.proxy() as data:
                 data["type_user"] = "performers"

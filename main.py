@@ -44,10 +44,7 @@ async def start(message: types.Message, state: FSMContext):
     await bot.send_message(message.from_user.id,
                            f'<b>Добро пожаловать в Telegram Bot который поможет найти исполнителя '
                            f'или подзаработать</b>\n'
-                           f'<b>В ДАННЫЙ МОМЕНТ ИДЁТ БЕТА-ТЕСТИРОВАНИЕ БОТА</b>\n'
-                           f'<i>Владелец бота - Самозанятый Туртугешев В.Т.</i>\n'
-                           f'<i>ИНН Самозанятого - 190119467709</i>\n'
-                           f'<i>Телефон - +7 923 592 9997</i>',
+                           f'<b>В ДАННЫЙ МОМЕНТ ИДЁТ БЕТА-ТЕСТИРОВАНИЕ БОТА</b>\n',
                            reply_markup=markup_start.markup_clean)
     await state.finish()
     await bot.send_message(message.from_user.id,
