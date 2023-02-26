@@ -105,9 +105,10 @@ async def add_payment(user_id, money, bill_id):
     await payment.create()
 
 
-async def delete_payment(user_id):
+async def delete_payment(user_id, bill_id):
     """Функция удаления платежа из БД"""
-    logger.info(f'Пользователь {user_id} отменяет пополнение баланса')
+    logger.info(f'Удаляется платеж из БД\n'
+                f'Bill ID - {bill_id}')
     payment = await Payment.query.where(Payment.user_id == user_id).gino.first()
     await payment.delete()
 

@@ -93,7 +93,7 @@ async def check_commission_category(category):
 
 async def get_payment(bill_id):
     logger.info('Функция проверки платежа в БД')
-    payment = Payment.query.where(Payment.bill_id == bill_id).gino.first()
+    payment = await Payment.query.where(Payment.bill_id == bill_id).gino.first()
     return payment
 
 

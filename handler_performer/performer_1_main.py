@@ -155,6 +155,11 @@ class PerformerMain:
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
+            if res.performer_money < 50:
+                await bot.send_message(message.from_user.id,
+                                       "<b>У вас меньше 50 рублей на счёту!</b>\n"
+                                       "<b>Это значит что вы не можете искать заказы</b>\n"
+                                       "<b>Автоотправление сообщений о новых заказах отключено!</b>")
         if "Доступные Задачи" in message.text:
             performer = await performers_get.performer_select(message.from_user.id)
             performer_money = performer.performer_money
@@ -580,9 +585,17 @@ class PerformerProfile:
         if "Пополнить баланс" in message.text:
             await general_set.get_payment_exists_and_delete(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   "Пополнение баланса должно быть не меньше <b>50</b> рублей!"
+                                   "Пополнение баланса должно быть не меньше <b>500</b> рублей!"
                                    "Введите сумму, на которую вы хотите пополнить баланс",
                                    reply_markup=markup_performer.back_user_profile())
+            await bot.send_message(message.from_user.id,
+                                   "<b>ВНИМАНИЕ!</b>\n"
+                                   "<b>ПРОЧТИТЕ УСЛОВИЯ ПОПОЛНЕНИЯ СЧЁТА!</b>\n"
+                                   "<b>2% ОТ СУММЫ ПОПОЛНЕНИЯ И ПЛЮС ФИКСИРОВАННАЯ КОМИССИЯ 30 РУБЛЕЙ</b>\n"
+                                   "<i>Допустим вы положили на счёт <b>500</b> рублей, "
+                                   "с вашей карты спишется <b>2%</b> от суммы, то есть <b>10</b> рублей "
+                                   "и плюс <b>30</b> рублей фиксированная ставка.</i>\n"
+                                   "<b>ПО ИТОГУ ВАМ НА СЧЁТ ЗАЧИСЛИТСЯ 540 РУБЛЕЙ!</b>")
             await performer_states.PerformerProfile.pay.set()
         if "Статистика" in message.text:
             performer = await performers_get.performer_count_orders(message.from_user.id)
@@ -689,13 +702,14 @@ class PerformerProfile:
                                    f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
                                    f"{config.KEYBOARD.get('STAR')} "
                                    f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                   f"Взял заказов: <b>{res.get_orders}</b>\n"
-                                   f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                   f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
+            if res.performer_money < 50:
+                await bot.send_message(message.from_user.id,
+                                       "<b>У вас меньше 50 рублей на счёту!</b>\n"
+                                       "<b>Это значит что вы не можете искать заказы</b>\n"
+                                       "<b>Автоотправление сообщений о новых заказах отключено!</b>")
 
     @staticmethod
     async def transport(message: types.Message):
@@ -802,13 +816,43 @@ class PerformerProfile:
     @staticmethod
     async def pay(message: types.Message):
         if f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в Мой профиль" == message.text:
+            res = await performers_get.performer_select(message.from_user.id)
+            status = None
+            icon = None
+            if res.performer_category == "pedestrian":
+                status = "Пешеход"
+                icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+            if res.performer_category == "scooter":
+                status = "На самокате"
+                icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+            elif res.performer_category == "car":
+                status = "На машине"
+                icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
             await performer_states.PerformerProfile.my_profile.set()
             auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
             await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в Мой профиль",
+                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                   f"Ваш профиль <b>Исполнителя</b>:\n"
+                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                   f"Ваш ID: <b>{res.user_id}</b>\n"
+                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                   f"Ваш никнейм: <b>@{res.username}</b>\n"
+                                   f"{config.KEYBOARD.get('TELEPHONE')} "
+                                   f"Ваш номер: <b>{res.telephone}</b>\n"
+                                   f"{config.KEYBOARD.get('DOLLAR')} "
+                                   f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
+                                   f"{config.KEYBOARD.get('STAR')} "
+                                   f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
+                                   f"{icon} Ваша категория: <b>{status}</b>\n"
+                                   f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
+            if res.performer_money < 50:
+                await bot.send_message(message.from_user.id,
+                                       "<b>У вас меньше 50 рублей на счёту!</b>\n"
+                                       "<b>Это значит что вы не можете искать заказы</b>\n"
+                                       "<b>Автоотправление сообщений о новых заказах отключено!</b>")
         if f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в Мой профиль" != message.text:
-            if message.text.isdigit() and int(message.text) >= 50:
+            if message.text.isdigit() and int(message.text) >= 500:
                 try:
                     message_money = int(message.text)
                     if message_money >= 1:
@@ -828,11 +872,10 @@ class PerformerProfile:
                     await bot.send_message(message.from_user.id, "Введите целое число")
             else:
                 await bot.send_message(message.from_user.id,
-                                       "Пополнение баланса должно быть не меньше <b>50</b> рублей!")
+                                       "Пополнение баланса должно быть не меньше <b>500</b> рублей!")
 
     @staticmethod
     async def check(callback: types.CallbackQuery, state: FSMContext):
-        await bot.delete_message(callback.from_user.id, callback.message.message_id)
         bill = str(callback.data[6:])
         async with state.proxy() as data:
             data['bill'] = bill
@@ -841,11 +884,12 @@ class PerformerProfile:
         if info:
             if str(config.P2P.check(bill_id=bill).status) == "PAID":
                 await performers_set.set_money(callback.from_user.id, int(info.money))
-                await general_set.delete_payment(callback.from_user.id)
+                await general_set.delete_payment(callback.from_user.id, bill)
                 await bot.delete_message(callback.from_user.id, callback.message.message_id)
                 auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
                 await bot.send_message(callback.from_user.id,
-                                       "Ваш счёт пополнен!\n",
+                                       f"<b>Ваш счёт пополнен на "
+                                       f"{int(info.money) + (int(info.money) * 2 / 100) + 30} рублей!</b>\n",
                                        reply_markup=markup_performer.performer_profile(auto_send))
                 await state.finish()
                 res = await performers_get.performer_select(callback.from_user.id)
@@ -890,7 +934,7 @@ class PerformerProfile:
 
     @staticmethod
     async def cancel(callback: types.CallbackQuery, state: FSMContext):
-        await general_set.delete_payment(callback.from_user.id)
+        await general_set.delete_payment(callback.from_user.id, "No Bill ID")
         await state.finish()
         auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
