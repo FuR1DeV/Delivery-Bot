@@ -29,17 +29,21 @@ class PerformerMain:
                                    reply_markup=keyboard)
             await performer_states.PerformerPhone.phone.set()
         elif performer_p_d:
-            await bot.delete_message(callback.from_user.id, callback.message.message_id)
-            await performer_states.PerformerStart.performer_menu.set()
-            await bot.send_message(callback.from_user.id,
-                                   "Спасибо что пользуетесь нашим ботом!")
-            orders = await performers_get.performer_view_list_orders(callback.from_user.id)
-            orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
-            promo = await performers_get.check_commission_promo(callback.from_user.id)
-            jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
-            await bot.send_message(callback.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu(jobs))
+            if performer.ban == 1:
+                await bot.delete_message(callback.from_user.id, callback.message.message_id)
+                await bot.send_message(callback.from_user.id, "Вы заблокированы! Обратитесь в техподдержку!")
+            else:
+                await bot.delete_message(callback.from_user.id, callback.message.message_id)
+                await performer_states.PerformerStart.performer_menu.set()
+                await bot.send_message(callback.from_user.id,
+                                       "Спасибо что пользуетесь нашим ботом!")
+                orders = await performers_get.performer_view_list_orders(callback.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
+                promo = await performers_get.check_commission_promo(callback.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
+                await bot.send_message(callback.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
+                                       reply_markup=markup_performer.main_menu(jobs))
         elif performer_p_d is None:
             await performer_states.PerformerStart.info_about_performer.set()
             await bot.send_message(callback.from_user.id,
@@ -51,9 +55,6 @@ class PerformerMain:
                                    "Введите Ваше реальное Имя\n"
                                    "Вводить только на русском языке.\n",
                                    reply_markup=markup_performer.markup_clean)
-        else:
-            await bot.delete_message(callback.from_user.id, callback.message.message_id)
-            await bot.send_message(callback.from_user.id, "Вы заблокированы! Обратитесь в техподдержку!")
 
     @staticmethod
     async def phone(message: types.Message, state: FSMContext):
