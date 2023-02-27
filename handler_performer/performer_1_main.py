@@ -663,10 +663,6 @@ class PerformerProfile:
                                    f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
                                    f"{config.KEYBOARD.get('STAR')} "
                                    f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                   f"Взял заказов: <b>{res.get_orders}</b>\n"
-                                   f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                   f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
@@ -739,10 +735,6 @@ class PerformerProfile:
                                    f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
                                    f"{config.KEYBOARD.get('STAR')} "
                                    f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                   f"Взял заказов: <b>{res.get_orders}</b>\n"
-                                   f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                   f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
@@ -771,10 +763,6 @@ class PerformerProfile:
                                    f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
                                    f"{config.KEYBOARD.get('STAR')} "
                                    f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                   f"Взял заказов: <b>{res.get_orders}</b>\n"
-                                   f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                   f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
@@ -806,10 +794,6 @@ class PerformerProfile:
                                    f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
                                    f"{config.KEYBOARD.get('STAR')} "
                                    f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                   f"Взял заказов: <b>{res.get_orders}</b>\n"
-                                   f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                   f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
@@ -915,10 +899,6 @@ class PerformerProfile:
                                        f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
                                        f"{config.KEYBOARD.get('STAR')} "
                                        f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                       f"Взял заказов: <b>{res.get_orders}</b>\n"
-                                       f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                       f"Отменил заказов: <b>{res.canceled_orders}</b>\n"
                                        f"{icon} Ваша категория: <b>{status}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}",
                                        reply_markup=markup_performer.performer_profile(auto_send))
@@ -942,9 +922,32 @@ class PerformerProfile:
     async def cancel(callback: types.CallbackQuery, state: FSMContext):
         await general_set.delete_payment(callback.from_user.id, "No Bill ID")
         await state.finish()
-        auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        res = await performers_get.performer_select(callback.from_user.id)
+        if res.performer_category == "pedestrian":
+            status = "Пешеход"
+            icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+        elif res.performer_category == "car":
+            status = "На машине"
+            icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
+        else:
+            status = "На скутере"
+            icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+        auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
         await bot.send_message(callback.from_user.id,
-                               "Вы отменили пополнение баланса\n",
+                               f"{config.KEYBOARD.get('DASH') * 14}\n"
+                               f"Ваш профиль <b>Исполнителя</b>:\n"
+                               f"{config.KEYBOARD.get('ID_BUTTON')} "
+                               f"Ваш ID: <b>{res.user_id}</b>\n"
+                               f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                               f"Ваш никнейм: <b>@{res.username}</b>\n"
+                               f"{config.KEYBOARD.get('TELEPHONE')} "
+                               f"Ваш номер: <b>{res.telephone}</b>\n"
+                               f"{config.KEYBOARD.get('DOLLAR')} "
+                               f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
+                               f"{config.KEYBOARD.get('STAR')} "
+                               f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
+                               f"{icon} Ваша категория: <b>{status}</b>\n"
+                               f"{config.KEYBOARD.get('DASH') * 14}",
                                reply_markup=markup_performer.performer_profile(auto_send))
         await performer_states.PerformerProfile.my_profile.set()
