@@ -11,10 +11,12 @@ from states import performer_states
 
 def register_performer(disp: Dispatcher):
     # performer_main
-    disp.register_message_handler(PerformerMain.phone, content_types=['contact'],
+    disp.register_message_handler(PerformerMain.phone,
+                                  content_types=['contact'],
                                   state=performer_states.PerformerPhone.phone)
     disp.register_callback_query_handler(PerformerMain.hi_performer, text='performer')
     disp.register_message_handler(PerformerMain.performer_menu,
+                                  content_types=['text', 'location'],
                                   state=performer_states.PerformerStart.performer_menu)
     disp.register_callback_query_handler(PerformerMain.choose_month,
                                          state=performer_states.PerformerStart.performer_menu,
@@ -34,6 +36,9 @@ def register_performer(disp: Dispatcher):
     disp.register_message_handler(PerformerMain.info_about_performer_selfie,
                                   content_types=['photo', 'text'],
                                   state=performer_states.PerformerRegister.photo)
+    disp.register_message_handler(PerformerMain.info_about_performer_geo_position,
+                                  content_types=['location', 'text'],
+                                  state=performer_states.PerformerRegister.geo_position)
     disp.register_message_handler(PerformerMain.jobs_offers,
                                   state=performer_states.PerformerJobsOffers.enter)
     disp.register_callback_query_handler(PerformerMain.approve_jobs_offers,

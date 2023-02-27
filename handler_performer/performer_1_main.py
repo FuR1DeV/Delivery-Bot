@@ -5,6 +5,7 @@ from random import randint
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from geopy import Nominatim
 
 from bot import bot
 from data.commands import performers_get, performers_set, general_get, general_set
@@ -41,8 +42,14 @@ class PerformerMain:
                 orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
                 promo = await performers_get.check_commission_promo(callback.from_user.id)
                 jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
+                performer = await performers_get.performer_select(callback.from_user.id)
+                time1 = datetime.strptime(performer.time_geo_position, '%d-%m-%Y, %H:%M:%S')
+                time2 = datetime.now()
+                time_result = time2 - time1
                 await bot.send_message(callback.from_user.id,
-                                       f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}\n"
+                                       f"{config.KEYBOARD.get('WORLD_MAP')} Ваша геопозиция обновлялась последний раз "
+                                       f"{str(time_result)[:-7]} назад",
                                        reply_markup=markup_performer.main_menu(jobs))
         elif performer_p_d is None:
             await performer_states.PerformerRegister.name.set()
@@ -121,6 +128,34 @@ class PerformerMain:
                                                              data.get("name"),
                                                              data.get("surname"),
                                                              data.get("selfie"),)
+            await performer_states.PerformerRegister.next()
+            await bot.send_message(message.from_user.id,
+                                   "<b>Вам нужно отправить геопозицию!</b>\n"
+                                   "<b>Чтобы видеть как далеко вы находитесь от заказов</b>",
+                                   reply_markup=markup_performer.send_my_geo())
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Нужно отправить селфи",
+                                   reply_markup=markup_performer.back())
+
+    @staticmethod
+    async def info_about_performer_geo_position(message: types.Message):
+        if message.location:
+            n = Nominatim(user_agent='User')
+            loc = f"{message.location.latitude}, {message.location.longitude}"
+            address = n.reverse(loc)
+            city = address.raw.get("address").get("city")
+            if city is None:
+                city = address.raw.get("address").get("town")
+            await bot.send_message(message.from_user.id,
+                                   f'{config.KEYBOARD.get("WORLD_MAP")} Ваше примерное местоположение обновилось: '
+                                   f'<b>{city}, {address.raw.get("address").get("road")}, '
+                                   f'{address.raw.get("address").get("house_number")}</b>')
+            await performers_set.performer_set_geo_position(message.from_user.id,
+                                                            loc,
+                                                            f'{city} {address.raw.get("address").get("road")}, '
+                                                            f'{address.raw.get("address").get("house_number")}',
+                                                            datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(message.from_user.id,
                                    "Регистрация завершена!\n"
@@ -128,120 +163,128 @@ class PerformerMain:
                                    reply_markup=markup_performer.main_menu(None))
         else:
             await bot.send_message(message.from_user.id,
-                                   "Нужно отправить селфи",
-                                   reply_markup=markup_performer.back())
-
-    @staticmethod
-    async def main(message: types.Message):
-        await bot.send_message(message.from_user.id,
-                               f"{message.from_user.first_name} Вы в главном меню Исполнителя")
-        orders = await performers_get.performer_view_list_orders(message.from_user.id)
-        orders_loading = await performers_get.performer_loader_order(message.from_user.id)
-        promo = await performers_get.check_commission_promo(message.from_user.id)
-        jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
-        await bot.send_message(message.from_user.id,
-                               f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                               reply_markup=markup_performer.main_menu(jobs))
-        await performer_states.PerformerStart.performer_menu.set()
+                                   "Вы должны отправить геопозицию!",
+                                   reply_markup=markup_performer.send_my_geo())
 
     @staticmethod
     async def performer_menu(message: types.Message, state: FSMContext):
         await state.finish()
-        if "Мой профиль" in message.text:
-            res = await performers_get.performer_select(message.from_user.id)
-            status = None
-            icon = None
-            if res.performer_category == "pedestrian":
-                status = "Пешеход"
-                icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-            if res.performer_category == "scooter":
-                status = "На самокате"
-                icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
-            elif res.performer_category == "car":
-                status = "На машине"
-                icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-            await performer_states.PerformerProfile.my_profile.set()
-            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
-            await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                   f"Ваш профиль <b>Исполнителя</b>:\n"
-                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                   f"Ваш ID: <b>{res.user_id}</b>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                   f"Ваш никнейм: <b>@{res.username}</b>\n"
-                                   f"{config.KEYBOARD.get('TELEPHONE')} "
-                                   f"Ваш номер: <b>{res.telephone}</b>\n"
-                                   f"{config.KEYBOARD.get('DOLLAR')} "
-                                   f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
-                                   f"{config.KEYBOARD.get('STAR')} "
-                                   f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{icon} Ваша категория: <b>{status}</b>\n"
-                                   f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile(auto_send))
-            if res.performer_money < 50:
-                await bot.send_message(message.from_user.id,
-                                       "<b>У вас меньше 50 рублей на счёту!</b>\n"
-                                       "<b>Это значит что вы не можете искать заказы</b>\n"
-                                       "<b>Автоотправление сообщений о новых заказах отключено!</b>")
-        if "Доступные Задачи" in message.text:
-            performer = await performers_get.performer_select(message.from_user.id)
-            performer_money = performer.performer_money
-            if performer_money < 50:
+        if message.text:
+            await performer_states.PerformerStart.performer_menu.set()
+            if "Мой профиль" in message.text:
+                res = await performers_get.performer_select(message.from_user.id)
+                status = None
+                icon = None
+                if res.performer_category == "pedestrian":
+                    status = "Пешеход"
+                    icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
+                if res.performer_category == "scooter":
+                    status = "На самокате"
+                    icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+                elif res.performer_category == "car":
+                    status = "На машине"
+                    icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
                 await performer_states.PerformerProfile.my_profile.set()
                 auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       "<b>Баланс должен быть не ниже 50 рублей!</b>\n"
-                                       "<b>Пополните ваш баланс</b>",
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"Ваш профиль <b>Исполнителя</b>:\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"Ваш ID: <b>{res.user_id}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Ваш никнейм: <b>@{res.username}</b>\n"
+                                       f"{config.KEYBOARD.get('TELEPHONE')} "
+                                       f"Ваш номер: <b>{res.telephone}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
+                                       f"{config.KEYBOARD.get('STAR')} "
+                                       f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
+                                       f"{icon} Ваша категория: <b>{status}</b>\n"
+                                       f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                       f"Ваше примерное местоположение: <b>{res.geo_position_name}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
                                        reply_markup=markup_performer.performer_profile(auto_send))
-            if performer_money >= 50:
-                await performer_states.PerformerTasks.check_all_orders.set()
+                if res.performer_money < 50:
+                    await bot.send_message(message.from_user.id,
+                                           "<b>У вас меньше 50 рублей на счёту!</b>\n"
+                                           "<b>Это значит что вы не можете искать заказы</b>\n"
+                                           "<b>Автоотправление сообщений о новых заказах отключено!</b>")
+            if "Доступные Задачи" in message.text:
+                performer = await performers_get.performer_select(message.from_user.id)
+                performer_money = performer.performer_money
+                if performer_money < 50:
+                    await performer_states.PerformerProfile.my_profile.set()
+                    auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
+                    await bot.send_message(message.from_user.id,
+                                           "<b>Баланс должен быть не ниже 50 рублей!</b>\n"
+                                           "<b>Пополните ваш баланс</b>",
+                                           reply_markup=markup_performer.performer_profile(auto_send))
+                if performer_money >= 50:
+                    await performer_states.PerformerTasks.check_all_orders.set()
+                    await bot.send_message(message.from_user.id,
+                                           "Выберите тип Заказа",
+                                           reply_markup=markup_performer.approve())
+            if "Задачи в работе" in message.text:
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
                 await bot.send_message(message.from_user.id,
-                                       "Выберите тип Заказа",
-                                       reply_markup=markup_performer.approve())
-        if "Задачи в работе" in message.text:
-            orders = await performers_get.performer_view_list_orders(message.from_user.id)
-            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
-            await bot.send_message(message.from_user.id,
-                                   "Выберите тип заказа",
-                                   reply_markup=markup_performer.performer_type_orders(orders, orders_loading))
-            await performer_states.PerformerStart.orders.set()
-        if "Выполненные Задачи" in message.text:
-            res = await performers_get.performer_all_completed_orders(message.from_user.id)
-            if res:
-                finished_orders = InlineKeyboardMarkup()
-                year = []
-                for i in res:
-                    year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
-                res_years = Counter(year)
-                for k, v in res_years.items():
-                    finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
-                                                                callback_data=f"p_year_finish_{k}"))
+                                       "Выберите тип заказа",
+                                       reply_markup=markup_performer.performer_type_orders(orders, orders_loading))
+                await performer_states.PerformerStart.orders.set()
+            if "Выполненные Задачи" in message.text:
+                res = await performers_get.performer_all_completed_orders(message.from_user.id)
+                if res:
+                    finished_orders = InlineKeyboardMarkup()
+                    year = []
+                    for i in res:
+                        year.append(datetime.strptime(i.order_end, '%d-%m-%Y, %H:%M:%S').year)
+                    res_years = Counter(year)
+                    for k, v in res_years.items():
+                        finished_orders.insert(InlineKeyboardButton(text=f"{k} ({v})",
+                                                                    callback_data=f"p_year_finish_{k}"))
+                    await bot.send_message(message.from_user.id,
+                                           "<b>Выберите год</b>\n"
+                                           "В скобках указано количество завершенных заказов",
+                                           reply_markup=finished_orders)
+                    await performer_states.PerformerStart.performer_menu.set()
+                else:
+                    await performer_states.PerformerStart.performer_menu.set()
+                    await bot.send_message(message.from_user.id,
+                                           "У вас еще нет завершенных заказов!")
+            if "Помощь" in message.text:
+                await performer_states.PerformerHelp.help.set()
+                user_status_chat = await performers_get.check_private_chat_status(message.from_user.id)
+                if user_status_chat is None:
+                    user_status_chat = False
+                else:
+                    async with state.proxy() as data:
+                        data["user_status_chat"] = user_status_chat.user_id
                 await bot.send_message(message.from_user.id,
-                                       "<b>Выберите год</b>\n"
-                                       "В скобках указано количество завершенных заказов",
-                                       reply_markup=finished_orders)
-                await performer_states.PerformerStart.performer_menu.set()
-            else:
-                await performer_states.PerformerStart.performer_menu.set()
+                                       "Опишите вашу проблему, можете прикрепить фото или видео\n"
+                                       "Когда закончите сможете вернуться в главное меню",
+                                       reply_markup=markup_performer.photo_or_video_help(user_status_chat))
+            if "Смены" in message.text:
+                await performer_states.PerformerJobsOffers.enter.set()
                 await bot.send_message(message.from_user.id,
-                                       "У вас еще нет завершенных заказов!")
-        if "Помощь" in message.text:
-            await performer_states.PerformerHelp.help.set()
-            user_status_chat = await performers_get.check_private_chat_status(message.from_user.id)
-            if user_status_chat is None:
-                user_status_chat = False
-            else:
-                async with state.proxy() as data:
-                    data["user_status_chat"] = user_status_chat.user_id
+                                       "Выберите нужную смену",
+                                       reply_markup=markup_performer.jobs_offers())
+        else:
+            n = Nominatim(user_agent='User')
+            loc = f"{message.location.latitude}, {message.location.longitude}"
+            address = n.reverse(loc)
+            city = address.raw.get("address").get("city")
+            if city is None:
+                city = address.raw.get("address").get("town")
             await bot.send_message(message.from_user.id,
-                                   "Опишите вашу проблему, можете прикрепить фото или видео\n"
-                                   "Когда закончите сможете вернуться в главное меню",
-                                   reply_markup=markup_performer.photo_or_video_help(user_status_chat))
-        if "Смены" in message.text:
-            await performer_states.PerformerJobsOffers.enter.set()
-            await bot.send_message(message.from_user.id,
-                                   "Выберите нужную смену",
-                                   reply_markup=markup_performer.jobs_offers())
+                                   f'{config.KEYBOARD.get("WORLD_MAP")} Ваше примерное местоположение обновилось: '
+                                   f'<b>{city}, {address.raw.get("address").get("road")}, '
+                                   f'{address.raw.get("address").get("house_number")}</b>')
+            await performers_set.performer_set_geo_position(message.from_user.id,
+                                                            loc,
+                                                            f'{city} {address.raw.get("address").get("road")}, '
+                                                            f'{address.raw.get("address").get("house_number")}',
+                                                            datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+            await performer_states.PerformerStart.performer_menu.set()
 
     @staticmethod
     async def orders(message: types.Message):
@@ -360,8 +403,14 @@ class PerformerMain:
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
             jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
+            performer = await performers_get.performer_select(message.from_user.id)
+            time1 = datetime.strptime(performer.time_geo_position, '%d-%m-%Y, %H:%M:%S')
+            time2 = datetime.now()
+            time_result = time2 - time1
             await bot.send_message(message.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}\n"
+                                   f"{config.KEYBOARD.get('WORLD_MAP')} Ваша геопозиция обновлялась последний раз "
+                                   f"{str(time_result)[:-7]} назад",
                                    reply_markup=markup_performer.main_menu(jobs))
             await performer_states.PerformerStart.performer_menu.set()
 
@@ -530,8 +579,14 @@ class PerformerMain:
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
             jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
+            performer = await performers_get.performer_select(message.from_user.id)
+            time1 = datetime.strptime(performer.time_geo_position, '%d-%m-%Y, %H:%M:%S')
+            time2 = datetime.now()
+            time_result = time2 - time1
             await bot.send_message(message.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}\n"
+                                   f"{config.KEYBOARD.get('WORLD_MAP')} Ваша геопозиция обновлялась последний раз "
+                                   f"{str(time_result)[:-7]} назад",
                                    reply_markup=markup_performer.main_menu(jobs))
             await performer_states.PerformerStart.performer_menu.set()
 
@@ -566,8 +621,14 @@ class PerformerProfile:
             orders_loading = await performers_get.performer_loader_order(message.from_user.id)
             promo = await performers_get.check_commission_promo(message.from_user.id)
             jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
+            performer = await performers_get.performer_select(message.from_user.id)
+            time1 = datetime.strptime(performer.time_geo_position, '%d-%m-%Y, %H:%M:%S')
+            time2 = datetime.now()
+            time_result = time2 - time1
             await bot.send_message(message.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
+                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}\n"
+                                   f"{config.KEYBOARD.get('WORLD_MAP')} Ваша геопозиция обновлялась последний раз "
+                                   f"{str(time_result)[:-7]} назад",
                                    reply_markup=markup_performer.main_menu(jobs))
         if "Автоотправление предложений" in message.text:
             job = await performers_get.check_job_sale("auto_send")

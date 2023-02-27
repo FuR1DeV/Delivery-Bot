@@ -21,6 +21,7 @@ class PerformerRegister(StatesGroup):
     name: State = State()
     surname: State = State()
     photo: State = State()
+    geo_position: State = State()
 
 
 class PerformerProfile(StatesGroup):

@@ -22,6 +22,9 @@ class Performers(BaseModel):
     auto_send = Column(Integer, server_default="0")
     money_added = Column(BigInteger, nullable=False, server_default="0")
     money_earned = Column(BigInteger, nullable=False, server_default="0")
+    geo_position = Column(String)
+    geo_position_name = Column(String)
+    time_geo_position = Column(String)
 
     query: sql.select
 

@@ -2,7 +2,6 @@ import logging
 from data.models.performers import Performers, PerformerPersonalData, AutoSendJobOffer, JobsOffers
 from data.models.orders import OrdersStatus, OrdersRating, Reviews, OrdersLoading
 from data.commands import performers_get, customers_get, general_get
-from sqlalchemy.dialects.postgresql import ARRAY
 
 logger = logging.getLogger("bot.data.commands.performer_set_db")
 
@@ -164,3 +163,10 @@ async def performer_jobs_pay(user_id, start, end, money):
     performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
     await performer.update(performer_money=performer.performer_money - int(money)).apply()
     await jobs.create()
+
+
+async def performer_set_geo_position(user_id, geo_position, geo_position_name, time):
+    performer = await performers_get.performer_select(user_id)
+    await performer.update(geo_position=geo_position,
+                           geo_position_name=geo_position_name,
+                           time_geo_position=time).apply()

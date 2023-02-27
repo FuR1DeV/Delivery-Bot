@@ -14,6 +14,14 @@ def back():
     return keyboard
 
 
+def send_my_geo():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button = types.KeyboardButton(text=f'{KEYBOARD.get("A_BUTTON")} Отправить моё местоположение',
+                                  request_location=True)
+    keyboard.add(button)
+    return keyboard
+
+
 def inline_approve():
     approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Запросить',
@@ -130,6 +138,9 @@ def main_menu(jobs):
                      f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Выполненные Задачи")
         keyboard.row(f"{KEYBOARD.get('SOS_BUTTON')} Помощь",
                      f"{KEYBOARD.get('STOPWATCH')} Смены ({str(time_left)[:-7]})")
+        button = types.KeyboardButton(text=f'{KEYBOARD.get("WORLD_MAP")} Отправить своё местоположение',
+                                      request_location=True)
+        keyboard.add(button)
     else:
         keyboard.row(f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Мой профиль",
                      f"{KEYBOARD.get('HAMMER_AND_PICK')} Доступные Задачи")
@@ -137,6 +148,9 @@ def main_menu(jobs):
                      f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Выполненные Задачи")
         keyboard.row(f"{KEYBOARD.get('SOS_BUTTON')} Помощь",
                      f"{KEYBOARD.get('STOPWATCH')} Смены")
+        button = types.KeyboardButton(text=f'{KEYBOARD.get("WORLD_MAP")} Отправить своё местоположение',
+                                      request_location=True)
+        keyboard.add(button)
     return keyboard
 
 
