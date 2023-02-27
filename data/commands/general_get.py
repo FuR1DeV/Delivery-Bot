@@ -44,6 +44,13 @@ async def all_performers_auto_send(category):
                                                            Performers.performer_category == "scooter",
                                                            Performers.performer_category == "pedestrian",))).gino.all()
         return performers
+    if category == "any":
+        performers = await Performers.query.where(and_(Performers.auto_send == 1,
+                                                       Performers.performer_money > 49,
+                                                       or_(Performers.performer_category == "car",
+                                                           Performers.performer_category == "scooter",
+                                                           Performers.performer_category == "pedestrian",))).gino.all()
+        return performers
     if category == "loading":
         performers = await Performers.query.where(and_(Performers.auto_send == 1,
                                                        Performers.performer_money > 49)).gino.all()
