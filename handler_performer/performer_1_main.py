@@ -45,7 +45,7 @@ class PerformerMain:
                                        f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
                                        reply_markup=markup_performer.main_menu(jobs))
         elif performer_p_d is None:
-            await performer_states.PerformerStart.info_about_performer.set()
+            await performer_states.PerformerRegister.name.set()
             await bot.send_message(callback.from_user.id,
                                    f"{callback.from_user.first_name} Спасибо что пользуетесь нашим ботом!\n"
                                    f"Теперь пройдите короткую регистрацию")
@@ -57,7 +57,7 @@ class PerformerMain:
                                    reply_markup=markup_performer.markup_clean)
 
     @staticmethod
-    async def phone(message: types.Message, state: FSMContext):
+    async def phone(message: types.Message):
         if message.contact.user_id == message.from_user.id:
             res = message.contact.phone_number[-10:]
             await performers_set.performer_add(message.from_user.id,
@@ -65,12 +65,10 @@ class PerformerMain:
                                                f'+7{res}',
                                                message.from_user.first_name,
                                                message.from_user.last_name)
-            await performer_states.PerformerStart.info_about_performer.set()
+            await performer_states.PerformerRegister.name.set()
             await bot.send_message(message.from_user.id,
                                    f"{message.from_user.first_name} Спасибо что пользуетесь нашим ботом!\n"
                                    f"Теперь пройдите короткую регистрацию")
-            async with state.proxy() as data:
-                data["list_info"] = []
             await bot.send_message(message.from_user.id,
                                    "Введите Ваше реальное Имя\n"
                                    "Вводить только на русском языке.\n",
@@ -82,32 +80,56 @@ class PerformerMain:
 
     @staticmethod
     async def info_about_performer_name(message: types.Message, state: FSMContext):
-        async with state.proxy() as data:
-            if message.photo:
-                data.get("list_info").append(message.photo[2].file_id)
-            if not message.photo:
-                data.get("list_info").append(message.text)
-            if len(data.get("list_info")) == 1:
-                await bot.send_message(message.from_user.id,
-                                       "Введите вашу Фамилию\n"
-                                       "Вводить только на русском языке.\n")
-            if len(data.get("list_info")) == 2:
-                await bot.send_message(message.from_user.id,
-                                       "Сделайте селфи")
-            if len(data.get("list_info")) == 3:
-                await bot.send_message(message.from_user.id,
-                                       "Все получилось!")
-                performer = await performers_get.performer_select(message.from_user.id)
-                await performers_set.performer_add_personal_data(message.from_user.id,
-                                                                 performer.telephone,
-                                                                 data.get("list_info")[0],
-                                                                 data.get("list_info")[1],
-                                                                 data.get("list_info")[2],)
-                await performer_states.PerformerStart.performer_menu.set()
-                await bot.send_message(message.from_user.id,
-                                       "Регистрация завершена!\n"
-                                       "Вы находитесь в главном меню!",
-                                       reply_markup=markup_performer.main_menu(None))
+        if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            pass
+        else:
+            await state.update_data(name=message.text)
+            await message.answer("Отлично! Теперь введите вашу Фамилию.",
+                                 reply_markup=markup_performer.back())
+            await performer_states.PerformerRegister.next()
+
+    @staticmethod
+    async def info_about_performer_surname(message: types.Message, state: FSMContext):
+        if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await performer_states.PerformerRegister.name.set()
+            await bot.send_message(message.from_user.id,
+                                   "Введите Ваше реальное Имя\n"
+                                   "Вводить только на русском языке.\n",
+                                   reply_markup=markup_performer.markup_clean)
+        else:
+            await state.update_data(surname=message.text)
+            await message.answer("Отлично! Теперь отправьте селфи.",
+                                 reply_markup=markup_performer.back())
+            await performer_states.PerformerRegister.next()
+
+    @staticmethod
+    async def info_about_performer_selfie(message: types.Message, state: FSMContext):
+        if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
+            await performer_states.PerformerRegister.surname.set()
+            await bot.send_message(message.from_user.id,
+                                   "Введите Вашу реальную Фамилию\n"
+                                   "Вводить только на русском языке.\n",
+                                   reply_markup=markup_performer.back())
+        if message.photo:
+            await state.update_data(selfie=message.photo[2].file_id)
+            await bot.send_message(message.from_user.id,
+                                   "Все получилось!")
+            data = await state.get_data()
+            performer = await performers_get.performer_select(message.from_user.id)
+            await performers_set.performer_add_personal_data(message.from_user.id,
+                                                             performer.telephone,
+                                                             data.get("name"),
+                                                             data.get("surname"),
+                                                             data.get("selfie"),)
+            await performer_states.PerformerStart.performer_menu.set()
+            await bot.send_message(message.from_user.id,
+                                   "Регистрация завершена!\n"
+                                   "Вы находитесь в главном меню!",
+                                   reply_markup=markup_performer.main_menu(None))
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Нужно отправить селфи",
+                                   reply_markup=markup_performer.back())
 
     @staticmethod
     async def main(message: types.Message):

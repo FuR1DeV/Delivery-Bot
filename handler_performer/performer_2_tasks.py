@@ -831,7 +831,7 @@ class PerformerDetailsTasksStatus:
         async with state.proxy() as data:
             order = await performers_get.performer_view_order(data.get("order_id"))
             price = order.price
-            commission = price / 5
+            commission = (price * 5) / 100
             await performers_set.performer_cancel_order(callback.from_user.id, data.get("order_id"))
             await performers_set.performer_set_commission_for_cancel(callback.from_user.id, commission)
         await bot.delete_message(callback.from_user.id, callback.message.message_id)

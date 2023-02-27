@@ -28,8 +28,12 @@ def register_performer(disp: Dispatcher):
     disp.register_message_handler(PerformerMain.orders,
                                   state=performer_states.PerformerStart.orders)
     disp.register_message_handler(PerformerMain.info_about_performer_name,
+                                  state=performer_states.PerformerRegister.name)
+    disp.register_message_handler(PerformerMain.info_about_performer_surname,
+                                  state=performer_states.PerformerRegister.surname)
+    disp.register_message_handler(PerformerMain.info_about_performer_selfie,
                                   content_types=['photo', 'text'],
-                                  state=performer_states.PerformerStart.info_about_performer)
+                                  state=performer_states.PerformerRegister.photo)
     disp.register_message_handler(PerformerMain.jobs_offers,
                                   state=performer_states.PerformerJobsOffers.enter)
     disp.register_callback_query_handler(PerformerMain.approve_jobs_offers,
