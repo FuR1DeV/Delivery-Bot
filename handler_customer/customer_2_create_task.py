@@ -2,6 +2,7 @@ from random import randint
 from datetime import datetime, timedelta
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from geopy import distance
 from geopy.geocoders import Nominatim
 
 from bot import bot
@@ -292,6 +293,7 @@ class CustomerCreateTask:
     @staticmethod
     async def photo_video(message: types.Message, state: FSMContext):
         order_id = f"{datetime.now().strftime('%m_%d')}_{randint(1, 99999)}"
+        geolocator = Nominatim(user_agent=f"FlowWork_{order_id}")
         async with state.proxy() as data:
             data["order_id"] = order_id
         if message.text == "Без фото или видео":
@@ -312,6 +314,12 @@ class CustomerCreateTask:
             performers = await general_get.all_performers_auto_send(data.get("performer_category"))
             if performers:
                 for i in performers:
+                    try:
+                        loc_a = geolocator.geocode(data.get("geo_data_from"))
+                        loc_a = loc_a.latitude, loc_a.longitude
+                        location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
+                    except AttributeError:
+                        location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                     await bot.send_message(i.user_id,
                                            "Новый заказ!\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -331,6 +339,9 @@ class CustomerCreateTask:
                                            f"Цена - <b>{data.get('price')}</b>\n"
                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
                                            f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                           f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True)
             await customer_states.CustomerStart.customer_menu.set()
@@ -374,6 +385,7 @@ class CustomerCreateTask:
             try:
                 async with state.proxy() as data:
                     data["photo"] = message.photo[2].file_id
+                geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from"),
                                                        data.get("geo_data_to"),
@@ -390,6 +402,12 @@ class CustomerCreateTask:
                 performers = await general_get.all_performers_auto_send(data.get("performer_category"))
                 if performers:
                     for i in performers:
+                        try:
+                            loc_a = geolocator.geocode(data.get("geo_data_from"))
+                            loc_a = loc_a.latitude, loc_a.longitude
+                            location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
+                        except AttributeError:
+                            location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                         await bot.send_message(i.user_id,
                                                "Новый заказ!\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -409,6 +427,9 @@ class CustomerCreateTask:
                                                f"Цена - <b>{data.get('price')}</b>\n"
                                                f"{config.KEYBOARD.get('MONEY_BAG')} "
                                                f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                               f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                               f"Для вас точка <b>А</b> находится в радиусе: "
+                                               f"<b>{location_result}</b>\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}",
                                                disable_web_page_preview=True)
                 await state.finish()
@@ -437,6 +458,7 @@ class CustomerCreateTask:
         else:
             async with state.proxy() as data:
                 data["video"] = message.video.file_id
+            geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
             await customers_set.customer_add_order(message.from_user.id,
                                                    data.get("geo_data_from"),
                                                    data.get("geo_data_to"),
@@ -453,6 +475,12 @@ class CustomerCreateTask:
             performers = await general_get.all_performers_auto_send(data.get("performer_category"))
             if performers:
                 for i in performers:
+                    try:
+                        loc_a = geolocator.geocode(data.get("geo_data_from"))
+                        loc_a = loc_a.latitude, loc_a.longitude
+                        location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
+                    except AttributeError:
+                        location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                     await bot.send_message(i.user_id,
                                            "Новый заказ!\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -472,6 +500,9 @@ class CustomerCreateTask:
                                            f"Цена - <b>{data.get('price')}</b>\n"
                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
                                            f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                           f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True)
             await state.finish()
@@ -894,6 +925,7 @@ class CustomerCreateTaskComp:
     @staticmethod
     async def photo_video_comp(message: types.Message, state: FSMContext):
         order_id = f"{datetime.now().strftime('%m_%d')}_{randint(1, 99999)}"
+        geolocator = Nominatim(user_agent=f"FlowWork_{order_id}")
         async with state.proxy() as data:
             data["order_id"] = order_id
         if message.text == "Без фото или видео":
@@ -914,6 +946,12 @@ class CustomerCreateTaskComp:
             performers = await general_get.all_performers_auto_send(data.get("performer_category"))
             if performers:
                 for i in performers:
+                    try:
+                        loc_a = geolocator.geocode(data.get("geo_data_from"))
+                        loc_a = loc_a.latitude, loc_a.longitude
+                        location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
+                    except AttributeError:
+                        location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                     await bot.send_message(i.user_id,
                                            "Новый заказ!\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -933,6 +971,9 @@ class CustomerCreateTaskComp:
                                            f"Цена - <b>{data.get('price')}</b>\n"
                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
                                            f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                           f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True,
                                            reply_markup=markup_performer.inline_order_request(order_id))
@@ -977,6 +1018,7 @@ class CustomerCreateTaskComp:
             try:
                 async with state.proxy() as data:
                     data["photo"] = message.photo[2].file_id
+                geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from_comp"),
                                                        data.get("geo_data_to_comp"),
@@ -993,6 +1035,12 @@ class CustomerCreateTaskComp:
                 performers = await general_get.all_performers_auto_send(data.get("performer_category"))
                 if performers:
                     for i in performers:
+                        try:
+                            loc_a = geolocator.geocode(data.get("geo_data_from"))
+                            loc_a = loc_a.latitude, loc_a.longitude
+                            location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
+                        except AttributeError:
+                            location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                         await bot.send_message(i.user_id,
                                                "Новый заказ!\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -1012,6 +1060,9 @@ class CustomerCreateTaskComp:
                                                f"Цена - <b>{data.get('price')}</b>\n"
                                                f"{config.KEYBOARD.get('MONEY_BAG')} "
                                                f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                               f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                               f"Для вас точка <b>А</b> находится в радиусе: "
+                                               f"<b>{location_result}</b>\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}",
                                                disable_web_page_preview=True,
                                                reply_markup=markup_performer.inline_order_request(data.get("order_id")))
@@ -1041,6 +1092,7 @@ class CustomerCreateTaskComp:
         else:
             async with state.proxy() as data:
                 data["video"] = message.video.file_id
+            geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
             await customers_set.customer_add_order(message.from_user.id,
                                                    data.get("geo_data_from_comp"),
                                                    data.get("geo_data_to_comp"),
@@ -1057,6 +1109,12 @@ class CustomerCreateTaskComp:
             performers = await general_get.all_performers_auto_send(data.get("performer_category"))
             if performers:
                 for i in performers:
+                    try:
+                        loc_a = geolocator.geocode(data.get("geo_data_from"))
+                        loc_a = loc_a.latitude, loc_a.longitude
+                        location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
+                    except AttributeError:
+                        location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                     await bot.send_message(i.user_id,
                                            "Новый заказ!\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -1076,6 +1134,9 @@ class CustomerCreateTaskComp:
                                            f"Цена - <b>{data.get('price')}</b>\n"
                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
                                            f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
+                                           f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True,
                                            reply_markup=markup_performer.inline_order_request(data.get("order_id")))
@@ -1251,6 +1312,7 @@ class CustomerCreateTaskLoading:
     @staticmethod
     async def photo_video(message: types.Message, state: FSMContext):
         order_id = f"{datetime.now().strftime('%m_%d')}_{randint(1, 99999)}"
+        geolocator = Nominatim(user_agent=f"FlowWork_{order_id}")
         async with state.proxy() as data:
             data["order_id"] = order_id
             if data.get("geo_data_from") is None:
@@ -1271,6 +1333,12 @@ class CustomerCreateTaskLoading:
                 performers = await general_get.all_performers_auto_send("loading")
                 if performers:
                     for i in performers:
+                        try:
+                            loc_a = geolocator.geocode(data.get("geo_data_from"))
+                            loc_a = loc_a.latitude, loc_a.longitude
+                            location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
+                        except AttributeError:
+                            location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                         await bot.send_message(i.user_id,
                                                f"Новый заказ! От заказчика {message.from_user.id}\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -1286,6 +1354,9 @@ class CustomerCreateTaskLoading:
                                                f"Начало работы - {data.get('start_time')}\n"
                                                f"{config.KEYBOARD.get('CLIPBOARD')} "
                                                f"Описание - <b>{data.get('description')}</b>\n"
+                                               f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                               f"Для вас точка <b>А</b> находится в радиусе: "
+                                               f"<b>{location_result}</b>\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}",
                                                disable_web_page_preview=True,
                                                reply_markup=markup_performer.
@@ -1333,6 +1404,7 @@ class CustomerCreateTaskLoading:
                     data["photo"] = message.photo[2].file_id
                     if data.get("geo_data_from") is None:
                         data["geo_data_from"] = data.get("geo_data_from_comp")
+                geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
                 await customers_set.customer_add_order_loading(message.from_user.id,
                                                                data.get("geo_data_from"),
                                                                data.get("description"),
@@ -1348,6 +1420,12 @@ class CustomerCreateTaskLoading:
                 performers = await general_get.all_performers_auto_send("loading")
                 if performers:
                     for i in performers:
+                        try:
+                            loc_a = geolocator.geocode(data.get("geo_data_from"))
+                            loc_a = loc_a.latitude, loc_a.longitude
+                            location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
+                        except AttributeError:
+                            location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                         await bot.send_message(i.user_id,
                                                f"Новый заказ! От заказчика {message.from_user.id}\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -1363,6 +1441,9 @@ class CustomerCreateTaskLoading:
                                                f"Начало работы - {data.get('start_time')}\n"
                                                f"{config.KEYBOARD.get('CLIPBOARD')} "
                                                f"Описание - <b>{data.get('description')}</b>\n"
+                                               f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                               f"Для вас точка <b>А</b> находится в радиусе: "
+                                               f"<b>{location_result}</b>\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}",
                                                disable_web_page_preview=True,
                                                reply_markup=markup_performer.
@@ -1395,6 +1476,7 @@ class CustomerCreateTaskLoading:
                 data["video"] = message.video.file_id
                 if data.get("geo_data_from") is None:
                     data["geo_data_from"] = data.get("geo_data_from_comp")
+            geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
             await customers_set.customer_add_order_loading(message.from_user.id,
                                                            data.get("geo_data_from"),
                                                            data.get("description"),
@@ -1410,6 +1492,12 @@ class CustomerCreateTaskLoading:
             performers = await general_get.all_performers_auto_send("loading")
             if performers:
                 for i in performers:
+                    try:
+                        loc_a = geolocator.geocode(data.get("geo_data_from"))
+                        loc_a = loc_a.latitude, loc_a.longitude
+                        location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
+                    except AttributeError:
+                        location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                     await bot.send_message(i.user_id,
                                            f"Новый заказ! От заказчика {message.from_user.id}\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -1425,6 +1513,9 @@ class CustomerCreateTaskLoading:
                                            f"Начало работы - {data.get('start_time')}\n"
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{data.get('description')}</b>\n"
+                                           f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True,
                                            reply_markup=markup_performer.

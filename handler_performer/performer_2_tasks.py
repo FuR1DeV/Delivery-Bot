@@ -3,6 +3,8 @@ from datetime import datetime
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from geopy.geocoders import Nominatim
+from geopy import distance
 
 from bot import bot
 from data.commands import performers_get, performers_set, customers_get, general_get, general_set
@@ -104,6 +106,8 @@ class PerformerTasks:
 
     @staticmethod
     async def choose_category(callback: types.CallbackQuery, state: FSMContext):
+        geolocator = Nominatim(user_agent="FlowWork")
+        performer = await performers_get.performer_select(callback.from_user.id)
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         async with state.proxy() as data:
             res_category = callback.data[4:]
@@ -132,6 +136,12 @@ class PerformerTasks:
                 await bot.send_photo(callback.from_user.id, i.image)
             if i.video:
                 await bot.send_video(callback.from_user.id, i.video)
+            try:
+                loc_a = geolocator.geocode(i.geo_position_from)
+                loc_a = loc_a.latitude, loc_a.longitude
+                location_result = f"{round(distance.distance(loc_a, performer.geo_position).km, 2)} км"
+            except AttributeError:
+                location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
             await bot.send_message(callback.from_user.id,
                                    f"<b>Детали заказа</b>\n"
                                    f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
@@ -154,6 +164,9 @@ class PerformerTasks:
                                    f"Заказ создан: <b>{i.order_create}</b>\n"
                                    f"{config.KEYBOARD.get('BAR_CHART')} "
                                    f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                   f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                   f"Для вас точка <b>А</b> находится в радиусе: "
+                                   f"<b>{location_result}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}\n",
                                    disable_web_page_preview=True,
                                    reply_markup=markup_performer.inline_order_request(i.order_id))

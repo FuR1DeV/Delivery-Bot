@@ -37,6 +37,7 @@ KEYBOARD = {
     'THUMBS_UP': emojize(':thumbs_up:'),
     'THUMBS_DOWN': emojize(':thumbs_down:'),
     'SMILING_FACE_WITH_SUNGLASSES': emojize(':smiling_face_with_sunglasses:'),
+    'FROWNING_FACE': emojize(':frowning_face:'),
     'BUST_IN_SILHOUETTE': emojize(':bust_in_silhouette:'),
     'BUSTS_IN_SILHOUETTE': emojize(':busts_in_silhouette:'),
     'HOUSE': emojize(':house:'),
