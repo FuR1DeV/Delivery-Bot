@@ -31,15 +31,21 @@ class PerformerTasks:
                                    f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
                                    reply_markup=markup_performer.main_menu(jobs))
         if "Грузчики" in message.text:
+            geolocator = Nominatim(user_agent=f"FlowWork_{message.from_user.id}")
+            performer = await performers_get.performer_select(message.from_user.id)
             res = await performers_get.performer_checks_all_orders_loading(message.from_user.id)
             if res:
-                await bot.send_message(message.from_user.id,
-                                       "Выводим список всех заказов для Грузчиков")
                 for i in res:
                     if i.image:
                         await bot.send_photo(message.from_user.id, i.image)
                     if i.video:
                         await bot.send_video(message.from_user.id, i.video)
+                    try:
+                        loc_a = geolocator.geocode(i.geo_position)
+                        loc_a = loc_a.latitude, loc_a.longitude
+                        location_result = f"{round(distance.distance(loc_a, performer.geo_position).km, 2)} км"
+                    except AttributeError:
+                        location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
                     await bot.send_message(message.from_user.id,
                                            f"<b>Детали заказа от Заказчика {i.user_id}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n"
@@ -62,6 +68,9 @@ class PerformerTasks:
                                            f"Заказ создан: <b>{i.order_create}</b>\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
                                            f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                           f"<b>Место работы</b> находится в радиусе: "
+                                           f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}\n",
                                            reply_markup=markup_performer.inline_approve_loading(i.order_id),
                                            disable_web_page_preview=True)
@@ -106,7 +115,7 @@ class PerformerTasks:
 
     @staticmethod
     async def choose_category(callback: types.CallbackQuery, state: FSMContext):
-        geolocator = Nominatim(user_agent="FlowWork")
+        geolocator = Nominatim(user_agent=f"FlowWork_{callback.from_user.id}")
         performer = await performers_get.performer_select(callback.from_user.id)
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         async with state.proxy() as data:
@@ -165,7 +174,7 @@ class PerformerTasks:
                                    f"{config.KEYBOARD.get('BAR_CHART')} "
                                    f"Рейтинг заказа | <b>{i.order_rating}</b>\n"
                                    f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                   f"Для вас точка <b>А</b> находится в радиусе: "
+                                   f"Точка <b>А</b> находится в радиусе: "
                                    f"<b>{location_result}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}\n",
                                    disable_web_page_preview=True,

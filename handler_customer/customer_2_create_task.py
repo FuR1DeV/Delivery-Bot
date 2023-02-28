@@ -79,7 +79,7 @@ class CustomerCreateTask:
     @staticmethod
     async def geo_position_from(message: types.Message, state: FSMContext):
         try:
-            n = Nominatim(user_agent='User')
+            n = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
             loc = f"{message.location.latitude}, {message.location.longitude}"
             address = n.reverse(loc)
             city = address.raw.get("address").get("city")
@@ -118,7 +118,7 @@ class CustomerCreateTask:
     @staticmethod
     async def geo_position_to(message: types.Message, state: FSMContext):
         try:
-            n = Nominatim(user_agent='User')
+            n = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
             loc = f"{message.location.latitude}, {message.location.longitude}"
             address = n.reverse(loc)
             city = address.raw.get("address").get("city")
@@ -293,7 +293,7 @@ class CustomerCreateTask:
     @staticmethod
     async def photo_video(message: types.Message, state: FSMContext):
         order_id = f"{datetime.now().strftime('%m_%d')}_{randint(1, 99999)}"
-        geolocator = Nominatim(user_agent=f"FlowWork_{order_id}")
+        geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
         async with state.proxy() as data:
             data["order_id"] = order_id
         if message.text == "Без фото или видео":
@@ -340,7 +340,7 @@ class CustomerCreateTask:
                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
                                            f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
                                            f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"Точка <b>А</b> находится в радиусе: "
                                            f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True)
@@ -385,7 +385,7 @@ class CustomerCreateTask:
             try:
                 async with state.proxy() as data:
                     data["photo"] = message.photo[2].file_id
-                geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
+                geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from"),
                                                        data.get("geo_data_to"),
@@ -428,7 +428,7 @@ class CustomerCreateTask:
                                                f"{config.KEYBOARD.get('MONEY_BAG')} "
                                                f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
                                                f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                               f"Для вас точка <b>А</b> находится в радиусе: "
+                                               f"Точка <b>А</b> находится в радиусе: "
                                                f"<b>{location_result}</b>\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}",
                                                disable_web_page_preview=True)
@@ -458,7 +458,7 @@ class CustomerCreateTask:
         else:
             async with state.proxy() as data:
                 data["video"] = message.video.file_id
-            geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
+            geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
             await customers_set.customer_add_order(message.from_user.id,
                                                    data.get("geo_data_from"),
                                                    data.get("geo_data_to"),
@@ -501,7 +501,7 @@ class CustomerCreateTask:
                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
                                            f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
                                            f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"Точка <b>А</b> находится в радиусе: "
                                            f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True)
@@ -685,7 +685,7 @@ class CustomerCreateTaskComp:
     async def geo_position_from_comp(message: types.Message, state: FSMContext):
         if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             try:
-                n = Nominatim(user_agent='User')
+                n = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
                 loc = f"{message.text}"
                 address = n.reverse(loc)
                 city = address.raw.get("address").get("city")
@@ -738,7 +738,7 @@ class CustomerCreateTaskComp:
     async def geo_position_to_comp(message: types.Message, state: FSMContext):
         if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             try:
-                n = Nominatim(user_agent='User')
+                n = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
                 loc = f"{message.text}"
                 address = n.reverse(loc)
                 city = address.raw.get("address").get("city")
@@ -925,7 +925,7 @@ class CustomerCreateTaskComp:
     @staticmethod
     async def photo_video_comp(message: types.Message, state: FSMContext):
         order_id = f"{datetime.now().strftime('%m_%d')}_{randint(1, 99999)}"
-        geolocator = Nominatim(user_agent=f"FlowWork_{order_id}")
+        geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
         async with state.proxy() as data:
             data["order_id"] = order_id
         if message.text == "Без фото или видео":
@@ -972,7 +972,7 @@ class CustomerCreateTaskComp:
                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
                                            f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
                                            f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"Точка <b>А</b> находится в радиусе: "
                                            f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True,
@@ -1018,7 +1018,7 @@ class CustomerCreateTaskComp:
             try:
                 async with state.proxy() as data:
                     data["photo"] = message.photo[2].file_id
-                geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
+                geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from_comp"),
                                                        data.get("geo_data_to_comp"),
@@ -1061,7 +1061,7 @@ class CustomerCreateTaskComp:
                                                f"{config.KEYBOARD.get('MONEY_BAG')} "
                                                f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
                                                f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                               f"Для вас точка <b>А</b> находится в радиусе: "
+                                               f"Точка <b>А</b> находится в радиусе: "
                                                f"<b>{location_result}</b>\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}",
                                                disable_web_page_preview=True,
@@ -1092,7 +1092,7 @@ class CustomerCreateTaskComp:
         else:
             async with state.proxy() as data:
                 data["video"] = message.video.file_id
-            geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
+            geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
             await customers_set.customer_add_order(message.from_user.id,
                                                    data.get("geo_data_from_comp"),
                                                    data.get("geo_data_to_comp"),
@@ -1135,7 +1135,7 @@ class CustomerCreateTaskComp:
                                            f"{config.KEYBOARD.get('MONEY_BAG')} "
                                            f"Ценность товара - <b>{data.get('order_worth')}</b>\n"
                                            f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"Точка <b>А</b> находится в радиусе: "
                                            f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True,
@@ -1158,7 +1158,7 @@ class CustomerCreateTaskLoading:
     @staticmethod
     async def geo_position_from(message: types.Message, state: FSMContext):
         try:
-            n = Nominatim(user_agent='User')
+            n = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
             loc = f"{message.location.latitude}, {message.location.longitude}"
             address = n.reverse(loc)
             city = address.raw.get("address").get("city")
@@ -1312,7 +1312,7 @@ class CustomerCreateTaskLoading:
     @staticmethod
     async def photo_video(message: types.Message, state: FSMContext):
         order_id = f"{datetime.now().strftime('%m_%d')}_{randint(1, 99999)}"
-        geolocator = Nominatim(user_agent=f"FlowWork_{order_id}")
+        geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
         async with state.proxy() as data:
             data["order_id"] = order_id
             if data.get("geo_data_from") is None:
@@ -1355,7 +1355,7 @@ class CustomerCreateTaskLoading:
                                                f"{config.KEYBOARD.get('CLIPBOARD')} "
                                                f"Описание - <b>{data.get('description')}</b>\n"
                                                f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                               f"Для вас точка <b>А</b> находится в радиусе: "
+                                               f"<b>Место работы</b> находится в радиусе: "
                                                f"<b>{location_result}</b>\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}",
                                                disable_web_page_preview=True,
@@ -1404,7 +1404,7 @@ class CustomerCreateTaskLoading:
                     data["photo"] = message.photo[2].file_id
                     if data.get("geo_data_from") is None:
                         data["geo_data_from"] = data.get("geo_data_from_comp")
-                geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
+                geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
                 await customers_set.customer_add_order_loading(message.from_user.id,
                                                                data.get("geo_data_from"),
                                                                data.get("description"),
@@ -1442,7 +1442,7 @@ class CustomerCreateTaskLoading:
                                                f"{config.KEYBOARD.get('CLIPBOARD')} "
                                                f"Описание - <b>{data.get('description')}</b>\n"
                                                f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                               f"Для вас точка <b>А</b> находится в радиусе: "
+                                               f"<b>Место работы</b> находится в радиусе: "
                                                f"<b>{location_result}</b>\n"
                                                f"{config.KEYBOARD.get('DASH') * 14}",
                                                disable_web_page_preview=True,
@@ -1476,7 +1476,7 @@ class CustomerCreateTaskLoading:
                 data["video"] = message.video.file_id
                 if data.get("geo_data_from") is None:
                     data["geo_data_from"] = data.get("geo_data_from_comp")
-            geolocator = Nominatim(user_agent=f"FlowWork_{data.get('order_id')}")
+            geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
             await customers_set.customer_add_order_loading(message.from_user.id,
                                                            data.get("geo_data_from"),
                                                            data.get("description"),
@@ -1514,7 +1514,7 @@ class CustomerCreateTaskLoading:
                                            f"{config.KEYBOARD.get('CLIPBOARD')} "
                                            f"Описание - <b>{data.get('description')}</b>\n"
                                            f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                           f"Для вас точка <b>А</b> находится в радиусе: "
+                                           f"<b>Место работы</b> находится в радиусе: "
                                            f"<b>{location_result}</b>\n"
                                            f"{config.KEYBOARD.get('DASH') * 14}",
                                            disable_web_page_preview=True,

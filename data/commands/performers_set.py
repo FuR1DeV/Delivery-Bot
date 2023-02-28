@@ -110,8 +110,9 @@ async def set_money(user_id, money):
     logger.info(f'Обновляется баланс пользователя - {user_id}')
     performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
     percent = money * 2 / 100
-    result = float(performer.performer_money) + (money + percent + 30)
-    await performer.update(performer_money=result).apply()
+    result = money + percent + 30
+    await performer.update(performer_money=float(performer.performer_money) + result,
+                           money_added=performer.money_added + result).apply()
 
 
 async def performer_set_order_rating(order_id, rating, user_id):

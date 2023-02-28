@@ -957,6 +957,7 @@ class PerformerProfile:
                                        f"<b>Ваш счёт пополнен на "
                                        f"{int(info.money) + (int(info.money) * 2 / 100) + 30} рублей!</b>\n",
                                        reply_markup=markup_performer.performer_profile(auto_send))
+
                 await state.finish()
                 res = await performers_get.performer_select(callback.from_user.id)
                 if res.performer_category == "pedestrian":
