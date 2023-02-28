@@ -297,6 +297,8 @@ class CustomerCreateTask:
         async with state.proxy() as data:
             data["order_id"] = order_id
         if message.text == "Без фото или видео":
+            await bot.send_message(message.from_user.id,
+                                   "Подождите немножко, размещаем ваш заказ")
             async with state.proxy() as data:
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from"),
@@ -385,6 +387,8 @@ class CustomerCreateTask:
             try:
                 async with state.proxy() as data:
                     data["photo"] = message.photo[2].file_id
+                await bot.send_message(message.from_user.id,
+                                       "Подождите немножко, размещаем ваш заказ")
                 geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from"),
@@ -458,6 +462,8 @@ class CustomerCreateTask:
         else:
             async with state.proxy() as data:
                 data["video"] = message.video.file_id
+            await bot.send_message(message.from_user.id,
+                                   "Подождите немножко, размещаем ваш заказ")
             geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
             await customers_set.customer_add_order(message.from_user.id,
                                                    data.get("geo_data_from"),
@@ -929,6 +935,8 @@ class CustomerCreateTaskComp:
         async with state.proxy() as data:
             data["order_id"] = order_id
         if message.text == "Без фото или видео":
+            await bot.send_message(message.from_user.id,
+                                   "Подождите немножко, размещаем ваш заказ")
             async with state.proxy() as data:
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from_comp"),
@@ -1018,6 +1026,8 @@ class CustomerCreateTaskComp:
             try:
                 async with state.proxy() as data:
                     data["photo"] = message.photo[2].file_id
+                await bot.send_message(message.from_user.id,
+                                       "Подождите немножко, размещаем ваш заказ")
                 geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
                 await customers_set.customer_add_order(message.from_user.id,
                                                        data.get("geo_data_from_comp"),
@@ -1092,6 +1102,8 @@ class CustomerCreateTaskComp:
         else:
             async with state.proxy() as data:
                 data["video"] = message.video.file_id
+            await bot.send_message(message.from_user.id,
+                                   "Подождите немножко, размещаем ваш заказ")
             geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
             await customers_set.customer_add_order(message.from_user.id,
                                                    data.get("geo_data_from_comp"),
@@ -1319,6 +1331,8 @@ class CustomerCreateTaskLoading:
                 data["geo_data_from"] = data.get("geo_data_from_comp")
         if message.text == "Без фото или видео":
             async with state.proxy() as data:
+                await bot.send_message(message.from_user.id,
+                                       "Подождите немножко, размещаем ваш заказ")
                 await customers_set.customer_add_order_loading(message.from_user.id,
                                                                data.get("geo_data_from"),
                                                                data.get("description"),
@@ -1404,6 +1418,8 @@ class CustomerCreateTaskLoading:
                     data["photo"] = message.photo[2].file_id
                     if data.get("geo_data_from") is None:
                         data["geo_data_from"] = data.get("geo_data_from_comp")
+                await bot.send_message(message.from_user.id,
+                                       "Подождите немножко, размещаем ваш заказ")
                 geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
                 await customers_set.customer_add_order_loading(message.from_user.id,
                                                                data.get("geo_data_from"),
@@ -1476,6 +1492,8 @@ class CustomerCreateTaskLoading:
                 data["video"] = message.video.file_id
                 if data.get("geo_data_from") is None:
                     data["geo_data_from"] = data.get("geo_data_from_comp")
+            await bot.send_message(message.from_user.id,
+                                   "Подождите немножко, размещаем ваш заказ")
             geolocator = Nominatim(user_agent=f'FlowWork_{message.from_user.id}')
             await customers_set.customer_add_order_loading(message.from_user.id,
                                                            data.get("geo_data_from"),

@@ -58,7 +58,7 @@ class OrdersStatus(BaseModel):
     id = Column(Integer, primary_key=True, nullable=False)
     performer_status = Column(Integer, server_default="0")
     customer_status = Column(Integer, server_default="0")
-    order_id = Column(String, nullable=False)
+    order_id = Column(String, nullable=False, unique=True)
     performer_arrive = Column(String, server_default="3")
     customer_arrive = Column(String, server_default="3")
     query: sql.select

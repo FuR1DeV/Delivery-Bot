@@ -643,23 +643,28 @@ class CustomerMain:
     async def customer_approve(callback: types.CallbackQuery):
         res = callback.message.text.split()
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(res[-1],
-                               f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK') * 5}\n"
-                               f"Заказчик <b>{callback.from_user.id}</b> "
-                               f"одобрил ваш запрос по заказу <b>{res[2]}\n</b>"
-                               f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK') * 5}")
-        await performers_set.performer_set_order(int(res[-1]),
-                                                 res[2],
-                                                 datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
-        await bot.send_message(callback.from_user.id,
-                               "Вы взяли Исполнителя!")
-        not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
-        at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
-        loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
-        await bot.send_message(callback.from_user.id,
-                               f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
-                               reply_markup=markup_customer.main_menu())
-        await customer_states.CustomerStart.customer_menu.set()
+        exist = await customers_get.customer_get_status_order(res[2])
+        if exist:
+            await bot.send_message(callback.from_user.id,
+                                   "Вы уже взяли Исполнителя!")
+        else:
+            await bot.send_message(res[-1],
+                                   f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK') * 5}\n"
+                                   f"Заказчик <b>{callback.from_user.id}</b> "
+                                   f"одобрил ваш запрос по заказу <b>{res[2]}\n</b>"
+                                   f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK') * 5}")
+            await performers_set.performer_set_order(int(res[-1]),
+                                                     res[2],
+                                                     datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+            await bot.send_message(callback.from_user.id,
+                                   "Вы взяли Исполнителя!")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
+            await bot.send_message(callback.from_user.id,
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
+                                   reply_markup=markup_customer.main_menu())
+            await customer_states.CustomerStart.customer_menu.set()
 
     @staticmethod
     async def customer_decline(callback: types.CallbackQuery):
@@ -677,26 +682,31 @@ class CustomerMain:
         res = callback.message.text.split()
         new_price, order_id, performer_id = res[4], res[11], res[7]
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        await bot.send_message(res[7],
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                               f"Заказчик <b>{callback.from_user.id}</b> "
-                               f"одобрил ваше предложение о новой цене <b>{res[4]}</b>\n"
-                               f"По заказу <b>{res[11]}</b>\n"
-                               f"<b>Вы успешно взяли новый Заказ!</b>"
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}")
-        await performers_set.performer_set_order(int(performer_id),
-                                                 order_id,
-                                                 datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
-        await performers_set.add_new_price(order_id, new_price)
-        await bot.send_message(callback.from_user.id,
-                               "Вы взяли Исполнителя!")
-        not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
-        at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
-        loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
-        await bot.send_message(callback.from_user.id,
-                               f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
-                               reply_markup=markup_customer.main_menu())
-        await customer_states.CustomerStart.customer_menu.set()
+        exist = await customers_get.customer_get_status_order(order_id)
+        if exist:
+            await bot.send_message(callback.from_user.id,
+                                   "Вы уже взяли Исполнителя!")
+        else:
+            await bot.send_message(res[7],
+                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                   f"Заказчик <b>{callback.from_user.id}</b> "
+                                   f"одобрил ваше предложение о новой цене <b>{res[4]}</b>\n"
+                                   f"По заказу <b>{res[11]}</b>\n"
+                                   f"<b>Вы успешно взяли новый Заказ!</b>"
+                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')}")
+            await performers_set.performer_set_order(int(performer_id),
+                                                     order_id,
+                                                     datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+            await performers_set.add_new_price(order_id, new_price)
+            await bot.send_message(callback.from_user.id,
+                                   "Вы взяли Исполнителя!")
+            not_at_work = await customers_get.customer_all_orders_not_at_work(callback.from_user.id)
+            at_work = await customers_get.customer_all_orders_in_work(callback.from_user.id)
+            loading = await customers_get.customer_all_orders_loading(callback.from_user.id)
+            await bot.send_message(callback.from_user.id,
+                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
+                                   reply_markup=markup_customer.main_menu())
+            await customer_states.CustomerStart.customer_menu.set()
 
     @staticmethod
     async def proposal_from_performer_no(callback: types.CallbackQuery):
