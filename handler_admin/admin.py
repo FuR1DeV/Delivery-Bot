@@ -76,6 +76,11 @@ class AdminMain:
             await states.AboutUsers.enter.set()
             async with state.proxy() as data:
                 data["type_user"] = "performers"
+        if message.text == "Ограничения":
+            await states.Limitations.enter.set()
+            await bot.send_message(message.from_user.id,
+                                   "Здесь вы сможете просмотреть ограничения",
+                                   reply_markup=markup_admin.limitations())
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Вы вернулись в главное меню Администратора",
@@ -1213,6 +1218,38 @@ class AdminControl:
                 await bot.send_message(message.from_user.id,
                                        "Если хотите заблокировать пользователя или начислить сумму, "
                                        "то вам нужно воспользоваться поиском по ID (Скопируйте нужный вам ID)")
+
+    @staticmethod
+    async def limitations(message: types.Message):
+        if message.text == "Просмотр ограничений":
+            limitations = await admins_get.check_limitations()
+            for i in limitations:
+                await bot.send_message(message.from_user.id,
+                                       f"Категория - {i.value} | "
+                                       f"Ограничение - {i.limit}")
+        if message.text == "Установить ограничение для Исполнителя":
+            await bot.send_message(message.from_user.id,
+                                   "Установите максимальное количество Исполнителей",
+                                   reply_markup=markup_admin.back())
+            await states.Limitations.performers.set()
+        if message.text == "Назад":
+            await bot.send_message(message.from_user.id,
+                                   "Вы находитесь в меню Управление пользователями",
+                                   reply_markup=markup_admin.user_control())
+            await states.AdminStates.control.set()
+
+    @staticmethod
+    async def performers_limitations(message: types.Message):
+        if message.text.isdigit():
+            await admins_set.limitations_for_performers(int(message.text))
+            await bot.send_message(message.from_user.id,
+                                   f"Установлено максимальное кол-во Исполнителей "
+                                   f"в размере - {message.text}",
+                                   reply_markup=markup_admin.limitations())
+            await states.Limitations.enter.set()
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Надо ввести цифру")
 
 
 class AdminJobs:

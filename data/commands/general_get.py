@@ -4,7 +4,7 @@ from sqlalchemy import and_, or_
 
 from data.models.customers import Customers
 from data.models.performers import Performers, JobsOffers
-from data.models.admins import Payment, PrivateChat
+from data.models.admins import Payment, PrivateChat, Limitations
 from data.models.orders import Orders, OrdersStatus, Commission, Reviews, CommissionPromo, OrdersLoading
 
 logger = logging.getLogger("bot.data.commands.general_set_db")
@@ -127,3 +127,12 @@ async def check_commission_promo(user_id):
 async def check_jobs(user_id):
     jobs = await JobsOffers.query.where(JobsOffers.user_id == user_id).gino.first()
     return jobs
+
+
+async def check_limit_performers():
+    limit = await Limitations.query.where(Limitations.value == "performers").gino.first()
+    all_perf = await all_performers()
+    if limit.limit <= len(all_perf):
+        return True
+    else:
+        return False

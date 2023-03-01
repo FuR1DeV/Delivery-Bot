@@ -30,3 +30,11 @@ class PrivateChat(BaseModel):
     count_word = Column(Integer, server_default="0")
     enter_date = Column(TIMESTAMP(timezone=False), nullable=False)
     query: sql.select
+
+
+class Limitations(BaseModel):
+    __tablename__ = "limitations"
+    id = Column(Integer, primary_key=True, nullable=False)
+    value = Column(String)
+    limit = Column(Integer)
+    query: sql.select

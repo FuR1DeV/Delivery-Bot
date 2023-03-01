@@ -1,6 +1,6 @@
 import logging
 
-from data.models.admins import Admins
+from data.models.admins import Admins, Limitations
 from data.models.customers import Customers
 from data.models.performers import Performers, PerformerPersonalData, JobsSales
 from data.models.orders import Orders, Reviews, Commission, CommissionPromo
@@ -92,3 +92,8 @@ async def check_jobs_sales():
     three_day = await JobsSales.query.where(JobsSales.jobs == "3_day").gino.first()
     week = await JobsSales.query.where(JobsSales.jobs == "week").gino.first()
     return [auto_send, twelve, day, three_day, week]
+
+
+async def check_limitations():
+    limitations = await Limitations.query.gino.all()
+    return limitations

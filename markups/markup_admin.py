@@ -176,7 +176,15 @@ def jobs_sales():
 def user_control():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("Управление Заказчиками", "Управление Исполнителями")
-    keyboard.row("Выгрузка БД Заказчиков и Исполнителей")
+    keyboard.row("Выгрузка БД Заказчиков и Исполнителей", "Ограничения")
+    keyboard.row("Назад")
+    return keyboard
+
+
+def limitations():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row("Просмотр ограничений")
+    keyboard.row("Установить ограничение для Исполнителя")
     keyboard.row("Назад")
     return keyboard
 

@@ -19,49 +19,55 @@ class PerformerMain:
     async def hi_performer(callback: types.CallbackQuery, state: FSMContext):
         performer = await performers_get.performer_select(callback.from_user.id)
         performer_p_d = await performers_get.performer_select_personal_data(callback.from_user.id)
-        if performer is None:
-            await bot.delete_message(callback.from_user.id, callback.message.message_id)
-            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-            button = types.KeyboardButton(text='Запрос телефона', request_contact=True)
-            keyboard.add(button)
+        performer_limit = await general_get.check_limit_performers()
+        if performer_limit:
             await bot.send_message(callback.from_user.id,
-                                   f"{callback.from_user.first_name}\n"
-                                   f"Поделитесь с нами вашим номером телефона!\n",
-                                   reply_markup=keyboard)
-            await performer_states.PerformerPhone.phone.set()
-        elif performer_p_d:
-            if performer.ban == 1:
+                                   "<b>Превышен лимит Исполнителей, "
+                                   "дождитесь когда появятся свободные места!</b>")
+        else:
+            if performer is None:
                 await bot.delete_message(callback.from_user.id, callback.message.message_id)
-                await bot.send_message(callback.from_user.id, "Вы заблокированы! Обратитесь в техподдержку!")
-            else:
-                await bot.delete_message(callback.from_user.id, callback.message.message_id)
-                await performer_states.PerformerStart.performer_menu.set()
+                keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
+                button = types.KeyboardButton(text='Запрос телефона', request_contact=True)
+                keyboard.add(button)
                 await bot.send_message(callback.from_user.id,
-                                       "Спасибо что пользуетесь нашим ботом!")
-                orders = await performers_get.performer_view_list_orders(callback.from_user.id)
-                orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
-                promo = await performers_get.check_commission_promo(callback.from_user.id)
-                jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
-                performer = await performers_get.performer_select(callback.from_user.id)
-                time1 = datetime.strptime(performer.time_geo_position, '%d-%m-%Y, %H:%M:%S')
-                time2 = datetime.now()
-                time_result = time2 - time1
+                                       f"{callback.from_user.first_name}\n"
+                                       f"Поделитесь с нами вашим номером телефона!\n",
+                                       reply_markup=keyboard)
+                await performer_states.PerformerPhone.phone.set()
+            elif performer_p_d:
+                if performer.ban == 1:
+                    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+                    await bot.send_message(callback.from_user.id, "Вы заблокированы! Обратитесь в техподдержку!")
+                else:
+                    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+                    await performer_states.PerformerStart.performer_menu.set()
+                    await bot.send_message(callback.from_user.id,
+                                           "Спасибо что пользуетесь нашим ботом!")
+                    orders = await performers_get.performer_view_list_orders(callback.from_user.id)
+                    orders_loading = await performers_get.performer_loader_order(callback.from_user.id)
+                    promo = await performers_get.check_commission_promo(callback.from_user.id)
+                    jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
+                    performer = await performers_get.performer_select(callback.from_user.id)
+                    time1 = datetime.strptime(performer.time_geo_position, '%d-%m-%Y, %H:%M:%S')
+                    time2 = datetime.now()
+                    time_result = time2 - time1
+                    await bot.send_message(callback.from_user.id,
+                                           f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}\n"
+                                           f"{config.KEYBOARD.get('WORLD_MAP')} Ваша геопозиция обновлялась последний раз "
+                                           f"{str(time_result)[:-7]} назад",
+                                           reply_markup=markup_performer.main_menu(jobs))
+            elif performer_p_d is None:
+                await performer_states.PerformerRegister.name.set()
                 await bot.send_message(callback.from_user.id,
-                                       f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}\n"
-                                       f"{config.KEYBOARD.get('WORLD_MAP')} Ваша геопозиция обновлялась последний раз "
-                                       f"{str(time_result)[:-7]} назад",
-                                       reply_markup=markup_performer.main_menu(jobs))
-        elif performer_p_d is None:
-            await performer_states.PerformerRegister.name.set()
-            await bot.send_message(callback.from_user.id,
-                                   f"{callback.from_user.first_name} Спасибо что пользуетесь нашим ботом!\n"
-                                   f"Теперь пройдите короткую регистрацию")
-            async with state.proxy() as data:
-                data["list_info"] = []
-            await bot.send_message(callback.from_user.id,
-                                   "Введите Ваше реальное Имя\n"
-                                   "Вводить только на русском языке.\n",
-                                   reply_markup=markup_performer.markup_clean)
+                                       f"{callback.from_user.first_name} Спасибо что пользуетесь нашим ботом!\n"
+                                       f"Теперь пройдите короткую регистрацию")
+                async with state.proxy() as data:
+                    data["list_info"] = []
+                await bot.send_message(callback.from_user.id,
+                                       "Введите Ваше реальное Имя\n"
+                                       "Вводить только на русском языке.\n",
+                                       reply_markup=markup_performer.markup_clean)
 
     @staticmethod
     async def phone(message: types.Message):

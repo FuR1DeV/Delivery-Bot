@@ -4,7 +4,7 @@ from datetime import datetime
 from bot import bot
 from data.models.performers import Performers, AutoSendJobOffer, JobsSales, JobsOffers
 from data.models.customers import Customers
-from data.models.admins import Payment, PrivateChat
+from data.models.admins import Payment, PrivateChat, Limitations
 from data.models.orders import Orders, Reviews, OrdersStatus, Commission, CommissionPromo, OrdersLoading
 from data.commands import performers_get, general_get
 
@@ -198,3 +198,17 @@ async def create_jobs_sales():
         for k, v in cat.items():
             jobs = JobsSales(jobs=k, value=int(v))
             await jobs.create()
+
+
+async def create_limitations():
+    """Создается БД ограничений с дефолтными значениями"""
+    limit = await Limitations.query.gino.all()
+    if limit:
+        return
+    else:
+        lim = {
+            "performers": "50"
+        }
+        for k, v in lim.items():
+            limitations = Limitations(value=k, limit=int(v))
+            await limitations.create()

@@ -2,7 +2,7 @@ import logging
 
 from data.models.customers import Customers
 from data.models.performers import Performers, JobsSales
-from data.models.admins import Admins
+from data.models.admins import Admins, Limitations
 from data.models.orders import Commission, CommissionPromo
 
 logger = logging.getLogger("bot.data.commands.customer_set_db")
@@ -98,3 +98,8 @@ async def jobs_sales(jobs, value):
     if jobs == "week":
         week = await JobsSales.query.where(JobsSales.jobs == "week").gino.first()
         await week.update(value=value).apply()
+
+
+async def limitations_for_performers(limit: int):
+    performers = await Limitations.query.where(Limitations.value == "performers").gino.first()
+    await performers.update(limit=limit).apply()
