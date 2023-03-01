@@ -424,10 +424,10 @@ class AdminStats:
         if message.text == "По исполнителям":
             await bot.send_message(message.from_user.id, "Выгружаем статистику по Исполнителям")
             res_performers = await general_get.all_performers()
-            res_completed = await general_get.all_completed_orders()
+            completed = [i.completed_orders for i in res_performers]
             await bot.send_message(message.from_user.id,
                                    f"Всего Исполнителей: {len(res_performers)}\n"
-                                   f"Всего заказов выполнено: {len(res_completed)}")
+                                   f"Всего заказов выполнено: {sum(completed)}")
         if message.text == "По категориям":
             await bot.send_message(message.from_user.id,
                                    "Выгружаем статистику по категориям")
@@ -440,8 +440,7 @@ class AdminStats:
         if message.text == "По деньгам":
             await bot.send_message(message.from_user.id,
                                    "Выгружаем статистику по деньгам")
-            money = 0
-            result = [money + i.money_added for i in res_performers]
+            result = [i.money_added for i in res_performers]
             await bot.send_message(message.from_user.id,
                                    f"Всего заработано: {sum(result)}")
         if message.text == "Назад":
