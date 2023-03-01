@@ -91,7 +91,7 @@ def back():
 def statistics():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("По заказчикам", "По исполнителям")
-    keyboard.row("По категориям")
+    keyboard.row("По категориям", "По деньгам")
     keyboard.row("Назад")
     return keyboard
 

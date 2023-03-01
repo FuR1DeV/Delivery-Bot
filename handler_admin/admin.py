@@ -414,6 +414,7 @@ class AdminStats:
     @staticmethod
     async def stat_main(message: types.Message):
         res_orders = await general_get.all_orders()
+        res_performers = await general_get.all_performers()
         if message.text == "По заказчикам":
             await bot.send_message(message.from_user.id, "Выгружаем статистику по Заказчикам")
             res_customers = await general_get.all_customers()
@@ -428,14 +429,21 @@ class AdminStats:
                                    f"Всего Исполнителей: {len(res_performers)}\n"
                                    f"Всего заказов выполнено: {len(res_completed)}")
         if message.text == "По категориям":
-            await bot.send_message(message.from_user.id, "Выгружаем статистику по категориям")
-
+            await bot.send_message(message.from_user.id,
+                                   "Выгружаем статистику по категориям")
             res_orders_category = Counter([i.category_delivery for i in res_orders]).most_common()
             await bot.send_message(message.from_user.id,
                                    f"Созданные заказы по категориям:")
             for i in res_orders_category:
                 await bot.send_message(message.from_user.id,
                                        f"{i[0]} - {i[1]}")
+        if message.text == "По деньгам":
+            await bot.send_message(message.from_user.id,
+                                   "Выгружаем статистику по деньгам")
+            money = 0
+            result = [money + i.money_added for i in res_performers]
+            await bot.send_message(message.from_user.id,
+                                   f"Всего заработано: {sum(result)}")
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы можете просмотреть заказ, отзывы и информацию об участниках",
