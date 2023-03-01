@@ -874,24 +874,6 @@ class CustomerDetailsTasksChange:
 class CustomerDetailsTasksStatus:
     @staticmethod
     async def details_status(message: types.Message, state: FSMContext):
-        # if "Отменить заказ" in message.text:
-        #     async with state.proxy() as data:
-        #         status = await general_get.check_details_status(data.get("order_id"))
-        #     if status is None:
-        #         await bot.send_message(message.from_user.id,
-        #                                "Заказ закрыт",
-        #                                reply_markup=markup_customer.main_menu())
-        #         await customer_states.CustomerStart.customer_menu.set()
-        #     if status:
-        #         if status.customer_status:
-        #             await bot.send_message(message.from_user.id,
-        #                                    "Вы уже не сможете отменить заказ так как вы его завершили",
-        #                                    reply_markup=markup_customer.details_task_status())
-        #             await customer_states.CustomerDetailsTasksStatus.enter_status.set()
-        #         else:
-        #             await bot.send_message(message.from_user.id,
-        #                                    "Вы хотите отменить заказ ?",
-        #                                    reply_markup=markup_customer.inline_cancel_task())
         if "Завершить заказ" in message.text:
             async with state.proxy() as data:
                 status = await general_get.check_details_status(data.get("order_id"))
@@ -995,22 +977,19 @@ class CustomerDetailsTasksStatus:
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         async with state.proxy() as data:
             await bot.send_message(data.get("user_id"),
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
-            await bot.send_message(data.get("user_id"),
+                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}\n"
                                    f"Ваша задача <b>{data.get('order_id')}</b> "
                                    f"была помечена Заказчиком как выполненная!\n"
                                    f"Посмотрите в разделе 'Проверить статус заказа'\n"
                                    f"Если Заказчик и Исполнитель завершили заказ, "
-                                   f"то заказ будет перемещен в раздел Завершенных заказов")
-            await bot.send_message(data.get("user_id"),
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
-            await customers_set.customer_set_order_status(data.get("order_id"))
+                                   f"то заказ будет перемещен в раздел Завершенных заказов\n"
+                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}")
+            await customers_set.customer_set_order_status(data.get("order_id"),
+                                                          datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
         await bot.send_message(callback.from_user.id,
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
-        await bot.send_message(callback.from_user.id,
-                               "Отлично! Вы установили статус заказа завершенным")
-        await bot.send_message(callback.from_user.id,
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
+                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}\n"
+                               f"Отлично! Вы установили статус заказа завершенным\n"
+                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}")
         await bot.send_message(callback.from_user.id,
                                "Оцените исполнителя",
                                reply_markup=markup_customer.rating())

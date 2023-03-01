@@ -63,7 +63,7 @@ class PerformerTasks:
                                            f"{config.KEYBOARD.get('DOLLAR')} "
                                            f"Цена - <b>{i.price}</b>\n"
                                            f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                           f"ID заказа - <b>{i.order_id}</b>\n"
+                                           f"ID заказа - <code>{i.order_id}</code>\n"
                                            f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                            f"Заказ создан: <b>{i.order_create}</b>\n"
                                            f"{config.KEYBOARD.get('BAR_CHART')} "
@@ -500,7 +500,7 @@ class PerformerDetailsTasks:
                                        f"{config.KEYBOARD.get('STOPWATCH')} "
                                        f"Начало работ: <b>{order.start_time}</b>\n"
                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                       f"ID заказа - <b>{order.order_id}</b>\n"
+                                       f"ID заказа - <code>{order.order_id}</code>\n"
                                        f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
                                        f"Заказ создан: <b>{order.order_create}</b>\n"
                                        f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
@@ -629,7 +629,7 @@ class PerformerDetailsTasks:
                                        f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
                                        f"Категория - <b>{order.category_delivery}</b>\n"
                                        f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                       f"ID заказа - <b>{order.order_id}</b>\n"
+                                       f"ID заказа - <code>{order.order_id}</code>\n"
                                        f"{config.KEYBOARD.get('A_BUTTON')} "
                                        f"Откуда - <a href='https://yandex.ru/maps/?text="
                                        f"{'+'.join(order.geo_position_from.split())}'>"
@@ -894,22 +894,19 @@ class PerformerDetailsTasksStatus:
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         async with state.proxy() as data:
             await bot.send_message(data.get("user_id"),
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
-            await bot.send_message(data.get("user_id"),
+                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}\n"
                                    f"Ваша задача <b>{data.get('order_id')}</b> "
                                    f"была помечена Исполнителем как выполненная!\n"
                                    f"Посмотрите в разделе 'Проверить статус заказа'\n"
                                    f"Если Заказчик и Исполнитель завершили заказ, "
-                                   f"то заказ будет перемещен в раздел Завершенных заказов")
-            await bot.send_message(data.get("user_id"),
-                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
-            await performers_set.performer_set_order_status(data.get("order_id"))
+                                   f"то заказ будет перемещен в раздел Завершенных заказов\n"
+                                   f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}")
+            await performers_set.performer_set_order_status(data.get("order_id"),
+                                                            datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
         await bot.send_message(callback.from_user.id,
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
-        await bot.send_message(callback.from_user.id,
-                               "Отлично! Вы установили статус заказа завершенным")
-        await bot.send_message(callback.from_user.id,
-                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 14}")
+                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}\n"
+                               "Отлично! Вы установили статус заказа завершенным\n"
+                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON') * 10}")
         await bot.send_message(callback.from_user.id,
                                "Оцените заказчика",
                                reply_markup=markup_performer.rating())

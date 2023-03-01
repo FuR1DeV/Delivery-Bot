@@ -154,7 +154,9 @@ async def delete_expired_promo(user_id):
 
 async def delete_expired_auto_send(user_id):
     auto_send = await AutoSendJobOffer.query.where(AutoSendJobOffer.user_id == user_id).gino.first()
+    performer = await Performers.query.where(Performers.user_id == user_id).gino.first()
     await auto_send.delete()
+    await performer.update(auto_send=0).apply()
 
 
 async def delete_expired_jobs(user_id):

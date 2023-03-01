@@ -955,7 +955,7 @@ class CustomerCreateTaskComp:
             if performers:
                 for i in performers:
                     try:
-                        loc_a = geolocator.geocode(data.get("geo_data_from"))
+                        loc_a = geolocator.geocode(data.get("geo_data_from_comp"))
                         loc_a = loc_a.latitude, loc_a.longitude
                         location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
                     except AttributeError:
@@ -1046,7 +1046,7 @@ class CustomerCreateTaskComp:
                 if performers:
                     for i in performers:
                         try:
-                            loc_a = geolocator.geocode(data.get("geo_data_from"))
+                            loc_a = geolocator.geocode(data.get("geo_data_from_comp"))
                             loc_a = loc_a.latitude, loc_a.longitude
                             location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
                         except AttributeError:
@@ -1122,7 +1122,7 @@ class CustomerCreateTaskComp:
             if performers:
                 for i in performers:
                     try:
-                        loc_a = geolocator.geocode(data.get("geo_data_from"))
+                        loc_a = geolocator.geocode(data.get("geo_data_from_comp"))
                         loc_a = loc_a.latitude, loc_a.longitude
                         location_result = f"{round(distance.distance(loc_a, i.geo_position).km, 2)} км"
                     except AttributeError:

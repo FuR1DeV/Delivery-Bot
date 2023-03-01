@@ -18,6 +18,12 @@ def register_admin_handler(disp: Dispatcher):
     disp.register_message_handler(AdminOrders.enter_orders, state=states.Orders.enter)
     disp.register_message_handler(AdminOrders.order, state=states.Orders.order)
     disp.register_message_handler(AdminOrders.order_details, state=states.Orders.detail_order)
+    disp.register_callback_query_handler(AdminOrders.admin_close_performer_order,
+                                         state=["*"],
+                                         text_contains="admin_close_performer_order_")
+    disp.register_callback_query_handler(AdminOrders.admin_close_customer_order,
+                                         state=["*"],
+                                         text_contains="admin_close_customer_order_")
 
     """Admin Stats"""
     disp.register_message_handler(AdminStats.stat_main, state=states.Statistics.enter)

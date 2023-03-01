@@ -7,7 +7,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import InputFile, ParseMode
 
 from bot import bot
-from data.commands import general_get, admins_get, admins_set
+from data.commands import general_get, admins_get, admins_set, performers_set, customers_set
 from markups import markup_admin
 from settings import config
 from settings.config import KEYBOARD
@@ -396,23 +396,61 @@ class AdminOrders:
                                  review_res.rating_from_customer, review_res.rating_from_performer])
                 writer.writerow(['Table customer'])
                 writer.writerow(["id", "user_id", "username", "telephone", "first_name", "last_name",
-                                 "customer_rating", "ban", "created_orders", "canceled_orders"])
-                writer.writerow([customer_res.id, customer_res.username, customer_res.telephone,
+                                 "customer_rating", "created_orders", "canceled_orders"])
+                writer.writerow([customer_res.id, customer_res.user_id, customer_res.username, customer_res.telephone,
                                  customer_res.first_name, customer_res.last_name, customer_res.customer_rating,
                                  customer_res.created_orders, customer_res.canceled_orders])
                 writer.writerow(['Table performer'])
                 writer.writerow(["id", "user_id", "username", "telephone", "first_name", "last_name",
                                  "performer_rating", "get_orders", "canceled_orders"])
                 writer.writerow([performer_res.id, performer_res.user_id, performer_res.username,
-                                 performer_res.first_name, performer_res.last_name, performer_res.performer_rating,
-                                 performer_res.get_orders, performer_res.canceled_orders])
+                                 performer_res.telephone, performer_res.first_name, performer_res.last_name,
+                                 performer_res.performer_rating, performer_res.get_orders,
+                                 performer_res.canceled_orders])
             table_reviews = InputFile(f"logs/table_order_{order.order_id}.csv")
             await bot.send_document(chat_id=message.from_user.id, document=table_reviews)
+        if message.text == "Завершить этот заказ":
+            status = await general_get.check_details_status(data.get("order_id"))
+            if status is None:
+                await bot.send_message(message.from_user.id,
+                                       "Не найдено в статусе заказов\n"
+                                       "Возможно заказ был завершен")
+            if status:
+                await bot.send_message(message.from_user.id,
+                                       f"Исполнитель завершил заказ в {status.performer_status_time}")
+                await bot.send_message(message.from_user.id,
+                                       f"Заказчик завершил заказ в {status.customer_status_time}")
+                if not status.performer_status:
+                    await bot.send_message(message.from_user.id,
+                                           f"Завершить Заказ от лица Исполнителя ?",
+                                           reply_markup=markup_admin.close_order_from_performer(status.order_id))
+                if not status.customer_status:
+                    await bot.send_message(message.from_user.id,
+                                           f"Завершить Заказ от лица Заказчика ?",
+                                           reply_markup=markup_admin.close_order_from_customer(status.order_id))
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Здесь вы сможете просмотреть все заказы, статистику, и отзывы",
                                    reply_markup=markup_admin.enter_id())
             await states.Orders.enter.set()
+
+    @staticmethod
+    async def admin_close_performer_order(callback: types.CallbackQuery):
+        order_id = callback.data[28:]
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await performers_set.performer_set_order_status(order_id,
+                                                        datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+        await bot.send_message(callback.from_user.id,
+                               "Вы успешно завершили Заказ от лица Исполнителя")
+
+    @staticmethod
+    async def admin_close_customer_order(callback: types.CallbackQuery):
+        order_id = callback.data[27:]
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await customers_set.customer_set_order_status(order_id,
+                                                      datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
+        await bot.send_message(callback.from_user.id,
+                               "Вы успешно завершили Заказ от лица Заказчика")
 
 
 class AdminStats:

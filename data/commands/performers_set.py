@@ -75,10 +75,10 @@ async def performer_set_commission_for_cancel(user_id, commission):
     await performer.update(performer_money=money).apply()
 
 
-async def performer_set_order_status(order_id):
+async def performer_set_order_status(order_id, time):
     """Исполнитель ставит выполнено в состоянии заказа"""
     order_status = await general_get.check_details_status(order_id)
-    await order_status.update(performer_status=1).apply()
+    await order_status.update(performer_status=1, performer_status_time=time).apply()
 
 
 async def performer_set_rating_to_customer(user_id, input_performer):

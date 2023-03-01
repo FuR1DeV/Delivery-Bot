@@ -63,10 +63,10 @@ async def customer_cancel_order(order_id, user_id):
         await order_loading.delete()
 
 
-async def customer_set_order_status(order_id):
+async def customer_set_order_status(order_id, time):
     """Заказчик ставит выполнено в состоянии заказа"""
     order_status = await OrdersStatus.query.where(OrdersStatus.order_id == order_id).gino.first()
-    await order_status.update(customer_status=1).apply()
+    await order_status.update(customer_status=1, customer_status_time=time).apply()
 
 
 async def customer_set_rating_to_performer(user_id, input_customer):

@@ -57,7 +57,9 @@ class OrdersStatus(BaseModel):
     __tablename__ = "orders_status"
     id = Column(Integer, primary_key=True, nullable=False)
     performer_status = Column(Integer, server_default="0")
+    performer_status_time = Column(String)
     customer_status = Column(Integer, server_default="0")
+    customer_status_time = Column(String)
     order_id = Column(String, nullable=False, unique=True)
     performer_arrive = Column(String, server_default="3")
     customer_arrive = Column(String, server_default="3")

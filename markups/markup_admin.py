@@ -108,7 +108,7 @@ def order():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("Просмотр Заказчика", "Просмотр Исполнителя", "Просмотр Отзывов")
     keyboard.row("Детали Заказа", "Просмотр Фото", "Просмотр Видео")
-    keyboard.row("Выгрузить БД этого заказа")
+    keyboard.row("Выгрузить БД этого заказа", "Завершить этот заказ")
     keyboard.row("Назад")
     return keyboard
 
@@ -193,4 +193,20 @@ def advert():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("Для Заказчиков", "Для Исполнителей")
     keyboard.row("Назад")
+    return keyboard
+
+
+def close_order_from_performer(order_id):
+    keyboard = InlineKeyboardMarkup()
+    time_1 = InlineKeyboardButton(text="Завершить от Исполнителя",
+                                  callback_data=f"admin_close_performer_order_{order_id}")
+    keyboard.insert(time_1)
+    return keyboard
+
+
+def close_order_from_customer(order_id):
+    keyboard = InlineKeyboardMarkup()
+    time_1 = InlineKeyboardButton(text="Завершить от Заказчика",
+                                  callback_data=f"admin_close_customer_order_{order_id}")
+    keyboard.insert(time_1)
     return keyboard
