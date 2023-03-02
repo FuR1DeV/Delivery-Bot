@@ -15,8 +15,15 @@ def register_customer(disp: Dispatcher):
     disp.register_callback_query_handler(CustomerMain.hi_customer, text='customer')
     disp.register_message_handler(CustomerMain.main, state=customer_states.CustomerStart.start)
     disp.register_message_handler(CustomerMain.customer_menu, state=customer_states.CustomerStart.customer_menu)
-    disp.register_callback_query_handler(CustomerMain.customer_approve, state=["*"], text='customer_yes')
-    disp.register_callback_query_handler(CustomerMain.customer_decline, state=["*"], text='customer_no')
+    disp.register_callback_query_handler(CustomerMain.customer_approve,
+                                         state=["*"],
+                                         text_contains='-customer_yes-')
+    disp.register_callback_query_handler(CustomerMain.customer_decline,
+                                         state=["*"],
+                                         text='customer_no')
+    disp.register_callback_query_handler(CustomerMain.customer_view_perf_profile,
+                                         state=["*"],
+                                         text_contains='customer_view_perf_profile_')
     disp.register_callback_query_handler(CustomerMain.proposal_from_performer_yes, state=["*"], text='proposal_yes')
     disp.register_callback_query_handler(CustomerMain.proposal_from_performer_no, state=["*"], text='proposal_no')
     disp.register_callback_query_handler(CustomerMain.choose_month,

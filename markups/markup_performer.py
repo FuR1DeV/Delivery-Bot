@@ -69,14 +69,17 @@ def inline_approve_loading_yes_no(order_id):
     return approve_
 
 
-def inline_approve_main():
+def inline_approve_main(order_id, performer_id):
     approve_ = InlineKeyboardMarkup()
     get = InlineKeyboardButton(text='Соглашаюсь',
-                               callback_data='customer_yes')
+                               callback_data=f'{performer_id}-customer_yes-{order_id}')
     decline = InlineKeyboardButton(text='Отказаться',
                                    callback_data='customer_no')
+    view = InlineKeyboardButton(text='Его профиль',
+                                callback_data=f'customer_view_perf_profile_{performer_id}')
     approve_.insert(get)
     approve_.insert(decline)
+    approve_.insert(view)
     return approve_
 
 

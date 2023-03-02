@@ -200,17 +200,27 @@ class PerformerTasks:
                                    "У вас отрицательный баланс!")
         else:
             order_id = callback.data[14:]
+            geolocator = Nominatim(user_agent=f"FlowWork_{callback.from_user.id}")
+            order = await general_get.order_select(order_id)
             customer_id = await performers_get.performer_checks_customer_user_id(order_id)
+            try:
+                loc_a = geolocator.geocode(order.geo_position_from)
+                loc_a = loc_a.latitude, loc_a.longitude
+                location_result = f"{round(distance.distance(loc_a, performer.geo_position).km, 2)} км"
+            except AttributeError:
+                location_result = f"Не получилось определить {config.KEYBOARD.get('FROWNING_FACE')}"
+
             """Здесь надо придумать как оповестить по СМС заказчику о том что его заказ хотят взять"""
             await bot.send_message(customer_id, f"Ваш заказ <b>{order_id}</b> хочет взять Исполнитель!\n"
                                                 f"Его рейтинг - <b>{performer.performer_rating}</b>\n"
-                                                f"Никнейм - <b>@{callback.from_user.username}</b>\n"
                                                 f"Имя - <b>{callback.from_user.first_name}</b>\n"
                                                 f"Фамилия - <b>{callback.from_user.last_name}</b>\n"
                                                 f"Заказов взял - <b>{performer.get_orders}</b>\n"
                                                 f"Заказов выполнил - <b>{performer.completed_orders}</b>\n"
-                                                f"ID Исполнителя - <b>{callback.from_user.id}</b>",
-                                   reply_markup=markup_performer.inline_approve_main())
+                                                f"Исполнитель находится от точки <b>А</b> в радиусе "
+                                                f"<b>{location_result}</b>",
+                                   reply_markup=markup_performer.inline_approve_main(order_id,
+                                                                                     callback.from_user.id))
             await performer_states.PerformerStart.performer_menu.set()
             await bot.send_message(callback.from_user.id,
                                    f"Отклик отправлен! Ожидайте ответа Заказчика")

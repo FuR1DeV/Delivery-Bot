@@ -641,20 +641,21 @@ class CustomerMain:
 
     @staticmethod
     async def customer_approve(callback: types.CallbackQuery):
-        res = callback.message.text.split()
+        res = callback.data.split("-")
+        order_id, performer_id = res[2], int(res[0])
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
-        exist = await customers_get.customer_get_status_order(res[2])
+        exist = await customers_get.customer_get_status_order(order_id)
         if exist:
             await bot.send_message(callback.from_user.id,
                                    "Вы уже взяли Исполнителя!")
         else:
-            await bot.send_message(res[-1],
+            await bot.send_message(performer_id,
                                    f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK') * 5}\n"
                                    f"Заказчик <b>{callback.from_user.id}</b> "
                                    f"одобрил ваш запрос по заказу <b>{res[2]}\n</b>"
                                    f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK') * 5}")
-            await performers_set.performer_set_order(int(res[-1]),
-                                                     res[2],
+            await performers_set.performer_set_order(performer_id,
+                                                     order_id,
                                                      datetime.now().strftime('%d-%m-%Y, %H:%M:%S'))
             await bot.send_message(callback.from_user.id,
                                    "Вы взяли Исполнителя!")
@@ -676,6 +677,16 @@ class CustomerMain:
                                f"не одобрил ваш запрос по заказу <b>{res[2]}</b>. "
                                f"Возможно ему не понравился ваш рейтинг "
                                f"{config.KEYBOARD.get('CROSS_MARK')}")
+
+    @staticmethod
+    async def customer_view_perf_profile(callback: types.CallbackQuery):
+        performer_id = int(callback.data[27:])
+        personal_data = await customers_get.customer_check_personal_data(performer_id)
+        await bot.send_message(callback.from_user.id,
+                               f"Имя - {personal_data.real_first_name}\n"
+                               f"Фамилия - {personal_data.real_last_name}")
+        await bot.send_photo(callback.from_user.id,
+                             personal_data.selfie)
 
     @staticmethod
     async def proposal_from_performer_yes(callback: types.CallbackQuery):

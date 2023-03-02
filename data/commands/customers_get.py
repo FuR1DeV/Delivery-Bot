@@ -4,6 +4,7 @@ from sqlalchemy import and_
 
 from data.models.customers import Customers
 from data.models.orders import Orders, OrdersStatus, OrdersLoading
+from data.models.performers import PerformerPersonalData
 
 logger = logging.getLogger("bot.data.commands.customer_get_db")
 
@@ -120,3 +121,8 @@ async def customer_get_complete_order(order_id):
     order = await Orders.query.where(and_(Orders.order_id == order_id,
                                           Orders.completed == 1)).gino.first()
     return order
+
+
+async def customer_check_personal_data(user_id):
+    performer = await PerformerPersonalData.query.where(PerformerPersonalData.user_id == user_id).gino.first()
+    return performer
