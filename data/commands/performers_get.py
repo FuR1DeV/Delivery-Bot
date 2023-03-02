@@ -4,7 +4,7 @@ from sqlalchemy import and_, or_
 
 from data.models.orders import Orders, OrdersRating, OrdersStatus, OrdersLoading, CommissionPromo
 from data.models.performers import Performers, PerformerPersonalData, AutoSendJobOffer, JobsSales, JobsOffers
-from data.models.admins import PrivateChat
+from data.models.admins import PrivateChat, Limitations
 
 logger = logging.getLogger("bot.data.commands.performer_get_db")
 
@@ -228,3 +228,8 @@ async def check_job_sale(job):
 async def performer_check_jobs_offers(user_id):
     exist = await JobsOffers.query.where(JobsOffers.user_id == user_id).gino.first()
     return exist
+
+
+async def performer_check_add_money_limit():
+    add_money = await Limitations.query.where(Limitations.value == "add_money").gino.first()
+    return add_money

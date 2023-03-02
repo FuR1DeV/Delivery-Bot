@@ -59,3 +59,4 @@ class Advert(StatesGroup):
 class Limitations(StatesGroup):
     enter: State = State()
     performers: State = State()
+    add_money: State = State()

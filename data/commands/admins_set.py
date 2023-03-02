@@ -103,3 +103,8 @@ async def jobs_sales(jobs, value):
 async def limitations_for_performers(limit: int):
     performers = await Limitations.query.where(Limitations.value == "performers").gino.first()
     await performers.update(limit=limit).apply()
+
+
+async def limitations_for_add_money(limit: int):
+    performers = await Limitations.query.where(Limitations.value == "add_money").gino.first()
+    await performers.update(limit=limit).apply()

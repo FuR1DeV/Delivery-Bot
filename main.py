@@ -43,8 +43,7 @@ logger = logging.getLogger("bot.main")
 async def start(message: types.Message, state: FSMContext):
     await bot.send_message(message.from_user.id,
                            f'<b>Добро пожаловать в Telegram Bot который поможет найти исполнителя '
-                           f'или подзаработать</b>\n'
-                           f'<b>В ДАННЫЙ МОМЕНТ ИДЁТ БЕТА-ТЕСТИРОВАНИЕ БОТА</b>\n',
+                           f'или подзаработать</b>\n',
                            reply_markup=markup_start.markup_clean)
     await state.finish()
     await bot.send_message(message.from_user.id,

@@ -1265,11 +1265,16 @@ class AdminControl:
                 await bot.send_message(message.from_user.id,
                                        f"Категория - {i.value} | "
                                        f"Ограничение - {i.limit}")
-        if message.text == "Установить ограничение для Исполнителя":
+        if message.text == "Максимальное кол-во Исполнителей":
             await bot.send_message(message.from_user.id,
                                    "Установите максимальное количество Исполнителей",
                                    reply_markup=markup_admin.back())
             await states.Limitations.performers.set()
+        if message.text == "Пополнение счёт":
+            await bot.send_message(message.from_user.id,
+                                   "Установите минимальное пополнение счёта",
+                                   reply_markup=markup_admin.back())
+            await states.Limitations.add_money.set()
         if message.text == "Назад":
             await bot.send_message(message.from_user.id,
                                    "Вы находитесь в меню Управление пользователями",
@@ -1282,6 +1287,19 @@ class AdminControl:
             await admins_set.limitations_for_performers(int(message.text))
             await bot.send_message(message.from_user.id,
                                    f"Установлено максимальное кол-во Исполнителей "
+                                   f"в размере - {message.text}",
+                                   reply_markup=markup_admin.limitations())
+            await states.Limitations.enter.set()
+        else:
+            await bot.send_message(message.from_user.id,
+                                   "Надо ввести цифру")
+
+    @staticmethod
+    async def minimum_add_money(message: types.Message):
+        if message.text.isdigit():
+            await admins_set.limitations_for_add_money(int(message.text))
+            await bot.send_message(message.from_user.id,
+                                   f"Установлено минимальное пополнение счёта "
                                    f"в размере - {message.text}",
                                    reply_markup=markup_admin.limitations())
             await states.Limitations.enter.set()

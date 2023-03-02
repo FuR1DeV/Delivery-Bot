@@ -54,7 +54,8 @@ class PerformerMain:
                     time_result = time2 - time1
                     await bot.send_message(callback.from_user.id,
                                            f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}\n"
-                                           f"{config.KEYBOARD.get('WORLD_MAP')} Ваша геопозиция обновлялась последний раз "
+                                           f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                           f"Ваша геопозиция обновлялась последний раз "
                                            f"{str(time_result)[:-7]} назад",
                                            reply_markup=markup_performer.main_menu(jobs))
             elif performer_p_d is None:
@@ -674,8 +675,9 @@ class PerformerProfile:
                 await performer_states.PerformerProfile.change_status.set()
         if "Пополнить баланс" in message.text:
             await general_set.get_payment_exists_and_delete(message.from_user.id)
+            add_money = await performers_get.performer_check_add_money_limit()
             await bot.send_message(message.from_user.id,
-                                   "Пополнение баланса должно быть не меньше <b>500</b> рублей!"
+                                   f"Пополнение баланса должно быть не меньше <b>{add_money.limit}</b> рублей!"
                                    "Введите сумму, на которую вы хотите пополнить баланс",
                                    reply_markup=markup_performer.back_user_profile())
             await bot.send_message(message.from_user.id,
@@ -926,7 +928,8 @@ class PerformerProfile:
                                        "<b>Это значит что вы не можете искать заказы</b>\n"
                                        "<b>Автоотправление сообщений о новых заказах отключено!</b>")
         if f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в Мой профиль" != message.text:
-            if message.text.isdigit() and int(message.text) >= 500:
+            add_money = await performers_get.performer_check_add_money_limit()
+            if message.text.isdigit() and int(message.text) >= add_money.limit:
                 message_money = int(message.text)
                 comment = f"Выставлен счёт для {message.from_user.first_name}_{randint(1, 10000)}"
                 bill = config.P2P.bill(amount=message_money, lifetime=5, comment=comment)
@@ -944,7 +947,7 @@ class PerformerProfile:
                                                                               bill=bill.bill_id))
             else:
                 await bot.send_message(message.from_user.id,
-                                       "Пополнение баланса должно быть не меньше <b>500</b> рублей!")
+                                       f"Пополнение баланса должно быть не меньше <b>{add_money.limit}</b> рублей!")
 
     @staticmethod
     async def check(callback: types.CallbackQuery, state: FSMContext):

@@ -61,6 +61,7 @@ def register_admin_handler(disp: Dispatcher):
     disp.register_message_handler(AdminControl.find_telephone, state=states.AboutUsers.find_telephone)
     disp.register_message_handler(AdminControl.limitations, state=states.Limitations.enter)
     disp.register_message_handler(AdminControl.performers_limitations, state=states.Limitations.performers)
+    disp.register_message_handler(AdminControl.minimum_add_money, state=states.Limitations.add_money)
 
     """Admin Jobs"""
     disp.register_message_handler(AdminJobs.jobs, state=states.AdminStates.jobs)

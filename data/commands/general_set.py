@@ -209,7 +209,8 @@ async def create_limitations():
         return
     else:
         lim = {
-            "performers": "50"
+            "performers": "50",
+            "add_money": "200"
         }
         for k, v in lim.items():
             limitations = Limitations(value=k, limit=int(v))

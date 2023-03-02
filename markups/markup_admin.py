@@ -183,8 +183,8 @@ def user_control():
 
 def limitations():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row("Просмотр ограничений")
-    keyboard.row("Установить ограничение для Исполнителя")
+    keyboard.row("Просмотр ограничений", "Пополнение счёт")
+    keyboard.row("Максимальное кол-во Исполнителей")
     keyboard.row("Назад")
     return keyboard
 
