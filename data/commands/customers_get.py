@@ -18,11 +18,12 @@ async def customer_select(user_id):
 
 async def customer_view_order(order_id) -> tuple:
     order = await Orders.query.where(Orders.order_id == order_id).gino.first()
-    order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
     if order:
         return order, "order"
-    if order_loading:
-        return order_loading, "order_loading"
+    else:
+        order_loading = await OrdersLoading.query.where(OrdersLoading.order_id == order_id).gino.first()
+        if order_loading:
+            return order_loading, "order_loading"
 
 
 async def customer_all_orders(user_id):

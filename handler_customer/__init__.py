@@ -24,6 +24,12 @@ def register_customer(disp: Dispatcher):
     disp.register_callback_query_handler(CustomerMain.customer_view_perf_profile,
                                          state=["*"],
                                          text_contains='customer_view_perf_profile_')
+    disp.register_callback_query_handler(CustomerMain.customer_view_photo,
+                                         state=["*"],
+                                         text_contains='customer_view_photo_')
+    disp.register_callback_query_handler(CustomerMain.customer_view_video,
+                                         state=["*"],
+                                         text_contains='customer_view_video_')
     disp.register_callback_query_handler(CustomerMain.proposal_from_performer_yes, state=["*"], text='proposal_yes')
     disp.register_callback_query_handler(CustomerMain.proposal_from_performer_no, state=["*"], text='proposal_no')
     disp.register_callback_query_handler(CustomerMain.choose_month,

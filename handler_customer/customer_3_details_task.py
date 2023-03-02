@@ -98,10 +98,10 @@ class CustomerDetailsTasks:
                                        reply_markup=markup_customer.main_menu())
                 await customer_states.CustomerStart.customer_menu.set()
             else:
-                if res_order.image:
-                    await bot.send_photo(message.from_user.id, res_order.image)
-                if res_order.video:
-                    await bot.send_video(message.from_user.id, res_order.video)
+                # if res_order.image:
+                #     await bot.send_photo(message.from_user.id, res_order.image)
+                # if res_order.video:
+                #     await bot.send_video(message.from_user.id, res_order.video)
                 await bot.send_message(message.from_user.id,
                                        f"{config.KEYBOARD.get('DASH') * 14}\n"
                                        f"<b>Детали заказа</b>\n"
@@ -128,7 +128,8 @@ class CustomerDetailsTasks:
                                        f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
                                        f"Взят <b>{res_order.order_get}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                       disable_web_page_preview=True)
+                                       disable_web_page_preview=True,
+                                       reply_markup=markup_customer.view_photo_video(res_order.order_id))
         if "Статус заказа" in message.text:
             res = await customers_get.customer_get_status_order(data.get("order_id"))
             if res is None:
@@ -178,7 +179,7 @@ class CustomerDetailsTasks:
                                        f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
                                        f"Заказов выполнил - <b>{res_performer.completed_orders}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}",
-                                       )
+                                       reply_markup=markup_customer.perf_personal_data(res_performer.user_id))
         if "Назад" in message.text:
             orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
             orders_at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)

@@ -464,6 +464,25 @@ def customer_type_orders(orders_not_at_work: int, orders_at_work: int, orders_lo
     return keyboard
 
 
+def perf_personal_data(performer_id):
+    approve_ = InlineKeyboardMarkup()
+    view = InlineKeyboardButton(text='Имя Фамилия Селфи',
+                                callback_data=f'customer_view_perf_profile_{performer_id}')
+    approve_.insert(view)
+    return approve_
+
+
+def view_photo_video(order_id):
+    approve_ = InlineKeyboardMarkup()
+    photo = InlineKeyboardButton(text='Фото',
+                                 callback_data=f'customer_view_photo_{order_id}')
+    video = InlineKeyboardButton(text='Видео',
+                                 callback_data=f'customer_view_video_{order_id}')
+    approve_.insert(photo)
+    approve_.insert(video)
+    return approve_
+
+
 def text_menu(orders_not_at_work: int, orders_at_work: int, orders_loading: int):
 
     if orders_at_work + orders_not_at_work + orders_loading == 0:

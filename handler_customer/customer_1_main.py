@@ -689,6 +689,30 @@ class CustomerMain:
                              personal_data.selfie)
 
     @staticmethod
+    async def customer_view_photo(callback: types.CallbackQuery):
+        order_id = callback.data[20:]
+        order = await customers_get.customer_view_order(order_id)
+        if order:
+            if order[0].image:
+                await bot.send_photo(callback.from_user.id,
+                                     order[0].image)
+            else:
+                await bot.send_message(callback.from_user.id,
+                                       "Фото нет!")
+
+    @staticmethod
+    async def customer_view_video(callback: types.CallbackQuery):
+        order_id = callback.data[20:]
+        order = await customers_get.customer_view_order(order_id)
+        if order:
+            if order[0].video:
+                await bot.send_video(callback.from_user.id,
+                                     order[0].video)
+            else:
+                await bot.send_message(callback.from_user.id,
+                                       "Видео нет!")
+
+    @staticmethod
     async def proposal_from_performer_yes(callback: types.CallbackQuery):
         res = callback.message.text.split()
         new_price, order_id, performer_id = res[4], res[11], res[7]
