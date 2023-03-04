@@ -49,15 +49,25 @@ class PerformerMain:
                     promo = await performers_get.check_commission_promo(callback.from_user.id)
                     jobs = await performers_get.performer_check_jobs_offers(callback.from_user.id)
                     performer = await performers_get.performer_select(callback.from_user.id)
-                    time1 = datetime.strptime(performer.time_geo_position, '%d-%m-%Y, %H:%M:%S')
-                    time2 = datetime.now()
-                    time_result = time2 - time1
-                    await bot.send_message(callback.from_user.id,
-                                           f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}\n"
-                                           f"{config.KEYBOARD.get('WORLD_MAP')} "
-                                           f"Ваша геопозиция обновлялась последний раз "
-                                           f"{str(time_result)[:-7]} назад",
-                                           reply_markup=markup_performer.main_menu(jobs))
+                    if performer.geo_position is None:
+                        await bot.send_message(callback.from_user.id,
+                                               "<b>Вам нужно отправить геопозицию!</b>"
+                                               "Нажмите Отправить моё местоположение\n"
+                                               "Или\n"
+                                               "Нажмите скрепку, далее Геопозиция, далее Отправить свою геопозицию\n"
+                                               "<b>Чтобы видеть как далеко вы находитесь от заказов</b>",
+                                               reply_markup=markup_performer.send_my_geo())
+                        await performer_states.PerformerRegister.geo_position.set()
+                    else:
+                        time1 = datetime.strptime(performer.time_geo_position, '%d-%m-%Y, %H:%M:%S')
+                        time2 = datetime.now()
+                        time_result = time2 - time1
+                        await bot.send_message(callback.from_user.id,
+                                               f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}\n"
+                                               f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                               f"Ваша геопозиция обновлялась последний раз "
+                                               f"{str(time_result)[:-7]} назад",
+                                               reply_markup=markup_performer.main_menu(jobs))
             elif performer_p_d is None:
                 await performer_states.PerformerRegister.name.set()
                 await bot.send_message(callback.from_user.id,
