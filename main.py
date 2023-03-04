@@ -155,7 +155,8 @@ async def restart_server_notification():
     for i in customers:
         try:
             await bot.send_message(i.user_id,
-                                   "<b>Сервер перезапустился, нажмите на кнопку старт</b>\n"
+                                   "<b>Сервер перезапустился, нажмите на кнопку старт "
+                                   "чтобы увидеть новые обновления бота</b>\n"
                                    "<b>/start</b>")
         except:
             pass
