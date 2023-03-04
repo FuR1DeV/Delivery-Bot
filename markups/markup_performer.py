@@ -58,6 +58,17 @@ def inline_approve_loading(order_id):
     return approve_
 
 
+def inline_change_status(category):
+    approve_ = InlineKeyboardMarkup()
+    get = InlineKeyboardButton(text='Да',
+                               callback_data=f'performer_change_status_{category}')
+    decline = InlineKeyboardButton(text='Нет',
+                                   callback_data=f'delete_message')
+    approve_.insert(get)
+    approve_.insert(decline)
+    return approve_
+
+
 def inline_approve_loading_yes_no(order_id):
     approve_ = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text='Да',
@@ -265,17 +276,8 @@ def performer_profile(auto_send):
 
 def performer_profile_change_status():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"{KEYBOARD.get('PERSON_RUNNING')} Я пешеход")
-    keyboard.row(f"{KEYBOARD.get('AUTOMOBILE')} Я на транспорте")
-    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
-    return keyboard
-
-
-def performer_profile_change_status_transport():
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"{KEYBOARD.get('AUTOMOBILE')} Я на машине")
-    keyboard.row(f"{KEYBOARD.get('KICK_SCOOTER')} Я на самокате")
-    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    keyboard.row(f"{KEYBOARD.get('PERSON_RUNNING')} Я пешеход", f"{KEYBOARD.get('AUTOMOBILE')} Я на машине")
+    keyboard.row(f"{KEYBOARD.get('KICK_SCOOTER')} Я на самокате", f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 

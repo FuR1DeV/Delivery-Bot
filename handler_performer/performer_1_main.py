@@ -652,27 +652,17 @@ class PerformerProfile:
                                        f"У вас уже действует <b>Автоотправление предложений</b>\n"
                                        f"Время окончания - <b>{performer.end}</b>")
         if "Статус категории" in message.text:
-            res = await performers_get.performer_trying_change_self_category(message.from_user.id)
-            if res:
-                limit = datetime.strptime(res, '%d-%m-%Y, %H:%M:%S')
-                limitation = str(datetime.now() - limit)[:1]
-                if limitation == "-":
-                    await bot.send_message(message.from_user.id,
-                                           f"У вас еще действует ограничение на смену статуса\n"
-                                           f"Ограничение снимется <b>{res}</b>")
-                    await performer_states.PerformerProfile.my_profile.set()
-                if limitation != "-":
-                    await bot.send_message(message.from_user.id,
-                                           "Здесь вы сможете сменить свой статус\n"
-                                           "<b>Статус вы можете сменить только раз в 12 часов</b>",
-                                           reply_markup=markup_performer.performer_profile_change_status())
-                    await performer_states.PerformerProfile.change_status.set()
-            else:
-                await bot.send_message(message.from_user.id,
-                                       "Здесь вы сможете сменить свой статус\n"
-                                       "<b>Статус вы можете сменить только раз в 12 часов</b>",
-                                       reply_markup=markup_performer.performer_profile_change_status())
-                await performer_states.PerformerProfile.change_status.set()
+            await bot.send_message(message.from_user.id,
+                                   "Здесь вы сможете сменить свой статус\n"
+                                   "Если у вас статус <b>На машине</b> то вам доступны заказы - "
+                                   "<b>На машине | На скутере | Пешеход</b>\n"
+                                   "Если у вас статус <b>На скутере</b> то вам доступны заказы - "
+                                   "<b>На скутере | Пешеход</b>\n"
+                                   "Если у вас статус <b>Пешеход</b> то вам доступны заказы "
+                                   "только для <b>Пешехода</b>\n"
+                                   "Статус вы можете сменить только <b>1 раз в 12 часов</b>",
+                                   reply_markup=markup_performer.performer_profile_change_status())
+            await performer_states.PerformerProfile.change_status.set()
         if "Пополнить баланс" in message.text:
             await general_set.get_payment_exists_and_delete(message.from_user.id)
             add_money = await performers_get.performer_check_add_money_limit()
@@ -730,38 +720,17 @@ class PerformerProfile:
     @staticmethod
     async def performer_profile_change_status(message: types.Message):
         if message.text == f"{config.KEYBOARD.get('PERSON_RUNNING')} Я пешеход":
-            await performers_set.performer_set_self_status(message.from_user.id,
-                                                           "pedestrian",
-                                                           (datetime.now() + timedelta(hours=12)).strftime(
-                                                               '%d-%m-%Y, %H:%M:%S'))
             await bot.send_message(message.from_user.id,
-                                   "Теперь ты пешеход!")
-            res = await performers_get.performer_select(message.from_user.id)
-            status = "Пешеход"
-            icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-            await performer_states.PerformerProfile.my_profile.set()
-            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
+                                   "Вы хотите сменить ваш статус категории ?",
+                                   reply_markup=markup_performer.inline_change_status("pedestrian"))
+        if message.text == f"{config.KEYBOARD.get('AUTOMOBILE')} Я на машине":
             await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                   f"Ваш профиль <b>Исполнителя</b>:\n"
-                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                   f"Ваш ID: <b>{res.user_id}</b>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                   f"Ваш никнейм: <b>@{res.username}</b>\n"
-                                   f"{config.KEYBOARD.get('TELEPHONE')} "
-                                   f"Ваш номер: <b>{res.telephone}</b>\n"
-                                   f"{config.KEYBOARD.get('DOLLAR')} "
-                                   f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
-                                   f"{config.KEYBOARD.get('STAR')} "
-                                   f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{icon} Ваша категория: <b>{status}</b>\n"
-                                   f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile(auto_send))
-        if message.text == f"{config.KEYBOARD.get('AUTOMOBILE')} Я на транспорте":
-            await performer_states.PerformerProfile.change_status_transport.set()
+                                   "Вы хотите сменить ваш статус категории ?",
+                                   reply_markup=markup_performer.inline_change_status("car"))
+        if message.text == f"{config.KEYBOARD.get('KICK_SCOOTER')} Я на самокате":
             await bot.send_message(message.from_user.id,
-                                   "Выберите ваш транспорт",
-                                   reply_markup=markup_performer.performer_profile_change_status_transport())
+                                   "Вы хотите сменить ваш статус категории ?",
+                                   reply_markup=markup_performer.inline_change_status("scooter"))
         if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
             res = await performers_get.performer_select(message.from_user.id)
             status = None
@@ -791,6 +760,8 @@ class PerformerProfile:
                                    f"{config.KEYBOARD.get('STAR')} "
                                    f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
+                                   f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                   f"Ваше примерное местоположение: <b>{res.geo_position_name}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
             if res.performer_money < 50:
@@ -800,94 +771,100 @@ class PerformerProfile:
                                        "<b>Автоотправление сообщений о новых заказах отключено!</b>")
 
     @staticmethod
-    async def transport(message: types.Message):
-        if message.text == f"{config.KEYBOARD.get('AUTOMOBILE')} Я на машине":
-            await performers_set.performer_set_self_status(message.from_user.id,
-                                                           "car",
+    async def change_status_category(callback: types.CallbackQuery):
+        category = callback.data[24:]
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        res = await performers_get.performer_trying_change_self_category(callback.from_user.id)
+        if res:
+            limit = datetime.strptime(res, '%d-%m-%Y, %H:%M:%S')
+            limitation = str(datetime.now() - limit)[:1]
+            if limitation == "-":
+                await bot.send_message(callback.from_user.id,
+                                       f"У вас еще действует ограничение на смену статуса\n"
+                                       f"Ограничение снимется <b>{res}</b>")
+        else:
+            await performers_set.performer_set_self_status(callback.from_user.id,
+                                                           category,
                                                            (datetime.now() + timedelta(hours=12)).strftime(
                                                                '%d-%m-%Y, %H:%M:%S'))
-            await bot.send_message(message.from_user.id,
-                                   "Теперь ты на машине!")
-            res = await performers_get.performer_select(message.from_user.id)
-            status = "На машине"
-            icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-            await performer_states.PerformerProfile.my_profile.set()
-            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
-            await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                   f"Ваш профиль <b>Исполнителя</b>:\n"
-                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                   f"Ваш ID: <b>{res.user_id}</b>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                   f"Ваш никнейм: <b>@{res.username}</b>\n"
-                                   f"{config.KEYBOARD.get('TELEPHONE')} "
-                                   f"Ваш номер: <b>{res.telephone}</b>\n"
-                                   f"{config.KEYBOARD.get('DOLLAR')} "
-                                   f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
-                                   f"{config.KEYBOARD.get('STAR')} "
-                                   f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{icon} Ваша категория: <b>{status}</b>\n"
-                                   f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile(auto_send))
-        if message.text == f"{config.KEYBOARD.get('KICK_SCOOTER')} Я на самокате":
-            await performers_set.performer_set_self_status(message.from_user.id,
-                                                           "scooter",
-                                                           (datetime.now() + timedelta(hours=12)).strftime(
-                                                               '%d-%m-%Y, %H:%M:%S'))
-            await bot.send_message(message.from_user.id,
-                                   "Теперь ты на самокате!")
-            res = await performers_get.performer_select(message.from_user.id)
-            status = "На самокате"
-            icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
-            await performer_states.PerformerProfile.my_profile.set()
-            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
-            await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                   f"Ваш профиль <b>Исполнителя</b>:\n"
-                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                   f"Ваш ID: <b>{res.user_id}</b>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                   f"Ваш никнейм: <b>@{res.username}</b>\n"
-                                   f"{config.KEYBOARD.get('TELEPHONE')} "
-                                   f"Ваш номер: <b>{res.telephone}</b>\n"
-                                   f"{config.KEYBOARD.get('DOLLAR')} "
-                                   f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
-                                   f"{config.KEYBOARD.get('STAR')} "
-                                   f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{icon} Ваша категория: <b>{status}</b>\n"
-                                   f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile(auto_send))
-        if message.text == f"{config.KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
-            res = await performers_get.performer_select(message.from_user.id)
-            status = None
-            icon = None
-            if res.performer_category == "pedestrian":
+            if category == "pedestrian":
+                await bot.send_message(callback.from_user.id,
+                                       "Теперь ты пешеход!")
+                res = await performers_get.performer_select(callback.from_user.id)
                 status = "Пешеход"
                 icon = f"{config.KEYBOARD.get('PERSON_RUNNING')}"
-            if res.performer_category == "scooter":
-                status = "На самокате"
-                icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
-            elif res.performer_category == "car":
+                await performer_states.PerformerProfile.my_profile.set()
+                auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
+                await bot.send_message(callback.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"Ваш профиль <b>Исполнителя</b>:\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"Ваш ID: <b>{res.user_id}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Ваш никнейм: <b>@{res.username}</b>\n"
+                                       f"{config.KEYBOARD.get('TELEPHONE')} "
+                                       f"Ваш номер: <b>{res.telephone}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
+                                       f"{config.KEYBOARD.get('STAR')} "
+                                       f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
+                                       f"{icon} Ваша категория: <b>{status}</b>\n"
+                                       f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                       f"Ваше примерное местоположение: <b>{res.geo_position_name}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
+                                       reply_markup=markup_performer.performer_profile(auto_send))
+            if category == "car":
+                await bot.send_message(callback.from_user.id,
+                                       "Теперь ты на машине!")
+                res = await performers_get.performer_select(callback.from_user.id)
                 status = "На машине"
                 icon = f"{config.KEYBOARD.get('AUTOMOBILE')}"
-            await performer_states.PerformerProfile.my_profile.set()
-            auto_send = await performers_get.performer_auto_send_check(message.from_user.id)
-            await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                   f"Ваш профиль <b>Исполнителя</b>:\n"
-                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                   f"Ваш ID: <b>{res.user_id}</b>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                   f"Ваш никнейм: <b>@{res.username}</b>\n"
-                                   f"{config.KEYBOARD.get('TELEPHONE')} "
-                                   f"Ваш номер: <b>{res.telephone}</b>\n"
-                                   f"{config.KEYBOARD.get('DOLLAR')} "
-                                   f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
-                                   f"{config.KEYBOARD.get('STAR')} "
-                                   f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
-                                   f"{icon} Ваша категория: <b>{status}</b>\n"
-                                   f"{config.KEYBOARD.get('DASH') * 14}",
-                                   reply_markup=markup_performer.performer_profile(auto_send))
+                await performer_states.PerformerProfile.my_profile.set()
+                auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
+                await bot.send_message(callback.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"Ваш профиль <b>Исполнителя</b>:\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"Ваш ID: <b>{res.user_id}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Ваш никнейм: <b>@{res.username}</b>\n"
+                                       f"{config.KEYBOARD.get('TELEPHONE')} "
+                                       f"Ваш номер: <b>{res.telephone}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
+                                       f"{config.KEYBOARD.get('STAR')} "
+                                       f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
+                                       f"{icon} Ваша категория: <b>{status}</b>\n"
+                                       f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                       f"Ваше примерное местоположение: <b>{res.geo_position_name}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
+                                       reply_markup=markup_performer.performer_profile(auto_send))
+            if category == "scooter":
+                await bot.send_message(callback.from_user.id,
+                                       "Теперь ты на самокате!")
+                res = await performers_get.performer_select(callback.from_user.id)
+                status = "На самокате"
+                icon = f"{config.KEYBOARD.get('KICK_SCOOTER')}"
+                await performer_states.PerformerProfile.my_profile.set()
+                auto_send = await performers_get.performer_auto_send_check(callback.from_user.id)
+                await bot.send_message(callback.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"Ваш профиль <b>Исполнителя</b>:\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"Ваш ID: <b>{res.user_id}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Ваш никнейм: <b>@{res.username}</b>\n"
+                                       f"{config.KEYBOARD.get('TELEPHONE')} "
+                                       f"Ваш номер: <b>{res.telephone}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Ваш текущий баланс: <b>{res.performer_money}</b> руб.\n"
+                                       f"{config.KEYBOARD.get('STAR')} "
+                                       f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
+                                       f"{icon} Ваша категория: <b>{status}</b>\n"
+                                       f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                       f"Ваше примерное местоположение: <b>{res.geo_position_name}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}",
+                                       reply_markup=markup_performer.performer_profile(auto_send))
 
     @staticmethod
     async def pay(message: types.Message, state: FSMContext):
@@ -920,6 +897,8 @@ class PerformerProfile:
                                    f"{config.KEYBOARD.get('STAR')} "
                                    f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
                                    f"{icon} Ваша категория: <b>{status}</b>\n"
+                                   f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                   f"Ваше примерное местоположение: <b>{res.geo_position_name}</b>\n"
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_performer.performer_profile(auto_send))
             if res.performer_money < 50:
@@ -993,6 +972,8 @@ class PerformerProfile:
                                        f"{config.KEYBOARD.get('STAR')} "
                                        f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
                                        f"{icon} Ваша категория: <b>{status}</b>\n"
+                                       f"{config.KEYBOARD.get('WORLD_MAP')} "
+                                       f"Ваше примерное местоположение: <b>{res.geo_position_name}</b>\n"
                                        f"{config.KEYBOARD.get('DASH') * 14}",
                                        reply_markup=markup_performer.performer_profile(auto_send))
                 await performer_states.PerformerProfile.my_profile.set()
@@ -1041,6 +1022,12 @@ class PerformerProfile:
                                f"{config.KEYBOARD.get('STAR')} "
                                f"Ваш рейтинг: <b>{res.performer_rating}</b>\n"
                                f"{icon} Ваша категория: <b>{status}</b>\n"
+                               f"{config.KEYBOARD.get('WORLD_MAP')} "
+                               f"Ваше примерное местоположение: <b>{res.geo_position_name}</b>\n"
                                f"{config.KEYBOARD.get('DASH') * 14}",
                                reply_markup=markup_performer.performer_profile(auto_send))
         await performer_states.PerformerProfile.my_profile.set()
+
+    @staticmethod
+    async def delete_message(callback: types.CallbackQuery):
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)

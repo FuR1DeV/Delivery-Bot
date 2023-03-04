@@ -28,7 +28,6 @@ class PerformerProfile(StatesGroup):
     my_profile: State = State()
     balance: State = State()
     change_status: State = State()
-    change_status_transport: State = State()
     pay: State = State()
 
 

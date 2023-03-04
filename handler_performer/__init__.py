@@ -50,8 +50,6 @@ def register_performer(disp: Dispatcher):
                                   state=performer_states.PerformerProfile.my_profile)
     disp.register_message_handler(PerformerProfile.performer_profile_change_status,
                                   state=performer_states.PerformerProfile.change_status)
-    disp.register_message_handler(PerformerProfile.transport,
-                                  state=performer_states.PerformerProfile.change_status_transport)
     disp.register_message_handler(PerformerProfile.pay,
                                   state=performer_states.PerformerProfile.pay)
     disp.register_callback_query_handler(PerformerProfile.check,
@@ -62,6 +60,12 @@ def register_performer(disp: Dispatcher):
                                          state=performer_states.PerformerProfile.pay)
     disp.register_callback_query_handler(PerformerProfile.auto_send_job_offer,
                                          text_contains='auto_send_pay_',
+                                         state=["*"])
+    disp.register_callback_query_handler(PerformerProfile.change_status_category,
+                                         text_contains='performer_change_status',
+                                         state=["*"])
+    disp.register_callback_query_handler(PerformerProfile.delete_message,
+                                         text='delete_message',
                                          state=["*"])
 
     # performer_tasks

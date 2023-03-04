@@ -142,6 +142,25 @@ async def scheduler():
         await asyncio.sleep(1)
 
 
+async def restart_server_notification():
+    performers = await general_get.all_performers()
+    customers = await general_get.all_customers()
+    for i in performers:
+        try:
+            await bot.send_message(i.user_id,
+                                   "<b>Сервер перезапустился, нажмите на кнопку старт</b>\n"
+                                   "<b>/start</b>")
+        except:
+            pass
+    for i in customers:
+        try:
+            await bot.send_message(i.user_id,
+                                   "<b>Сервер перезапустился, нажмите на кнопку старт</b>\n"
+                                   "<b>/start</b>")
+        except:
+            pass
+
+
 async def on_startup(_):
     asyncio.create_task(scheduler())
 
@@ -158,6 +177,7 @@ async def on_startup(_):
     await general_set.create_commission()
     await general_set.create_jobs_sales()
     await general_set.create_limitations()
+    await restart_server_notification()
 
     """Регистрация хэндлеров"""
     register_customer(dp)
