@@ -76,7 +76,7 @@ class PerformerTasks:
                                            disable_web_page_preview=True)
             else:
                 await bot.send_message(message.from_user.id,
-                                       "Пока заказов для грузчиков нет")
+                                       "В данный момент заказов для Грузчиков нет!")
         if "Доставка" in message.text:
             performer = await performers_get.performer_select(message.from_user.id)
             async with state.proxy() as data:
@@ -91,18 +91,22 @@ class PerformerTasks:
             res = await performers_get.performer_checks_all_orders(message.from_user.id, performer.performer_category)
             await bot.send_message(message.from_user.id,
                                    f"Выводим весь список задач для <b>{p_c}</b>")
-            finished_categories = InlineKeyboardMarkup()
-            categories = []
-            for i in res:
-                categories.append(i.category_delivery)
-            result_categories = Counter(categories)
-            for k, v in result_categories.items():
-                finished_categories.insert(InlineKeyboardButton(text=f"({v}) {k}",
-                                                                callback_data=f"cat_{k}"))
-            await bot.send_message(message.from_user.id,
-                                   "<b>Выберите категорию</b>\n"
-                                   "<b>В скобках указано кол-во заказов в данной категории</b>",
-                                   reply_markup=finished_categories)
+            if res:
+                finished_categories = InlineKeyboardMarkup()
+                categories = []
+                for i in res:
+                    categories.append(i.category_delivery)
+                result_categories = Counter(categories)
+                for k, v in result_categories.items():
+                    finished_categories.insert(InlineKeyboardButton(text=f"({v}) {k}",
+                                                                    callback_data=f"cat_{k}"))
+                await bot.send_message(message.from_user.id,
+                                       "<b>Выберите категорию</b>\n"
+                                       "<b>В скобках указано кол-во заказов в данной категории</b>",
+                                       reply_markup=finished_categories)
+            else:
+                await bot.send_message(message.from_user.id,
+                                       "В данный момент заказов для вашей категории нет!")
         if "Назад" in message.text:
             await performer_states.PerformerStart.performer_menu.set()
             orders = await performers_get.performer_view_list_orders(message.from_user.id)
