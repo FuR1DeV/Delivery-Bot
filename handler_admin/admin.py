@@ -1412,10 +1412,14 @@ class AdminAdvert:
         else:
             performers = await general_get.all_performers()
             for i in performers:
-                await bot.send_message(i.user_id,
-                                       "<b>От Администрации</b>\n"
-                                       "<b>Объявление для Исполнителей!</b>\n"
-                                       f"{message.text}")
+                try:
+                    await bot.send_message(i.user_id,
+                                           "<b>От Администрации</b>\n"
+                                           "<b>Объявление для Исполнителей!</b>\n"
+                                           f"{message.text}")
+                except:
+                    await bot.send_message(message.from_user.id,
+                                           f"Пользователь {i.user_id} заблокировал Бота")
             await bot.send_message(message.from_user.id,
                                    "Сообщение доставлено!",
                                    reply_markup=markup_admin.advert())
