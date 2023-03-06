@@ -7,7 +7,7 @@ from data.models.performers import Performers, JobsOffers
 from data.models.admins import Payment, PrivateChat, Limitations
 from data.models.orders import Orders, OrdersStatus, Commission, Reviews, CommissionPromo, OrdersLoading
 
-logger = logging.getLogger("bot.data.commands.general_set_db")
+logger = logging.getLogger("bot.data.commands.general_get_db")
 
 """Функции взятия информации из БД общих запросов"""
 

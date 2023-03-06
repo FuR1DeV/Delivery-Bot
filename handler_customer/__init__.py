@@ -162,7 +162,8 @@ def register_customer(disp: Dispatcher):
     disp.register_message_handler(CustomerDetailsTasks.customer_details,
                                   state=customer_states.CustomerDetailsTasks.my_tasks)
     disp.register_message_handler(CustomerDetailsTasks.detail_task,
-                                  state=customer_states.CustomerDetailsTasks.enter_task)
+                                  state=customer_states.CustomerDetailsTasks.enter_task,
+                                  content_types=['text', 'video_note', 'voice'])
     disp.register_message_handler(CustomerDetailsTasks.detail_task_not_at_work,
                                   state=customer_states.CustomerDetailsTasks.not_at_work)
     disp.register_callback_query_handler(CustomerDetailsTasks.cancel_order_not_at_work,
@@ -175,7 +176,8 @@ def register_customer(disp: Dispatcher):
                                          text='no_change',
                                          state=["*"])
     disp.register_message_handler(CustomerDetailsTasks.details_task_loading,
-                                  state=customer_states.CustomerDetailsTasks.loading)
+                                  state=customer_states.CustomerDetailsTasks.loading,
+                                  content_types=['text', 'video_note', 'voice'])
     disp.register_callback_query_handler(CustomerDetailsTasks.close_loading_order,
                                          text="loading_close_order",
                                          state=["*"])

@@ -111,7 +111,13 @@ class CustomerCreateTask:
     async def approve_geo_from(callback: types.CallbackQuery):
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         await bot.send_message(callback.from_user.id,
-                               "Теперь надо указать конечную точку доставки",
+                               "Теперь надо указать конечную точку доставки\n"
+                               "Справа <b>скрепка</b> нажмите на неё, далее внизу будет выбор "
+                               "Галерея, Файл, <b>Геопозиция</b>, Опрос.\n"
+                               "Выберите Геопозиция и далее можете искать конечную точку на карте\n"
+                               "ИЛИ можете ввести адрес вручную ГОРОД УЛИЦА ДОМ\n"
+                               "ПРИМЕР:\n"
+                               "Москва Лобачевского 12",
                                reply_markup=markup_customer.send_my_geo_2())
         await customer_states.CustomerCreateTask.geo_position_to.set()
 
@@ -634,7 +640,7 @@ class CustomerCreateTaskComp:
                 await bot.delete_message(callback.from_user.id, callback.message.message_id)
                 await bot.send_message(callback.from_user.id,
                                        "<b>Точка B</b>\n"
-                                       "Введите координаты конечной точки",
+                                       "Введите адрес конечной точки",
                                        reply_markup=markup_customer.back())
                 await customer_states.CustomerCreateTaskComp.geo_position_to_custom.set()
 

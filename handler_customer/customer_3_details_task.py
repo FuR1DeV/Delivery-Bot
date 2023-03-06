@@ -49,7 +49,9 @@ class CustomerDetailsTasks:
                     if i.order_id == msg:
                         await customer_states.CustomerDetailsTasks.enter_task.set()
                         await bot.send_message(message.from_user.id,
-                                               "Вы вошли в детали этого заказа",
+                                               "Вы вошли в детали заказа\n"
+                                               "Здесь вы сможете отправить Исполнителю <b>Видео сообщение</b> "
+                                               "и <b>Аудио сообщение</b>",
                                                reply_markup=markup_customer.details_task())
             elif in_work is None:
                 await bot.send_message(message.from_user.id,
@@ -73,129 +75,146 @@ class CustomerDetailsTasks:
         async with state.proxy() as data:
             res_performer = await performers_get.performer_select(data.get("user_id"))
             res_order = await general_get.order_select(data.get("order_id"))
-        if "Написать/Позвонить исполнителю" in message.text:
-            res = await customers_get.customer_get_status_order(data.get("order_id"))
-            if res is None:
-                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
-                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
-                await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
-                                       reply_markup=markup_customer.main_menu())
-                await customer_states.CustomerStart.customer_menu.set()
-            else:
-                await bot.send_message(message.from_user.id,
-                                       f"Вот его номер телефона {res_performer.telephone}\n"
-                                       f"Или напишите ему в телеграм @{res_performer.username}")
-        if "Детали заказа" in message.text:
-            res = await customers_get.customer_get_status_order(data.get("order_id"))
-            if res is None:
-                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
-                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
-                await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
-                                       reply_markup=markup_customer.main_menu())
-                await customer_states.CustomerStart.customer_menu.set()
-            else:
-                # if res_order.image:
-                #     await bot.send_photo(message.from_user.id, res_order.image)
-                # if res_order.video:
-                #     await bot.send_video(message.from_user.id, res_order.video)
-                await bot.send_message(message.from_user.id,
-                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                       f"<b>Детали заказа</b>\n"
-                                       f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
-                                       f"Категория - <b>{res_order.category_delivery}</b>\n"
-                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                       f"ID заказа - <b>{res_order.order_id}</b>\n"
-                                       f"{config.KEYBOARD.get('A_BUTTON')} "
-                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
-                                       f"{'+'.join(res_order.geo_position_from.split())}'>"
-                                       f"{res_order.geo_position_from}</a>\n"
-                                       f"{config.KEYBOARD.get('B_BUTTON')} "
-                                       f"Куда - <a href='https://yandex.ru/maps/?text="
-                                       f"{'+'.join(res_order.geo_position_to.split())}'>"
-                                       f"{res_order.geo_position_to}</a>\n"
-                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                       f"Описание - <b>{res_order.description}</b>\n"
-                                       f"{config.KEYBOARD.get('DOLLAR')} "
-                                       f"Цена - <b>{res_order.price}</b>\n"
-                                       f"{config.KEYBOARD.get('MONEY_BAG')} "
-                                       f"Ценность вашего товара - <b>{res_order.order_worth}</b>\n"
-                                       f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                       f"Создан <b>{res_order.order_create}</b>\n"
-                                       f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
-                                       f"Взят <b>{res_order.order_get}</b>\n"
-                                       f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                       disable_web_page_preview=True,
-                                       reply_markup=markup_customer.view_photo_video(res_order.order_id))
-        if "Статус заказа" in message.text:
-            res = await customers_get.customer_get_status_order(data.get("order_id"))
-            if res is None:
-                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
-                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
-                await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
-                                       reply_markup=markup_customer.main_menu())
-                await customer_states.CustomerStart.customer_menu.set()
-            else:
-                await bot.send_message(message.from_user.id,
-                                       "Вы вошли в статус заказа, тут вы можете завершить заказ "
-                                       "или проверить статус заказа для его закрытия",
-                                       reply_markup=markup_customer.details_task_status())
-                await customer_states.CustomerDetailsTasksStatus.enter_status.set()
-        if "Профиль исполнителя" in message.text:
-            res = await customers_get.customer_get_status_order(data.get("order_id"))
-            if res is None:
-                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
-                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
-                await bot.send_message(message.from_user.id,
-                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
-                                       reply_markup=markup_customer.main_menu())
-                await customer_states.CustomerStart.customer_menu.set()
-            else:
-                await bot.send_message(message.from_user.id,
-                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                       f"Профиль <b>Исполнителя</b>:\n"
-                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                       f"ID: <b>{res_performer.user_id}</b>\n"
-                                       f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-                                       f"Никнейм <b>@{res_performer.username}</b>\n"
-                                       f"{config.KEYBOARD.get('TELEPHONE')} "
-                                       f"Номер <b>{res_performer.telephone}</b>\n"
-                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Имя <b>{res_performer.first_name}</b>\n"
-                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                       f"Фамилия <b>{res_performer.last_name}</b>\n"
-                                       f"{config.KEYBOARD.get('STAR')} "
-                                       f"Рейтинг <b>{res_performer.performer_rating}</b>\n"
-                                       f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
-                                       f"Заказов взял - <b>{res_performer.get_orders}</b>\n"
-                                       f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                       f"Заказов отменил - <b>{res_performer.canceled_orders}</b>\n"
-                                       f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                       f"Заказов выполнил - <b>{res_performer.completed_orders}</b>\n"
-                                       f"{config.KEYBOARD.get('DASH') * 14}",
-                                       reply_markup=markup_customer.perf_personal_data(res_performer.user_id))
-        if "Назад" in message.text:
-            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-            orders_at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
-            await customer_states.CustomerStart.orders.set()
+        if message.video_note:
+            await bot.send_video_note(res_performer.user_id, message.video_note.file_id)
             await bot.send_message(message.from_user.id,
-                                   "Выберите тип заказа",
-                                   reply_markup=markup_customer.orders_type_work(len(orders_not_at_work),
-                                                                                 len(orders_at_work)))
-        if "Вернуться в главное меню" in message.text:
-            not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-            at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
-            loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                                   "Вы отправили Видео сообщение Исполнителю!")
+            await bot.send_message(res_performer.user_id,
+                                   "Заказчик отправил вам Видео сообщение, чтобы ему ответить "
+                                   "Вам нужно зайти в 'Мои Заказы', далее 'В работе', далее "
+                                   "выбираете ваш Заказ, после этого можете отправлять ответ")
+        if message.voice:
+            await bot.send_voice(res_performer.user_id, message.voice.file_id)
             await bot.send_message(message.from_user.id,
-                                   f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
-                                   reply_markup=markup_customer.main_menu())
-            await customer_states.CustomerStart.customer_menu.set()
+                                   "Вы отправили Аудио сообщение Исполнителю!")
+            await bot.send_message(res_performer.user_id,
+                                   "Заказчик отправил вам Аудио сообщение, чтобы ему ответить "
+                                   "Вам нужно зайти в 'Мои Заказы', далее 'В работе', далее "
+                                   "выбираете ваш Заказ, после этого можете отправлять ответ")
+        if message.text:
+            if "Написать/Позвонить исполнителю" in message.text:
+                res = await customers_get.customer_get_status_order(data.get("order_id"))
+                if res is None:
+                    not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                    at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                    loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                    await bot.send_message(message.from_user.id,
+                                           f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
+                                           reply_markup=markup_customer.main_menu())
+                    await customer_states.CustomerStart.customer_menu.set()
+                else:
+                    await bot.send_message(message.from_user.id,
+                                           f"Вот его номер телефона {res_performer.telephone}\n"
+                                           f"Или напишите ему в телеграм @{res_performer.username}")
+            if "Детали заказа" in message.text:
+                res = await customers_get.customer_get_status_order(data.get("order_id"))
+                if res is None:
+                    not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                    at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                    loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                    await bot.send_message(message.from_user.id,
+                                           f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
+                                           reply_markup=markup_customer.main_menu())
+                    await customer_states.CustomerStart.customer_menu.set()
+                else:
+                    # if res_order.image:
+                    #     await bot.send_photo(message.from_user.id, res_order.image)
+                    # if res_order.video:
+                    #     await bot.send_video(message.from_user.id, res_order.video)
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"<b>Детали заказа</b>\n"
+                                           f"{config.KEYBOARD.get('INPUT_LATIN_LETTERS')} "
+                                           f"Категория - <b>{res_order.category_delivery}</b>\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID заказа - <b>{res_order.order_id}</b>\n"
+                                           f"{config.KEYBOARD.get('A_BUTTON')} "
+                                           f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(res_order.geo_position_from.split())}'>"
+                                           f"{res_order.geo_position_from}</a>\n"
+                                           f"{config.KEYBOARD.get('B_BUTTON')} "
+                                           f"Куда - <a href='https://yandex.ru/maps/?text="
+                                           f"{'+'.join(res_order.geo_position_to.split())}'>"
+                                           f"{res_order.geo_position_to}</a>\n"
+                                           f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                           f"Описание - <b>{res_order.description}</b>\n"
+                                           f"{config.KEYBOARD.get('DOLLAR')} "
+                                           f"Цена - <b>{res_order.price}</b>\n"
+                                           f"{config.KEYBOARD.get('MONEY_BAG')} "
+                                           f"Ценность вашего товара - <b>{res_order.order_worth}</b>\n"
+                                           f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                           f"Создан <b>{res_order.order_create}</b>\n"
+                                           f"{config.KEYBOARD.get('GREEN_CIRCLE')} "
+                                           f"Взят <b>{res_order.order_get}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                           disable_web_page_preview=True,
+                                           reply_markup=markup_customer.view_photo_video(res_order.order_id))
+            if "Статус заказа" in message.text:
+                res = await customers_get.customer_get_status_order(data.get("order_id"))
+                if res is None:
+                    not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                    at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                    loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                    await bot.send_message(message.from_user.id,
+                                           f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
+                                           reply_markup=markup_customer.main_menu())
+                    await customer_states.CustomerStart.customer_menu.set()
+                else:
+                    await bot.send_message(message.from_user.id,
+                                           "Вы вошли в статус заказа, тут вы можете завершить заказ "
+                                           "или проверить статус заказа для его закрытия",
+                                           reply_markup=markup_customer.details_task_status())
+                    await customer_states.CustomerDetailsTasksStatus.enter_status.set()
+            if "Профиль исполнителя" in message.text:
+                res = await customers_get.customer_get_status_order(data.get("order_id"))
+                if res is None:
+                    not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                    at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                    loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                    await bot.send_message(message.from_user.id,
+                                           f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
+                                           reply_markup=markup_customer.main_menu())
+                    await customer_states.CustomerStart.customer_menu.set()
+                else:
+                    await bot.send_message(message.from_user.id,
+                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                           f"Профиль <b>Исполнителя</b>:\n"
+                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                           f"ID: <b>{res_performer.user_id}</b>\n"
+                                           f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+                                           f"Никнейм <b>@{res_performer.username}</b>\n"
+                                           f"{config.KEYBOARD.get('TELEPHONE')} "
+                                           f"Номер <b>{res_performer.telephone}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Имя <b>{res_performer.first_name}</b>\n"
+                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                           f"Фамилия <b>{res_performer.last_name}</b>\n"
+                                           f"{config.KEYBOARD.get('STAR')} "
+                                           f"Рейтинг <b>{res_performer.performer_rating}</b>\n"
+                                           f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
+                                           f"Заказов взял - <b>{res_performer.get_orders}</b>\n"
+                                           f"{config.KEYBOARD.get('CROSS_MARK')} "
+                                           f"Заказов отменил - <b>{res_performer.canceled_orders}</b>\n"
+                                           f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                           f"Заказов выполнил - <b>{res_performer.completed_orders}</b>\n"
+                                           f"{config.KEYBOARD.get('DASH') * 14}",
+                                           reply_markup=markup_customer.perf_personal_data(res_performer.user_id))
+            if "Назад" in message.text:
+                orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                orders_at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                await customer_states.CustomerStart.orders.set()
+                await bot.send_message(message.from_user.id,
+                                       "Выберите тип заказа",
+                                       reply_markup=markup_customer.orders_type_work(len(orders_not_at_work),
+                                                                                     len(orders_at_work)))
+            if "Вернуться в главное меню" in message.text:
+                not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
+                                       reply_markup=markup_customer.main_menu())
+                await customer_states.CustomerStart.customer_menu.set()
 
     @staticmethod
     async def detail_task_not_at_work(message: types.Message, state: FSMContext):
@@ -250,105 +269,126 @@ class CustomerDetailsTasks:
     async def details_task_loading(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             orders_loading = await general_get.order_select_loading(data.get("order_id"))
-        if message.text == f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Нашли всех грузчиков":
-            await bot.send_message(message.from_user.id,
-                                   "Вы точно нашли всех грузчиков ?",
-                                   reply_markup=markup_customer.inline_get_all_people_loading())
-        if message.text == f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ":
-            if orders_loading:
-                if orders_loading.in_work == 0:
-                    await bot.send_message(message.from_user.id,
-                                           "Вы хотите редактировать заказ ?\n"
-                                           "<b>Ваш заказ будет заблокирован до тех "
-                                           "пор пока вы не закончите редактировать заказ!</b>",
-                                           reply_markup=markup_customer.inline_change_task())
-                else:
-                    await customer_states.CustomerStart.customer_menu.set()
-                    await bot.send_message(message.from_user.id,
-                                           "Ваш заказ уже взяли!")
-                    not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-                    at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
-                    loading = await customers_get.customer_all_orders_loading(message.from_user.id)
-                    await bot.send_message(message.from_user.id,
-                                           f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
-                                           reply_markup=markup_customer.main_menu())
-        if message.text == f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков":
+        if message.video_note:
             loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
-            if loaders:
-                for i in loaders:
-                    await bot.send_message(message.from_user.id,
-                                           f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                           f"Профиль <b>Исполнителя</b>:\n"
-                                           f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                           f"ID: <b>{i.user_id}</b>\n"
-                                           f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
-                                           f"Никнейм <b>@{i.username}</b>\n"
-                                           f"{config.KEYBOARD.get('TELEPHONE')} "
-                                           f"Номер <b>{i.telephone}</b>\n"
-                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                           f"Имя <b>{i.first_name}</b>\n"
-                                           f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                           f"Фамилия <b>{i.last_name}</b>\n"
-                                           f"{config.KEYBOARD.get('STAR')} "
-                                           f"Рейтинг <b>{i.performer_rating}</b>\n"
-                                           f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
-                                           f"Заказов взял - <b>{i.get_orders}</b>\n"
-                                           f"{config.KEYBOARD.get('CROSS_MARK')} "
-                                           f"Заказов отменил - <b>{i.canceled_orders}</b>\n"
-                                           f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
-                                           f"Заказов выполнил - <b>{i.completed_orders}</b>\n"
-                                           f"{config.KEYBOARD.get('DASH') * 14}",
-                                           reply_markup=markup_customer.inline_delete_loader())
-            else:
+            for i in loaders:
+                await bot.send_video_note(i.user_id, message.video_note.file_id)
+                await bot.send_message(i.user_id,
+                                       "Заказчик отправил вам Видео сообщение, чтобы ему ответить "
+                                       "Вам нужно зайти в 'Мои Заказы', далее 'В работе', далее "
+                                       "выбираете ваш Заказ, после этого можете отправлять ответ")
+            await bot.send_message(message.from_user.id,
+                                   "Вы отправили Видео сообщение Исполнителям!")
+        if message.voice:
+            loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
+            for i in loaders:
+                await bot.send_voice(i.user_id, message.voice.file_id)
+                await bot.send_message(i.user_id,
+                                       "Заказчик отправил вам Аудио сообщение, чтобы ему ответить "
+                                       "Вам нужно зайти в 'Мои Заказы', далее 'В работе', далее "
+                                       "выбираете ваш Заказ, после этого можете отправлять ответ")
+            await bot.send_message(message.from_user.id,
+                                   "Вы отправили Аудио сообщение Исполнителям!")
+        if message.text:
+            if message.text == f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Нашли всех грузчиков":
                 await bot.send_message(message.from_user.id,
-                                       "Пока грузчиков нет!")
-        if message.text == f"{KEYBOARD.get('CLIPBOARD')} Детали заказа":
-            if orders_loading.image:
-                await bot.send_photo(message.from_user.id, orders_loading.image)
-            if orders_loading.video:
-                await bot.send_video(message.from_user.id, orders_loading.video)
-            loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
-            await bot.send_message(message.from_user.id,
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n"
-                                   f"<b>Детали заказа для Грузчиков</b>\n"
-                                   f"{config.KEYBOARD.get('A_BUTTON')} "
-                                   f"Откуда - <a href='https://yandex.ru/maps/?text="
-                                   f"{'+'.join(orders_loading.geo_position.split())}'>"
-                                   f"{orders_loading.geo_position}</a>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                   f"Сколько Грузчиков - <b>{orders_loading.person}</b>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                   f"Уже Грузчиков - <b>{orders_loading.count_person}</b>\n"
-                                   f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
-                                   f"Грузчики: <b>{' | '.join([k.username for k in loaders])}</b>\n"
-                                   f"{config.KEYBOARD.get('CLIPBOARD')} "
-                                   f"Описание - <b>{orders_loading.description}</b>\n"
-                                   f"{config.KEYBOARD.get('DOLLAR')} "
-                                   f"Цена за 1 час - <b>{orders_loading.price}</b>\n"
-                                   f"{config.KEYBOARD.get('ID_BUTTON')} "
-                                   f"ID заказа - <b>{orders_loading.order_id}</b>\n"
-                                   f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
-                                   f"Заказ создан: <b>{orders_loading.order_create}</b>\n"
-                                   f"{config.KEYBOARD.get('RED_CIRCLE')} "
-                                   f"Действует до: <b>{orders_loading.order_expired}</b>\n"
-                                   f"{config.KEYBOARD.get('BAR_CHART')} "
-                                   f"Рейтинг заказа | <b>{orders_loading.order_rating}</b>\n"
-                                   f"{config.KEYBOARD.get('DASH') * 14}\n",
-                                   disable_web_page_preview=True)
-        if message.text == f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Завершить заказ":
-            await bot.send_message(message.from_user.id,
-                                   "Подтвердите завершение заказа",
-                                   reply_markup=markup_customer.inline_close_loading_task())
-        if "Назад" in message.text:
-            orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
-            orders = await customers_get.customer_all_orders_in_work(message.from_user.id)
-            orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
-            await customer_states.CustomerStart.orders.set()
-            await bot.send_message(message.from_user.id,
-                                   "Вы вернулись в меню выбора типов Заказа",
-                                   reply_markup=markup_customer.customer_type_orders(len(orders_not_at_work),
-                                                                                     len(orders),
-                                                                                     len(orders_loading)))
+                                       "Вы точно нашли всех грузчиков ?",
+                                       reply_markup=markup_customer.inline_get_all_people_loading())
+            if message.text == f"{KEYBOARD.get('HAMMER_AND_PICK')} Редактировать заказ":
+                if orders_loading:
+                    if orders_loading.in_work == 0:
+                        await bot.send_message(message.from_user.id,
+                                               "Вы хотите редактировать заказ ?\n"
+                                               "<b>Ваш заказ будет заблокирован до тех "
+                                               "пор пока вы не закончите редактировать заказ!</b>",
+                                               reply_markup=markup_customer.inline_change_task())
+                    else:
+                        await customer_states.CustomerStart.customer_menu.set()
+                        await bot.send_message(message.from_user.id,
+                                               "Ваш заказ уже взяли!")
+                        not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                        at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                        loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                        await bot.send_message(message.from_user.id,
+                                               f"{markup_customer.text_menu(len(not_at_work), len(at_work), len(loading))}",
+                                               reply_markup=markup_customer.main_menu())
+            if message.text == f"{KEYBOARD.get('BUST_IN_SILHOUETTE')} Список Грузчиков":
+                loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
+                if loaders:
+                    for i in loaders:
+                        await bot.send_message(message.from_user.id,
+                                               f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                               f"Профиль <b>Исполнителя</b>:\n"
+                                               f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                               f"ID: <b>{i.user_id}</b>\n"
+                                               f"{config.KEYBOARD.get('SMILING_FACE_WITH_SUNGLASSES')} "
+                                               f"Никнейм <b>@{i.username}</b>\n"
+                                               f"{config.KEYBOARD.get('TELEPHONE')} "
+                                               f"Номер <b>{i.telephone}</b>\n"
+                                               f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                               f"Имя <b>{i.first_name}</b>\n"
+                                               f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                               f"Фамилия <b>{i.last_name}</b>\n"
+                                               f"{config.KEYBOARD.get('STAR')} "
+                                               f"Рейтинг <b>{i.performer_rating}</b>\n"
+                                               f"{config.KEYBOARD.get('CHECK_BOX_WITH_CHECK')} "
+                                               f"Заказов взял - <b>{i.get_orders}</b>\n"
+                                               f"{config.KEYBOARD.get('CROSS_MARK')} "
+                                               f"Заказов отменил - <b>{i.canceled_orders}</b>\n"
+                                               f"{config.KEYBOARD.get('CHECK_MARK_BUTTON')} "
+                                               f"Заказов выполнил - <b>{i.completed_orders}</b>\n"
+                                               f"{config.KEYBOARD.get('DASH') * 14}",
+                                               reply_markup=markup_customer.inline_delete_loader())
+                else:
+                    await bot.send_message(message.from_user.id,
+                                           "Пока грузчиков нет!")
+            if message.text == f"{KEYBOARD.get('CLIPBOARD')} Детали заказа":
+                if orders_loading.image:
+                    await bot.send_photo(message.from_user.id, orders_loading.image)
+                if orders_loading.video:
+                    await bot.send_video(message.from_user.id, orders_loading.video)
+                loaders = [await performers_get.performer_select(v) for v in orders_loading.persons_list]
+                await bot.send_message(message.from_user.id,
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n"
+                                       f"<b>Детали заказа для Грузчиков</b>\n"
+                                       f"{config.KEYBOARD.get('A_BUTTON')} "
+                                       f"Откуда - <a href='https://yandex.ru/maps/?text="
+                                       f"{'+'.join(orders_loading.geo_position.split())}'>"
+                                       f"{orders_loading.geo_position}</a>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Сколько Грузчиков - <b>{orders_loading.person}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Уже Грузчиков - <b>{orders_loading.count_person}</b>\n"
+                                       f"{config.KEYBOARD.get('BUST_IN_SILHOUETTE')} "
+                                       f"Грузчики: <b>{' | '.join([k.username for k in loaders])}</b>\n"
+                                       f"{config.KEYBOARD.get('CLIPBOARD')} "
+                                       f"Описание - <b>{orders_loading.description}</b>\n"
+                                       f"{config.KEYBOARD.get('DOLLAR')} "
+                                       f"Цена за 1 час - <b>{orders_loading.price}</b>\n"
+                                       f"{config.KEYBOARD.get('ID_BUTTON')} "
+                                       f"ID заказа - <b>{orders_loading.order_id}</b>\n"
+                                       f"{config.KEYBOARD.get('WHITE_CIRCLE')} "
+                                       f"Заказ создан: <b>{orders_loading.order_create}</b>\n"
+                                       f"{config.KEYBOARD.get('RED_CIRCLE')} "
+                                       f"Действует до: <b>{orders_loading.order_expired}</b>\n"
+                                       f"{config.KEYBOARD.get('BAR_CHART')} "
+                                       f"Рейтинг заказа | <b>{orders_loading.order_rating}</b>\n"
+                                       f"{config.KEYBOARD.get('DASH') * 14}\n",
+                                       disable_web_page_preview=True)
+            if message.text == f"{KEYBOARD.get('CHECK_MARK_BUTTON')} Завершить заказ":
+                await bot.send_message(message.from_user.id,
+                                       "Подтвердите завершение заказа",
+                                       reply_markup=markup_customer.inline_close_loading_task())
+            if "Назад" in message.text:
+                orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
+                orders = await customers_get.customer_all_orders_in_work(message.from_user.id)
+                orders_loading = await customers_get.customer_all_orders_loading(message.from_user.id)
+                await customer_states.CustomerStart.orders.set()
+                await bot.send_message(message.from_user.id,
+                                       "Вы вернулись в меню выбора типов Заказа",
+                                       reply_markup=markup_customer.customer_type_orders(len(orders_not_at_work),
+                                                                                         len(orders),
+                                                                                         len(orders_loading)))
 
     @staticmethod
     async def close_loading_order(callback: types.CallbackQuery, state: FSMContext):
@@ -1031,7 +1071,9 @@ class CustomerDetailsTasksStatus:
     async def review(message: types.Message, state: FSMContext):
         if "Войти в детали заказа" in message.text:
             await bot.send_message(message.from_user.id,
-                                   "Вы вошли в детали заказа",
+                                   "Вы вошли в детали заказа\n"
+                                   "Здесь вы сможете отправить Исполнителю <b>Видео сообщение</b> "
+                                   "и <b>Аудио сообщение</b>",
                                    reply_markup=markup_customer.details_task_status())
             await customer_states.CustomerDetailsTasksStatus.enter_status.set()
         else:

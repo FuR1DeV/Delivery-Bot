@@ -6,7 +6,7 @@ from data.models.performers import Performers, PerformerPersonalData, JobsSales
 from data.models.orders import Orders, Reviews, Commission, CommissionPromo
 
 
-logger = logging.getLogger("bot.data.commands.customer_set_db")
+logger = logging.getLogger("bot.data.commands.customer_get_db")
 
 """Функции добавления/обновления БД для Заказчика"""
 

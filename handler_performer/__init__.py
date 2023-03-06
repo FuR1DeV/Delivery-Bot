@@ -104,11 +104,13 @@ def register_performer(disp: Dispatcher):
     disp.register_message_handler(PerformerDetailsTasks.performer_details,
                                   state=performer_states.PerformerDetailsTasks.details_tasks)
     disp.register_message_handler(PerformerDetailsTasks.detail_task,
-                                  state=performer_states.PerformerDetailsTasks.enter_task)
+                                  state=performer_states.PerformerDetailsTasks.enter_task,
+                                  content_types=['text', 'video_note', 'voice'])
     disp.register_message_handler(PerformerDetailsTasks.performer_details_loading,
                                   state=performer_states.PerformerDetailsTasks.loading_tasks)
     disp.register_message_handler(PerformerDetailsTasks.performer_details_loading_enter,
-                                  state=performer_states.PerformerDetailsTasks.enter_loading_task)
+                                  state=performer_states.PerformerDetailsTasks.enter_loading_task,
+                                  content_types=['text', 'video_note', 'voice'])
 
     # performer_details_tasks_status
     disp.register_message_handler(PerformerDetailsTasksStatus.details_status,
