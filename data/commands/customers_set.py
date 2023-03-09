@@ -124,7 +124,7 @@ async def customer_change_order(order_id, change, result):
         await order.update(geo_position_from=result).apply()
     if change == "geo_position_to":
         await order.update(geo_position_to=result).apply()
-    if change == "geo_position":
+    if change == "geo_position_loading":
         await order_loading.update(geo_position=result).apply()
 
 

@@ -30,7 +30,7 @@ def category_delivery():
     keyboard.row(f"{KEYBOARD.get('PAGE_WITH_WITH_CURL')} Документы",
                  f"{KEYBOARD.get('ARROWS_BUTTON')} Погрузка/Разгрузка",
                  f"{KEYBOARD.get('INPUT_LATIN_LETTERS')} Другое")
-    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
     return keyboard
 
 
@@ -46,25 +46,12 @@ def cancel():
     return keyboard
 
 
-def approve():
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(f"{KEYBOARD.get('COMP')} С компьютера", f"{KEYBOARD.get('PHONE')} С телефона")
-    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Вернуться в главное меню")
-    return keyboard
-
-
 def performer_category():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(f"{KEYBOARD.get('AUTOMOBILE')} На машине {KEYBOARD.get('AUTOMOBILE')}",
                  f"{KEYBOARD.get('KICK_SCOOTER')} На скутере {KEYBOARD.get('KICK_SCOOTER')}")
     keyboard.add(f"{KEYBOARD.get('PERSON_RUNNING')} Пешеход {KEYBOARD.get('PERSON_RUNNING')}",
                  f"Любой")
-    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
-    return keyboard
-
-
-def expired_data():
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
@@ -158,20 +145,8 @@ def details_task_history_details_order():
 
 def open_site():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    google = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Google',
-                                  web_app=WebAppInfo(url="https://www.google.com/maps"))
-    yandex = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Карта Yandex',
-                                  web_app=WebAppInfo(url="https://www.yandex.ru/maps"))
-    keyboard.row(google, yandex)
+
     keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
-    return keyboard
-
-
-def choose():
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(f"{KEYBOARD.get('WORLD_MAP')} Ввести координаты с карт",
-                 f"{KEYBOARD.get('WRITING_HAND')} Ввести адрес вручную")
-    keyboard.row(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
@@ -179,8 +154,10 @@ def send_my_geo():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     button = types.KeyboardButton(text=f'{KEYBOARD.get("A_BUTTON")} Отправить моё местоположение',
                                   request_location=True)
-    keyboard.add(button)
-    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    google = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Ввести адрес A',
+                                  web_app=WebAppInfo(url="https://fur1dev.github.io/"))
+    keyboard.row(google)
+    keyboard.row(button, f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
@@ -188,8 +165,21 @@ def send_my_geo_2():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     button = types.KeyboardButton(text=f'{KEYBOARD.get("B_BUTTON")} Конечная точка - моё местоположение',
                                   request_location=True)
-    keyboard.add(button)
-    keyboard.add(f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    google = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Ввести адрес B',
+                                  web_app=WebAppInfo(url="https://fur1dev.github.io/"))
+    keyboard.row(google)
+    keyboard.row(button, f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
+    return keyboard
+
+
+def send_my_geo_loading():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button = types.KeyboardButton(text=f'{KEYBOARD.get("A_BUTTON")} Место работы - Моё местоположение',
+                                  request_location=True)
+    google = types.KeyboardButton(text=f'{KEYBOARD.get("GLOBE_WITH_MERIDIANS")} Место работы',
+                                  web_app=WebAppInfo(url="https://fur1dev.github.io/"))
+    keyboard.row(google)
+    keyboard.row(button, f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад")
     return keyboard
 
 
@@ -223,41 +213,6 @@ def inline_approve_geo_from():
     return approve_geo
 
 
-def inline_approve_geo_from_loading():
-    approve_geo = InlineKeyboardMarkup()
-    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from_loading")
-    approve_geo.insert(yes)
-    return approve_geo
-
-
-def inline_approve_geo_from_comp():
-    approve_geo = InlineKeyboardMarkup()
-    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from_comp")
-    approve_geo.insert(yes)
-    return approve_geo
-
-
-def inline_approve_geo_position_site():
-    approve_geo = InlineKeyboardMarkup()
-    yes = InlineKeyboardButton(text="Все верно", callback_data="change_geo_position_site")
-    approve_geo.insert(yes)
-    return approve_geo
-
-
-def inline_approve_geo_position_custom():
-    approve_geo = InlineKeyboardMarkup()
-    yes = InlineKeyboardButton(text="Все верно", callback_data="change_geo_position_custom")
-    approve_geo.insert(yes)
-    return approve_geo
-
-
-def inline_approve_geo_from_custom():
-    approve_geo = InlineKeyboardMarkup()
-    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from_custom")
-    approve_geo.insert(yes)
-    return approve_geo
-
-
 def inline_approve_geo_to():
     approve_geo = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to")
@@ -265,32 +220,77 @@ def inline_approve_geo_to():
     return approve_geo
 
 
-def inline_approve_geo_to_custom():
+def inline_approve_geo_from_loading():
     approve_geo = InlineKeyboardMarkup()
-    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to_custom")
+    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from_loading")
     approve_geo.insert(yes)
     return approve_geo
 
 
-def inline_approve_geo_to_comp():
+def inline_change_approve_geo_position(method, order_id):
     approve_geo = InlineKeyboardMarkup()
-    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to_comp")
-    approve_geo.insert(yes)
+    if method == "A":
+        yes = InlineKeyboardButton(text="Все верно",
+                                   callback_data=f"A_change_approve_geo_position_{order_id}")
+        approve_geo.insert(yes)
+    if method == "B":
+        yes = InlineKeyboardButton(text="Все верно",
+                                   callback_data=f"B_change_approve_geo_position_{order_id}")
+        approve_geo.insert(yes)
+    if method == "loading":
+        yes = InlineKeyboardButton(text="Все верно",
+                                   callback_data=f"L_change_approve_geo_position_{order_id}")
+        approve_geo.insert(yes)
     return approve_geo
 
 
-def inline_approve_change_geo_from():
-    approve_geo = InlineKeyboardMarkup()
-    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from")
-    approve_geo.insert(yes)
-    return approve_geo
+# def inline_approve_geo_position_site():
+#     approve_geo = InlineKeyboardMarkup()
+#     yes = InlineKeyboardButton(text="Все верно", callback_data="change_geo_position_site")
+#     approve_geo.insert(yes)
+#     return approve_geo
 
 
-def inline_approve_change_geo_to():
-    approve_geo = InlineKeyboardMarkup()
-    yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to")
-    approve_geo.insert(yes)
-    return approve_geo
+# def inline_approve_geo_position_custom():
+#     approve_geo = InlineKeyboardMarkup()
+#     yes = InlineKeyboardButton(text="Все верно", callback_data="change_geo_position_custom")
+#     approve_geo.insert(yes)
+#     return approve_geo
+
+
+# def inline_approve_geo_from_custom():
+#     approve_geo = InlineKeyboardMarkup()
+#     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from_custom")
+#     approve_geo.insert(yes)
+#     return approve_geo
+
+
+# def inline_approve_geo_to_custom():
+#     approve_geo = InlineKeyboardMarkup()
+#     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to_custom")
+#     approve_geo.insert(yes)
+#     return approve_geo
+
+
+# def inline_approve_geo_to_comp():
+#     approve_geo = InlineKeyboardMarkup()
+#     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to_comp")
+#     approve_geo.insert(yes)
+#     return approve_geo
+
+
+# def inline_approve_change_geo_from():
+#     approve_geo = InlineKeyboardMarkup()
+#     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_from")
+#     approve_geo.insert(yes)
+#     return approve_geo
+
+
+# def inline_approve_change_geo_to():
+#     approve_geo = InlineKeyboardMarkup()
+#     yes = InlineKeyboardButton(text="Все верно", callback_data="approve_geo_to")
+#     approve_geo.insert(yes)
+#     return approve_geo
 
 
 def inline_close_task():

@@ -13,27 +13,8 @@ class CustomerStart(StatesGroup):
 
 
 class CustomerCreateTask(StatesGroup):
-    create: State = State()
     category_delivery: State = State()
     geo_position_from: State = State()
-    geo_position_to: State = State()
-    description: State = State()
-    price: State = State()
-    performer_category: State = State()
-    expired_data: State = State()
-    worth: State = State()
-    photo_or_video: State = State()
-    photo: State = State()
-    video: State = State()
-
-
-class CustomerCreateTaskComp(StatesGroup):
-    create: State = State()
-    category_delivery: State = State()
-    choose: State = State()
-    geo_position_from_custom: State = State()
-    geo_position_from: State = State()
-    geo_position_to_custom: State = State()
     geo_position_to: State = State()
     description: State = State()
     price: State = State()
@@ -90,11 +71,7 @@ class CustomerHelp(StatesGroup):
 
 class CustomerChangeOrder(StatesGroup):
     enter: State = State()
-    change: State = State()
+    change_description: State = State()
     change_money: State = State()
-    change_geo_from: State = State()
-    change_geo_to: State = State()
     change_geo: State = State()
-    change_geo_site: State = State()
-    change_geo_custom: State = State()
     change_person: State = State()

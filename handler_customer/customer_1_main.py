@@ -91,10 +91,10 @@ class CustomerMain:
                                    f"{config.KEYBOARD.get('DASH') * 14}",
                                    reply_markup=markup_customer.customer_profile())
         if "Создать заказ" in message.text:
-            await customer_states.CustomerCreateTask.create.set()
+            await customer_states.CustomerCreateTask.category_delivery.set()
             await bot.send_message(message.from_user.id,
-                                   "Вы можете создать новый заказ с Компьютера или с Телефона",
-                                   reply_markup=markup_customer.approve())
+                                   "Выберите Категорию",
+                                   reply_markup=markup_customer.category_delivery())
         if "Мои заказы" in message.text:
             orders_not_at_work = await customers_get.customer_all_orders_not_at_work(message.from_user.id)
             orders_at_work = await customers_get.customer_all_orders_in_work(message.from_user.id)

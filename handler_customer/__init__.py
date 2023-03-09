@@ -2,7 +2,7 @@ __all__ = ["register_customer"]
 
 from aiogram import Dispatcher
 from .customer_1_main import CustomerMain, CustomerProfile
-from .customer_2_create_task import CustomerCreateTaskLoading, CustomerCreateTask, CustomerCreateTaskComp
+from .customer_2_create_task import CustomerCreateTaskLoading, CustomerCreateTask
 from .customer_3_details_task import CustomerDetailsTasks, CustomerDetailsTasksChange, CustomerDetailsTasksStatus
 from .customer_4_history import CustomerHistory
 from .customer_5_help import CustomerHelp
@@ -57,18 +57,16 @@ def register_customer(disp: Dispatcher):
                                   state=customer_states.CustomerProfile.my_profile)
 
     # def register_customer_create_task(disp: Dispatcher):
-    disp.register_message_handler(CustomerCreateTask.create_task,
-                                  state=customer_states.CustomerCreateTask.create)
     disp.register_message_handler(CustomerCreateTask.category_delivery,
                                   state=customer_states.CustomerCreateTask.category_delivery)
     disp.register_message_handler(CustomerCreateTask.geo_position_from,
-                                  content_types=['location', 'text'],
+                                  content_types=['location', 'text', 'web_app_data'],
                                   state=customer_states.CustomerCreateTask.geo_position_from)
     disp.register_callback_query_handler(CustomerCreateTask.approve_geo_from,
                                          text="approve_geo_from",
                                          state=customer_states.CustomerCreateTask.geo_position_from)
     disp.register_message_handler(CustomerCreateTask.geo_position_to,
-                                  content_types=['location', 'text'],
+                                  content_types=['location', 'text', 'web_app_data'],
                                   state=customer_states.CustomerCreateTask.geo_position_to)
     disp.register_callback_query_handler(CustomerCreateTask.approve_geo_to,
                                          text="approve_geo_to",
@@ -89,48 +87,6 @@ def register_customer(disp: Dispatcher):
                                   state=customer_states.CustomerCreateTask.expired_data)
     disp.register_message_handler(CustomerCreateTask.order_worth,
                                   state=customer_states.CustomerCreateTask.worth)
-
-    # def register_customer_create_task_comp(disp: Dispatcher):
-    disp.register_message_handler(CustomerCreateTaskComp.category_delivery_comp,
-                                  state=customer_states.CustomerCreateTaskComp.category_delivery)
-    disp.register_message_handler(CustomerCreateTaskComp.geo_position_from_comp,
-                                  state=customer_states.CustomerCreateTaskComp.geo_position_from)
-    disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_from_comp,
-                                         text="approve_geo_from_comp",
-                                         state=customer_states.CustomerCreateTaskComp.geo_position_from)
-    disp.register_message_handler(CustomerCreateTaskComp.geo_position_to_comp,
-                                  state=customer_states.CustomerCreateTaskComp.geo_position_to)
-    disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_comp,
-                                         text="approve_geo_to_comp",
-                                         state=customer_states.CustomerCreateTaskComp.geo_position_to)
-    disp.register_message_handler(CustomerCreateTaskComp.description_comp,
-                                  state=customer_states.CustomerCreateTaskComp.description)
-    disp.register_message_handler(CustomerCreateTaskComp.price_comp,
-                                  state=customer_states.CustomerCreateTaskComp.price)
-    disp.register_message_handler(CustomerCreateTaskComp.performer_category_comp,
-                                  state=customer_states.CustomerCreateTaskComp.performer_category)
-    disp.register_message_handler(CustomerCreateTaskComp.photo_video_comp,
-                                  state=customer_states.CustomerCreateTaskComp.photo_or_video)
-    disp.register_message_handler(CustomerCreateTaskComp.photo_comp, content_types=['photo', 'text'],
-                                  state=customer_states.CustomerCreateTaskComp.photo)
-    disp.register_message_handler(CustomerCreateTaskComp.video_comp, content_types=['video', 'text'],
-                                  state=customer_states.CustomerCreateTaskComp.video)
-    disp.register_message_handler(CustomerCreateTaskComp.expired_order_comp,
-                                  state=customer_states.CustomerCreateTaskComp.expired_data)
-    disp.register_message_handler(CustomerCreateTaskComp.order_worth_comp,
-                                  state=customer_states.CustomerCreateTaskComp.worth)
-    disp.register_message_handler(CustomerCreateTaskComp.choose,
-                                  state=customer_states.CustomerCreateTaskComp.choose)
-    disp.register_message_handler(CustomerCreateTaskComp.geo_position_from_custom,
-                                  state=customer_states.CustomerCreateTaskComp.geo_position_from_custom)
-    disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_from_custom,
-                                         text="approve_geo_from_custom",
-                                         state=customer_states.CustomerCreateTaskComp.geo_position_from_custom)
-    disp.register_message_handler(CustomerCreateTaskComp.geo_position_to_custom,
-                                  state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
-    disp.register_callback_query_handler(CustomerCreateTaskComp.approve_geo_to_custom,
-                                         text="approve_geo_to_custom",
-                                         state=customer_states.CustomerCreateTaskComp.geo_position_to_custom)
 
     # def register_customer_create_task_loading(disp: Dispatcher):
     disp.register_message_handler(CustomerCreateTaskLoading.geo_position_from,
@@ -197,24 +153,18 @@ def register_customer(disp: Dispatcher):
                                          state=["*"])
     disp.register_message_handler(CustomerDetailsTasksChange.change_task_main,
                                   state=customer_states.CustomerChangeOrder.enter)
-    disp.register_message_handler(CustomerDetailsTasksChange.change,
-                                  state=customer_states.CustomerChangeOrder.change)
+    disp.register_message_handler(CustomerDetailsTasksChange.change_description,
+                                  state=customer_states.CustomerChangeOrder.change_description)
     disp.register_message_handler(CustomerDetailsTasksChange.change_money,
                                   state=customer_states.CustomerChangeOrder.change_money)
     disp.register_message_handler(CustomerDetailsTasksChange.change_person,
                                   state=customer_states.CustomerChangeOrder.change_person)
     disp.register_message_handler(CustomerDetailsTasksChange.change_geo,
-                                  state=customer_states.CustomerChangeOrder.change_geo)
-    disp.register_message_handler(CustomerDetailsTasksChange.change_geo_site,
-                                  state=customer_states.CustomerChangeOrder.change_geo_site)
-    disp.register_callback_query_handler(CustomerDetailsTasksChange.change_geo_site_approve,
-                                         state=customer_states.CustomerChangeOrder.change_geo_site,
-                                         text="change_geo_position_site")
-    disp.register_message_handler(CustomerDetailsTasksChange.change_geo_custom,
-                                  state=customer_states.CustomerChangeOrder.change_geo_custom)
-    disp.register_callback_query_handler(CustomerDetailsTasksChange.change_geo_custom_approve,
-                                         state=customer_states.CustomerChangeOrder.change_geo_custom,
-                                         text="change_geo_position_custom")
+                                  state=customer_states.CustomerChangeOrder.change_geo,
+                                  content_types=['location', 'text', 'web_app_data'])
+    disp.register_callback_query_handler(CustomerDetailsTasksChange.change_geo_approve,
+                                         text_contains="_change_approve_geo_position_",
+                                         state=["*"])
     disp.register_callback_query_handler(CustomerDetailsTasksChange.approve_people_loading,
                                          text="yes_all_people_loading",
                                          state=["*"])
