@@ -277,9 +277,10 @@ class PerformerMain:
                     async with state.proxy() as data:
                         data["user_status_chat"] = user_status_chat.user_id
                 await bot.send_message(message.from_user.id,
-                                       "Опишите вашу проблему, можете прикрепить фото или видео\n"
-                                       "Когда закончите сможете вернуться в главное меню",
-                                       reply_markup=markup_performer.photo_or_video_help(user_status_chat))
+                                       "Опишите вашу проблему, можете прикрепить <b>Фото</b> или <b>Видео</b>\n"
+                                       "а так же записать <b>Голосовое сообщение</b>, <b>Видео сообщение</b> "
+                                       "(кругляшок) или просто <b>написать сообщение</b>\n",
+                                       reply_markup=markup_performer.photo_or_video_help())
             if "Смены" in message.text:
                 await performer_states.PerformerJobsOffers.enter.set()
                 await bot.send_message(message.from_user.id,

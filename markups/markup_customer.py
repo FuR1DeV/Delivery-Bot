@@ -67,7 +67,6 @@ def photo_or_video_create_task():
 
 def photo_or_video_help():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add("Загрузить Фото", "Загрузить Видео")
     keyboard.add("Вернуться главное меню")
     return keyboard
 

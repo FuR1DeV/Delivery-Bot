@@ -1,6 +1,5 @@
 import logging
 from aiogram import types
-from aiogram.dispatcher import FSMContext
 
 from bot import bot
 from data.commands import performers_get, performers_set
@@ -19,92 +18,58 @@ class PerformerHelp:
         #                            "Вы хотите вступить в закрытый чат курьеров\n"
         #                            "С вашего баланса спишется <b>300 рублей</b>",
         #                            reply_markup=markup_performer.private_chat_pay())
-        if message.text == "Загрузить Фото":
-            await bot.send_message(message.from_user.id,
-                                   "Загрузите фото",
-                                   reply_markup=markup_performer.cancel())
-            await performer_states.PerformerHelp.upload_photo.set()
-        if message.text == "Загрузить Видео":
-            await bot.send_message(message.from_user.id,
-                                   "Загрузите видео",
-                                   reply_markup=markup_performer.cancel())
-            await performer_states.PerformerHelp.upload_video.set()
-        if message.text == "Завершить":
-            await bot.send_message(message.from_user.id,
-                                   "Все сообщения в службу поддержки отправлены!")
-            orders = await performers_get.performer_view_list_orders(message.from_user.id)
-            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
-            promo = await performers_get.check_commission_promo(message.from_user.id)
-            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
-            await bot.send_message(message.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu(jobs))
-            await performer_states.PerformerStart.performer_menu.set()
-        if message.text == "Вернуться главное меню":
-            await bot.send_message(message.from_user.id,
-                                   "Вы вошли в главное меню заказчика")
-            orders = await performers_get.performer_view_list_orders(message.from_user.id)
-            orders_loading = await performers_get.performer_loader_order(message.from_user.id)
-            promo = await performers_get.check_commission_promo(message.from_user.id)
-            jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
-            await bot.send_message(message.from_user.id,
-                                   f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
-                                   reply_markup=markup_performer.main_menu(jobs))
-            await performer_states.PerformerStart.performer_menu.set()
-        if message.text != "Загрузить Фото" and message.text != "Загрузить Видео" \
-                and message.text != "Завершить" and message.text != "Вернуться главное меню" \
-                and message.text != "Закрытый чат курьеров":
+        if message.text:
+            if message.text == "Вернуться главное меню":
+                await bot.send_message(message.from_user.id,
+                                       "Вы вошли в главное меню заказчика")
+                orders = await performers_get.performer_view_list_orders(message.from_user.id)
+                orders_loading = await performers_get.performer_loader_order(message.from_user.id)
+                promo = await performers_get.check_commission_promo(message.from_user.id)
+                jobs = await performers_get.performer_check_jobs_offers(message.from_user.id)
+                await bot.send_message(message.from_user.id,
+                                       f"{markup_performer.text_menu(len(orders), len(orders_loading), promo)}",
+                                       reply_markup=markup_performer.main_menu(jobs))
+                await performer_states.PerformerStart.performer_menu.set()
+            if message.text != "Вернуться главное меню":
+                await bot.send_message('@FlowWorkDeliveryHelp',
+                                       f"Имя исполнителя {message.from_user.first_name}\n"
+                                       f"ID исполнителя {message.from_user.id}\n"
+                                       f"Сообщение от исполнителя - <b>{message.text}</b>\n")
+                await bot.send_message(message.from_user.id,
+                                       "Сообщение доставлено в техподдержку!",
+                                       reply_markup=markup_performer.photo_or_video_help())
+        if message.video_note:
             await bot.send_message('@FlowWorkDeliveryHelp',
                                    f"Имя исполнителя {message.from_user.first_name}\n"
-                                   f"ID исполнителя {message.from_user.id}\n"
-                                   f"Сообщение от исполнителя - <b>{message.text}</b>\n")
+                                   f"ID исполнителя {message.from_user.id}\n")
+            await bot.send_video_note('@FlowWorkDeliveryHelp', message.video_note.file_id)
             await bot.send_message(message.from_user.id,
-                                   "Сообщение доставлено в техподдержку!",
-                                   reply_markup=markup_performer.photo_or_video_help(True))
-
-    @staticmethod
-    async def performer_upload_photo(message: types.Message, state: FSMContext):
-        async with state.proxy() as data:
-            user_status_chat = data.get("user_status_chat")
-        PerformerHelp.logger.debug(f"Функция отправки фото от исполнителя {message.from_user.id} в тех поддержку")
-        if message.content_type == "photo":
+                                   "Видео сообщение доставлено в техподдержку!",
+                                   reply_markup=markup_performer.photo_or_video_help())
+        if message.voice:
             await bot.send_message('@FlowWorkDeliveryHelp',
                                    f"Имя исполнителя {message.from_user.first_name}\n"
-                                   f"ID исполнителя {message.from_user.id}\n"
-                                   f"Фото исполнителя {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
-            await bot.send_photo('@FlowWorkDeliveryHelp',
-                                 message.photo[2].file_id)
+                                   f"ID исполнителя {message.from_user.id}\n")
+            await bot.send_voice('@FlowWorkDeliveryHelp', message.voice.file_id)
             await bot.send_message(message.from_user.id,
-                                   'Фотография успешно отправлена в тех поддержку!',
-                                   reply_markup=markup_performer.photo_or_video_help(user_status_chat))
-            await performer_states.PerformerHelp.help.set()
-        else:
-            await bot.send_message(message.from_user.id,
-                                   "Вы отменили загрузку",
-                                   reply_markup=markup_performer.photo_or_video_help(user_status_chat))
-            await performer_states.PerformerHelp.help.set()
-
-    @staticmethod
-    async def performer_upload_video(message: types.Message, state: FSMContext):
-        async with state.proxy() as data:
-            user_status_chat = data.get("user_status_chat")
-        PerformerHelp.logger.debug(f"Функция отправки видео от исполнителя {message.from_user.id} в тех поддержку")
-        if message.content_type == "video":
+                                   "Аудио сообщение доставлено в техподдержку!",
+                                   reply_markup=markup_performer.photo_or_video_help())
+        if message.photo:
             await bot.send_message('@FlowWorkDeliveryHelp',
                                    f"Имя исполнителя {message.from_user.first_name}\n"
-                                   f"ID исполнителя {message.from_user.id}\n"
-                                   f"Видео исполнителя {config.KEYBOARD.get('DOWNWARDS_BUTTON')}")
-            await bot.send_video('@FlowWorkDeliveryHelp',
-                                 message.video.file_id)
+                                   f"ID исполнителя {message.from_user.id}\n")
+            await bot.send_photo('@FlowWorkDeliveryHelp', message.photo[2].file_id)
             await bot.send_message(message.from_user.id,
-                                   'Видео успешно отправлена в тех поддержку!',
-                                   reply_markup=markup_performer.photo_or_video_help(user_status_chat))
-            await performer_states.PerformerHelp.help.set()
-        else:
+                                   "Фото доставлено в техподдержку!",
+                                   reply_markup=markup_performer.photo_or_video_help())
+        if message.video:
+            await bot.send_message('@FlowWorkDeliveryHelp',
+                                   f"Имя исполнителя {message.from_user.first_name}\n"
+                                   f"ID исполнителя {message.from_user.id}\n")
+            await bot.send_video('@FlowWorkDeliveryHelp', message.video.file_id)
             await bot.send_message(message.from_user.id,
-                                   "Вы отменили загрузку",
-                                   reply_markup=markup_performer.photo_or_video_help(user_status_chat))
-            await performer_states.PerformerHelp.help.set()
+                                   "Видео доставлено в техподдержку!",
+                                   reply_markup=markup_performer.photo_or_video_help())
 
     @staticmethod
     async def performer_private_chat(callback: types.CallbackQuery):

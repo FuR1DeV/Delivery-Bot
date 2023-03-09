@@ -128,8 +128,9 @@ class CustomerMain:
         if "Помощь" in message.text:
             await customer_states.CustomerHelp.help.set()
             await bot.send_message(message.from_user.id,
-                                   "Опишите вашу проблему, можете прикрепить фото или видео\n"
-                                   "Когда закончите сможете вернуться в главное меню",
+                                   "Опишите вашу проблему, можете прикрепить <b>Фото</b> или <b>Видео</b>\n"
+                                   "а так же записать <b>Голосовое сообщение</b>, <b>Видео сообщение</b> "
+                                   "(кругляшок) или просто <b>написать сообщение</b>\n",
                                    reply_markup=markup_customer.photo_or_video_help())
 
     @staticmethod

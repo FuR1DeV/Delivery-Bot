@@ -197,14 +197,9 @@ def register_customer(disp: Dispatcher):
 
     # def register_customer_help(disp: Dispatcher):
     disp.register_message_handler(CustomerHelp.customer_help,
-                                  content_types=['text'],
+                                  content_types=['text', 'video_note',
+                                                 'voice', 'video', 'photo'],
                                   state=customer_states.CustomerHelp.help)
-    disp.register_message_handler(CustomerHelp.customer_upload_photo,
-                                  content_types=['photo', 'text'],
-                                  state=customer_states.CustomerHelp.upload_photo)
-    disp.register_message_handler(CustomerHelp.customer_upload_video,
-                                  content_types=['video', 'text'],
-                                  state=customer_states.CustomerHelp.upload_video)
 
     # def register_customer_history(disp: Dispatcher):
     disp.register_message_handler(CustomerHistory.history,

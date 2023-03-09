@@ -65,8 +65,6 @@ class CustomerHistory(StatesGroup):
 
 class CustomerHelp(StatesGroup):
     help: State = State()
-    upload_photo: State = State()
-    upload_video: State = State()
 
 
 class CustomerChangeOrder(StatesGroup):

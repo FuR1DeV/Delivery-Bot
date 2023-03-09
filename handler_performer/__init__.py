@@ -134,14 +134,9 @@ def register_performer(disp: Dispatcher):
 
     # performer_help
     disp.register_message_handler(PerformerHelp.performer_help,
-                                  content_types=['text'],
+                                  content_types=['text', 'video_note',
+                                                 'voice', 'video', 'photo'],
                                   state=performer_states.PerformerHelp.help)
-    disp.register_message_handler(PerformerHelp.performer_upload_photo,
-                                  content_types=['photo', 'text'],
-                                  state=performer_states.PerformerHelp.upload_photo)
-    disp.register_message_handler(PerformerHelp.performer_upload_video,
-                                  content_types=['video', 'text'],
-                                  state=performer_states.PerformerHelp.upload_video)
     disp.register_callback_query_handler(PerformerHelp.performer_private_chat,
                                          text='private_chat',
                                          state=performer_states.PerformerHelp.help)
