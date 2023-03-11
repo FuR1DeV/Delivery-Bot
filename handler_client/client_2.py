@@ -23,6 +23,7 @@ class ClientCreateOrder:
         if message.text:
             await state.update_data(description=message.text)
             await bot.delete_message(message.from_user.id, message.message_id)
+            await bot.delete_message(message.from_user.id, message.message_id - 1)
             await bot.send_message(message.from_user.id,
                                    f"Отлично! ваше Описание\n"
                                    f"{message.text}\n"
@@ -39,15 +40,30 @@ class ClientCreateOrder:
         await client_states.ClientCreateOrder.create_order_photo.set()
 
     @staticmethod
-    async def client_create_order_photo_add(message: types.Message):
+    async def client_create_order_photo_add(message: types.Message, state: FSMContext):
         if message.text:
             await bot.delete_message(message.from_user.id, message.message_id)
         if message.photo:
-            await bot.send_message(message.from_user.id,
-                                   "Фото добавлено!",
-                                   reply_markup=markup_client.client_create_order_finish())
+            await state.update_data(image=message.photo[2].file_id)
+            await bot.delete_message(message.from_user.id, message.message_id)
+            await bot.delete_message(message.from_user.id, message.message_id - 1)
+            data = await state.get_data()
+            await bot.send_photo(message.from_user.id,
+                                 message.photo[2].file_id,
+                                 caption=f"Ваше Описание с Фото\n"
+                                         f"{data.get('description')}\n"
+                                         f"Можете добавить еще фото или нажмите кнопку Завершить",
+                                 reply_markup=markup_client.client_create_order_finish())
 
     @staticmethod
     async def client_create_order_finish(callback: types.CallbackQuery):
-        await callback.message.edit_text("Ваш Заказ создан!\n",
-                                         reply_markup=markup_client.client_menu())
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        await client_states.ClientClear.client_clear.set()
+        client = await client_get.client_select(callback.from_user.id)
+        await bot.send_message(callback.from_user.id,
+                               "Ваш Заказ Создан!\n"
+                               "Главное меню Клиента\n"
+                               f"ID - <b>{client.user_id}</b>\n"
+                               f"Username - <b>@{client.username}</b>\n"
+                               f"Телефон - <b>{client.telephone}</b>",
+                               reply_markup=markup_client.client_menu())
