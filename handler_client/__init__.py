@@ -32,6 +32,14 @@ def register_client(disp: Dispatcher):
     disp.register_callback_query_handler(ClientCreateOrder.client_create_order,
                                          text="client_create_order",
                                          state=["*"])
-    disp.register_message_handler(ClientCreateOrder.client_finish_create_order,
+    disp.register_message_handler(ClientCreateOrder.client_create_order_text,
+                                  state=client_states.ClientCreateOrder.create_order_text)
+    disp.register_callback_query_handler(ClientCreateOrder.client_create_order_photo,
+                                         text="client_create_order_photo",
+                                         state=["*"])
+    disp.register_message_handler(ClientCreateOrder.client_create_order_photo_add,
                                   content_types=['photo', 'text'],
-                                  state=client_states.ClientCreateOrder.create_order)
+                                  state=client_states.ClientCreateOrder.create_order_photo)
+    disp.register_callback_query_handler(ClientCreateOrder.client_create_order_finish,
+                                         text="client_create_order_finish",
+                                         state=["*"])

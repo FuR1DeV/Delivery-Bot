@@ -11,4 +11,5 @@ class ClientClear(StatesGroup):
 
 
 class ClientCreateOrder(StatesGroup):
-    create_order: State = State()
+    create_order_text: State = State()
+    create_order_photo: State = State()

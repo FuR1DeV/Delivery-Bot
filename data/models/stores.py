@@ -23,7 +23,7 @@ class StoreOrders(BaseModel):
     id = Column(Integer, primary_key=True, nullable=False)
     client_id = Column(BigInteger, nullable=False, unique=True)
     geo_position_to = Column(String)
-    price = Column(DECIMAL, nullable=False)
+    price = Column(DECIMAL, server_default="0")
     description = Column(String, nullable=False)
     image = Column(String)
     video = Column(String)

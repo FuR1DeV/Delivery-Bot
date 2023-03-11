@@ -44,3 +44,17 @@ def client_profile():
     menu.row(profile)
     menu.row(back_)
     return menu
+
+
+def client_create_order_photo():
+    menu = InlineKeyboardMarkup()
+    profile = InlineKeyboardButton(text="Далее >>", callback_data="client_create_order_photo")
+    menu.row(profile)
+    return menu
+
+
+def client_create_order_finish():
+    menu = InlineKeyboardMarkup()
+    profile = InlineKeyboardButton(text="Завершить", callback_data="client_create_order_finish")
+    menu.row(profile)
+    return menu
