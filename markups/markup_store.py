@@ -24,7 +24,15 @@ def store_menu():
     profile = InlineKeyboardButton(text="Профиль", callback_data="store_profile")
     find_orders = InlineKeyboardButton(text="Найти заказы", callback_data="store_find_orders")
     my_orders = InlineKeyboardButton(text="Мои заказы", callback_data="store_orders")
-    menu.insert(profile)
-    menu.insert(find_orders)
-    menu.insert(my_orders)
+    menu.row(profile, find_orders)
+    menu.row(my_orders)
+    return menu
+
+
+def store_profile():
+    menu = InlineKeyboardMarkup()
+    profile = InlineKeyboardButton(text="Статистика", callback_data="store_statistics")
+    back_ = InlineKeyboardButton(text="<< В главное меню", callback_data="store_main_menu")
+    menu.row(profile)
+    menu.row(back_)
     return menu

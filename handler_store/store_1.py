@@ -3,13 +3,11 @@ from collections import Counter
 from datetime import datetime
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from bot import bot
 from data.commands import store_set, store_get
 from markups import markup_store
 from states import store_states
-from settings import config
 from settings.config import KEYBOARD
 
 
@@ -18,14 +16,15 @@ class StoreMain:
     async def hi_store(callback: types.CallbackQuery):
         store = await store_get.store_select(callback.from_user.id)
         if store:
-            await bot.delete_message(callback.from_user.id, callback.message.message_id)
             await store_states.StoreStart.store_menu.set()
-            await bot.send_message(callback.from_user.id,
-                                   f"{callback.from_user.first_name} Спасибо что пользуетесь нашим ботом!",
-                                   reply_markup=markup_store.markup_clean())
-            await bot.send_message(callback.from_user.id,
-                                   f"",
-                                   reply_markup=markup_store.main_menu())
+            store = await store_get.store_select(callback.from_user.id)
+            await callback.message.edit_text("Ваш магазин\n"
+                                             f"ID - <b>{store.user_id}</b>\n"
+                                             f"Username - <b>@{store.username}</b>\n"
+                                             f"Телефон - <b>{store.telephone}</b>\n"
+                                             f"Название - <b>{store.store_name}</b>\n"
+                                             f"Рейтинг - <b>{store.rating}</b>",
+                                             reply_markup=markup_store.store_menu())
         else:
             await bot.delete_message(callback.from_user.id, callback.message.message_id)
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
@@ -42,20 +41,18 @@ class StoreMain:
         if message.text:
             await state.update_data(phone=message.text)
             await bot.send_message(message.from_user.id,
-                                   f"Отлично! Ваш <b>Номер телефона</b> - <b>{message.text}</b>\n"
-                                   f"Если это не ваш <b>Номер</b>, можете вернуться назад\n"
-                                   f"И ввести верный <b>Номер</b>\n"
-                                   f"Если всё верно введите название вашего <b>Магазина</b>",
+                                   f"Отлично! Ваш Номер телефона - <b>{message.text}</b>\n"
+                                   f"Если это не ваш Номер, можете вернуться назад и ввести верный Номер\n"
+                                   f"Если всё верно введите <b>Название</b> вашего <b>Магазина</b>",
                                    reply_markup=markup_store.back())
             await store_states.StoreRegistration.next()
         if message.contact:
             if message.contact.user_id == message.from_user.id:
                 await state.update_data(phone=message.contact.phone_number)
                 await bot.send_message(message.from_user.id,
-                                       f"Отлично! Ваш <b>Номер телефона</b> - <b>{message.contact.phone_number}</b>\n"
-                                       f"Если это не ваш <b>Номер</b>, можете вернуться назад\n"
-                                       f"И ввести верный <b>Номер</b>\n"
-                                       f"Если всё верно введите название вашего <b>Магазина</b>",
+                                       f"Отлично! Ваш Номер телефона - <b>{message.contact.phone_number}</b>\n"
+                                       f"Если это не ваш Номер, можете вернуться назад и ввести верный Номер\n"
+                                       f"Если всё верно введите <b>Название</b> вашего <b>Магазина</b>",
                                        reply_markup=markup_store.back())
                 await store_states.StoreRegistration.next()
             else:
@@ -69,7 +66,9 @@ class StoreMain:
             if message.text != f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
                 await state.update_data(store_name=message.text)
                 await bot.send_message(message.from_user.id,
-                                       f"Отлично название вашего Магазина - <b>{message.text}</b>",
+                                       f"Отлично! Название вашего Магазина - <b>{message.text}</b>\n"
+                                       f"Если это не верно, то можете еще раз написать Название вашего Магазина\n"
+                                       f"Если все верно, нажмите кнопку <b>Начать работу </b>",
                                        reply_markup=markup_store.start_store())
             if message.text == f"{KEYBOARD.get('RIGHT_ARROW_CURVING_LEFT')} Назад":
                 await store_states.StoreRegistration.phone.set()
@@ -86,22 +85,37 @@ class StoreMain:
                                   data.get("phone"),
                                   data.get("store_name"))
         await bot.send_message(callback.from_user.id,
-                               "Ващ магазин добавлен!\n"
+                               "Ваш магазин добавлен!\n"
                                f"ID - <b>{callback.from_user.id}</b>\n"
                                f"Username - <b>{callback.from_user.username}</b>\n"
                                f"Телефон - <b>{data.get('phone')}</b>\n"
-                               f"Имя - <b>{data.get('store_name')}</b>\n"
+                               f"Название - <b>{data.get('store_name')}</b>\n"
                                f"Рейтинг - <b>5</b>",
                                reply_markup=markup_store.store_menu())
 
     @staticmethod
     async def store_menu(callback: types.CallbackQuery):
         store = await store_get.store_select(callback.from_user.id)
-        await bot.send_message(callback.from_user.id,
-                               "Ващ магазин\n"
-                               f"ID - <b>{store.user_id}</b>\n"
-                               f"Username - <b>{store.username}</b>\n"
-                               f"Телефон - <b>{store.telephone}</b>\n"
-                               f"Имя - <b>{store.store_name}</b>\n"
-                               f"Рейтинг - <b>{store.rating}</b>",
-                               reply_markup=markup_store.store_menu())
+        await callback.message.edit_text("Ваш магазин\n"
+                                         f"ID - <b>{store.user_id}</b>\n"
+                                         f"Username - <b>@{store.username}</b>\n"
+                                         f"Телефон - <b>{store.telephone}</b>\n"
+                                         f"Название - <b>{store.store_name}</b>\n"
+                                         f"Рейтинг - <b>{store.rating}</b>",
+                                         reply_markup=markup_store.store_menu())
+
+    @staticmethod
+    async def store_profile(callback: types.CallbackQuery, state: FSMContext):
+        store = await store_get.store_select(callback.from_user.id)
+        await callback.message.edit_text("Ваш магазин\n"
+                                         f"ID - <b>{store.user_id}</b>\n"
+                                         f"Username - <b>@{store.username}</b>\n"
+                                         f"Телефон - <b>{store.telephone}</b>\n"
+                                         f"Название - <b>{store.store_name}</b>\n"
+                                         f"Рейтинг ds - <b>{store.rating}</b>"
+                                         f"ID - <b>{store.user_id}</b>\n"
+                                         f"Username - <b>@{store.username}</b>\n"
+                                         f"Телефон - <b>{store.telephone}</b>\n"
+                                         f"Название - <b>{store.store_name}</b>\n"
+                                         f"Рейтинг ds - <b>{store.rating}</b>",
+                                         reply_markup=markup_store.store_profile())

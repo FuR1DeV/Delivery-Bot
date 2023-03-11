@@ -17,3 +17,9 @@ def register_store(disp: Dispatcher):
     disp.register_callback_query_handler(StoreMain.store_start,
                                          text="start_store",
                                          state=["*"])
+    disp.register_callback_query_handler(StoreMain.store_menu,
+                                         text="store_main_menu",
+                                         state=["*"])
+    disp.register_callback_query_handler(StoreMain.store_profile,
+                                         text="store_profile",
+                                         state=["*"])

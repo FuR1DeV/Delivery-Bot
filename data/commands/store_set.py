@@ -1,6 +1,6 @@
 import logging
 
-from data.models.store import Store
+from data.models.stores import Store
 from data.models.orders import Orders, OrdersStatus, Reviews, OrdersLoading
 
 logger = logging.getLogger("bot.data.commands.store_set_db")

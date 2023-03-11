@@ -12,6 +12,7 @@ from handler_customer import register_customer
 from handler_performer import register_performer
 from handler_admin import register_admin_handler
 from handler_store import register_store
+from handler_client import register_client
 from markups import markup_start, markup_admin
 from settings import config
 from states import states
@@ -42,13 +43,9 @@ logger = logging.getLogger("bot.main")
 
 @dp.message_handler(commands='start', state='*')
 async def start(message: types.Message, state: FSMContext):
-    await bot.send_message(message.from_user.id,
-                           f'<b>Добро пожаловать в Telegram Bot который поможет найти исполнителя '
-                           f'или подзаработать</b>\n',
-                           reply_markup=markup_start.markup_clean)
     await state.finish()
     await bot.send_message(message.from_user.id,
-                           f'Ты заказчик или исполнитель {message.from_user.first_name} ?',
+                           f'Вы Клиент, Курьер или Магазин ? {message.from_user.first_name} ?',
                            reply_markup=markup_start.inline_start)
 
 
@@ -186,6 +183,7 @@ async def on_startup(_):
     register_performer(dp)
     register_admin_handler(dp)
     register_store(dp)
+    register_client(dp)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)

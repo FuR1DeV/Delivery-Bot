@@ -2,7 +2,7 @@ import logging
 
 from sqlalchemy import and_
 
-from data.models.store import Store
+from data.models.stores import Store
 from data.models.orders import Orders, OrdersStatus, OrdersLoading
 from data.models.performers import PerformerPersonalData
 
