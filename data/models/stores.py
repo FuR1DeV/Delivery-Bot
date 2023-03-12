@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, BigInteger, String, DECIMAL, sql
+from sqlalchemy import Column, Integer, BigInteger, \
+    String, DECIMAL, sql, DateTime, ARRAY
 
 from data.db_gino import BaseModel
 
@@ -21,18 +22,18 @@ class Store(BaseModel):
 class StoreOrders(BaseModel):
     __tablename__ = "store_orders"
     id = Column(Integer, primary_key=True, nullable=False)
-    client_id = Column(BigInteger, nullable=False, unique=True)
+    client_id = Column(BigInteger, nullable=False)
     geo_position_to = Column(String)
     price = Column(DECIMAL, server_default="0")
     description = Column(String, nullable=False)
-    image = Column(String)
+    image = Column(ARRAY(String))
     video = Column(String)
     video_note = Column(String)
     voice = Column(String)
     in_work = Column(BigInteger, server_default="0")
     completed = Column(Integer, server_default="0")
     order_id = Column(String, nullable=False)
-    order_create = Column(String, nullable=False)
+    order_create = Column(DateTime, nullable=False)
     order_get = Column(String)
     block = Column(Integer, server_default="0")
     order_expired = Column(String)
