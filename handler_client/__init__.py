@@ -1,8 +1,8 @@
 __all__ = ["register_client"]
 
 from aiogram import Dispatcher
-from handler_client.client_1 import ClientMain
-from handler_client.client_2 import ClientCreateOrder
+from handler_client.client_1_main import ClientMain
+from handler_client.client_2_create_order import ClientCreateOrder
 from states import client_states
 
 

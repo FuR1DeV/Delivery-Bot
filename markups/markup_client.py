@@ -27,11 +27,14 @@ def client_start():
     return menu
 
 
-def client_menu():
+def client_menu(orders):
     menu = InlineKeyboardMarkup()
     profile = InlineKeyboardButton(text="Профиль", callback_data="client_profile")
     create_orders = InlineKeyboardButton(text="Создать заказ", callback_data="client_create_order")
-    my_orders = InlineKeyboardButton(text="Мои заказы", callback_data="client_orders")
+    if orders:
+        my_orders = InlineKeyboardButton(text=f"Мои заказы ({orders})", callback_data="client_orders")
+    else:
+        my_orders = InlineKeyboardButton(text=f"Мои заказы", callback_data="client_orders")
     menu.row(profile, create_orders)
     menu.row(my_orders)
     return menu

@@ -23,11 +23,12 @@ class ClientMain:
         client = await client_get.client_select(callback.from_user.id)
         if client:
             client = await client_get.client_select(callback.from_user.id)
+            orders = await client_get.client_get_orders(callback.from_user.id)
             await callback.message.edit_text("Профиль Клиента\n"
                                              f"ID - <b>{client.user_id}</b>\n"
                                              f"Username - <b>@{client.username}</b>\n"
                                              f"Телефон - <b>{client.telephone}</b>",
-                                             reply_markup=markup_client.client_menu())
+                                             reply_markup=markup_client.client_menu(len(orders)))
         else:
             await bot.delete_message(callback.from_user.id, callback.message.message_id)
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
@@ -73,17 +74,18 @@ class ClientMain:
                                f"ID - <b>{callback.from_user.id}</b>\n"
                                f"Username - <b>{callback.from_user.username}</b>\n"
                                f"Телефон - <b>{data.get('phone')}</b>\n",
-                               reply_markup=markup_client.client_menu())
+                               reply_markup=markup_client.client_menu(False))
 
     @staticmethod
     async def client_menu(callback: types.CallbackQuery):
         await client_states.ClientClear.client_clear.set()
         client = await client_get.client_select(callback.from_user.id)
+        orders = await client_get.client_get_orders(callback.from_user.id)
         await callback.message.edit_text("Главное меню Клиента\n"
                                          f"ID - <b>{client.user_id}</b>\n"
                                          f"Username - <b>@{client.username}</b>\n"
                                          f"Телефон - <b>{client.telephone}</b>",
-                                         reply_markup=markup_client.client_menu())
+                                         reply_markup=markup_client.client_menu(len(orders)))
 
     @staticmethod
     async def client_profile(callback: types.CallbackQuery, state: FSMContext):

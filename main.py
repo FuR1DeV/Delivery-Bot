@@ -45,6 +45,9 @@ logger = logging.getLogger("bot.main")
 async def start(message: types.Message, state: FSMContext):
     await state.finish()
     await bot.send_message(message.from_user.id,
+                           "Приветствуем!",
+                           reply_markup=markup_admin.markup_clean)
+    await bot.send_message(message.from_user.id,
                            f'Вы Клиент, Курьер или Магазин ? {message.from_user.first_name} ?',
                            reply_markup=markup_start.inline_start)
 
